@@ -9,8 +9,6 @@ public class DtoStoreRequest {
     @NotBlank(message = "Store name must not be empty.")
     private String name;
 
-    private String status = "ACTIVE";
-
     @NotNull(message = "Store owner must be specified.")
     private Long ownerId;
 }

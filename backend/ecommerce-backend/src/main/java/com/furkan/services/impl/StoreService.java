@@ -4,6 +4,7 @@ import com.furkan.dto.request.DtoStoreRequest;
 import com.furkan.dto.response.DtoStore;
 import com.furkan.entities.Store;
 import com.furkan.entities.User;
+import com.furkan.enums.RoleType;
 import com.furkan.repositories.StoreRepository;
 import com.furkan.repositories.UserRepository;
 import com.furkan.services.IStoreService;
@@ -33,12 +34,16 @@ public class StoreService implements IStoreService {
     @Override
     @Transactional
     public DtoStore createStore(DtoStoreRequest input) {
-        Store store = new Store();
-        store.setName(input.getName());
-        store.setStatus(input.getStatus());
-
         User owner = userRepository.findById(input.getOwnerId())
                 .orElseThrow(() -> new RuntimeException("Owner (User) not found!"));
+
+        if (owner.getRoleType() != RoleType.CORPORATE) {
+            throw new RuntimeException("Only Corporate users can create a store! Your role: " + owner.getRoleType());
+        }
+
+        Store store = new Store();
+        store.setName(input.getName());
+        store.setStatus("ACTIVE");
 
         store.setOwner(owner);
 
@@ -66,7 +71,6 @@ public class StoreService implements IStoreService {
                 .orElseThrow(() -> new RuntimeException("Store not found!"));
 
         store.setName(input.getName());
-        store.setStatus(input.getStatus());
 
         return dtoTransformation(storeRepository.save(store));
     }
