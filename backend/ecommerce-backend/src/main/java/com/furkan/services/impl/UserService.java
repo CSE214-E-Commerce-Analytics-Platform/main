@@ -1,5 +1,6 @@
 package com.furkan.services.impl;
 
+import com.furkan.dto.request.DtoLoginRequest;
 import com.furkan.dto.request.DtoUserRequest;
 import com.furkan.dto.response.DtoUser;
 import com.furkan.entities.User;
@@ -23,6 +24,7 @@ public class UserService implements IUserService {
         DtoUser dtoUser = new DtoUser();
         BeanUtils.copyProperties(user, dtoUser);
         dtoUser.setRoleType(user.getRoleType().name());
+        dtoUser.setStoreId(user.getStore().getId());
         return dtoUser;
     }
 
@@ -88,5 +90,17 @@ public class UserService implements IUserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found!"));
         userRepository.delete(user);
+    }
+
+    @Override
+    public DtoUser login(DtoLoginRequest input) {
+        User user = userRepository.findByEmail(input.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found!"));
+
+        if (!user.getPasswordHash().equals(input.getPassword())) {
+            throw new RuntimeException("Invalid password!");
+        }
+
+        return dtoTransformation(user);
     }
 }
