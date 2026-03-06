@@ -1,0 +1,38 @@
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="login-header">
+            <h2>Welcome Back</h2>
+            <p>Sign in to access your account and explore products.</p>
+        </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+            <div class="form-field">
+                <label for="email">Email Address</label>
+                <input id="email" type="email" formControlName="email" placeholder="e.g. user@example.com"
+                    [class.error-border]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
+                @if (loginForm.get('email')?.touched && loginForm.get('email')?.errors?.['required']) {
+                <span class="error-text">Email is required.</span>
+                } @else if (loginForm.get('email')?.touched && loginForm.get('email')?.errors?.['email']) {
+                <span class="error-text">Please enter a valid email address.</span>
+                }
+            </div>
+
+            <div class="form-field">
+                <label for="password">Password</label>
+                <input id="password" type="password" formControlName="password" placeholder="Min 6 characters"
+                    [class.error-border]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
+                @if (loginForm.get('password')?.touched && loginForm.get('password')?.errors?.['minlength']) {
+                <span class="error-text">Password must be at least 6 characters long.</span>
+                }
+            </div>
+
+            <button type="submit" [disabled]="loginForm.invalid" class="login-btn">
+                Sign In
+            </button>
+        </form>
+
+        <div class="login-footer">
+            <small>© 2026 E-Commerce AI Management System</small>
+        </div>
+    </div>
+</div>

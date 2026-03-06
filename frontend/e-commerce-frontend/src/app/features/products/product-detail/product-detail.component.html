@@ -1,0 +1,61 @@
+<div class="detail-wrapper">
+    <!-- Loading -->
+    @if (isLoading) {
+    <div class="loading-container">
+        <div class="spinner"></div>
+        <p>Loading product...</p>
+    </div>
+    }
+
+    <!-- Error -->
+    @if (errorMessage) {
+    <div class="error-container">
+        <p>{{ errorMessage }}</p>
+        <button class="back-btn" (click)="goBack()">← Back to Products</button>
+    </div>
+    }
+
+    <!-- Product Detail -->
+    @if (product && !isLoading) {
+    <button class="back-btn" (click)="goBack()">← Back to Products</button>
+
+    <div class="detail-card">
+        <div class="detail-image">
+            @if (product.imageUrl) {
+            <img [src]="`assets/images/${product.imageUrl}`" [alt]="product.name">
+            } @else {
+            <div class="placeholder-image">
+                <span>📦</span>
+            </div>
+            }
+        </div>
+
+        <div class="detail-info">
+            <span class="category-tag">{{ product.categoryName }}</span>
+            <h1 class="product-title">{{ product.name }}</h1>
+            <p class="product-description">{{ product.description }}</p>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Price</span>
+                    <span class="info-value price">${{ product.unitPrice | number:'1.2-2' }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">SKU</span>
+                    <span class="info-value">{{ product.sku }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Stock</span>
+                    <span class="info-value" [class.low-stock]="product.stockQuantity < 10">
+                        {{ product.stockQuantity }} units
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Store ID</span>
+                    <span class="info-value">{{ product.storeId }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+</div>
