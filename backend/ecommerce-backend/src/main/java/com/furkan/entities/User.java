@@ -27,4 +27,7 @@ public class User extends BaseEntity {
     private String gender;
 
     private boolean isActive = true;
+
+    @OneToOne(mappedBy = "owner")
+    private Store store;
 }

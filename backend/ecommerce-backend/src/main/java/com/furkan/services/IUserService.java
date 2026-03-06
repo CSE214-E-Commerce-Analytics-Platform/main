@@ -1,5 +1,6 @@
 package com.furkan.services;
 
+import com.furkan.dto.request.DtoLoginRequest;
 import com.furkan.dto.request.DtoUserRequest;
 import com.furkan.dto.response.DtoUser;
 
@@ -18,4 +19,6 @@ public interface IUserService {
     DtoUser updateUserById(Long id, DtoUserRequest input);
 
     void deleteUserById(Long id);
+
+    DtoUser login(DtoLoginRequest input);
 }

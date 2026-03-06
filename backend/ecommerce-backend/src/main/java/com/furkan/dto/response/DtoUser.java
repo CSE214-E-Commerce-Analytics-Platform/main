@@ -10,4 +10,5 @@ public class DtoUser extends BaseDto {
     private String email;
     private String roleType;
     private boolean isActive;
+    private Long storeId;
 }
