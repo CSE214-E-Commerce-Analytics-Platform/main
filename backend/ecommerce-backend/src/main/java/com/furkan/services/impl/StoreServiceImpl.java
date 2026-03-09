@@ -17,7 +17,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class StoreService implements IStoreService {
+public class StoreServiceImpl implements IStoreService {
 
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
