@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/ai")
 @RequiredArgsConstructor
-public class RestAiController extends RestBaseController implements IRestAiController {
+public class RestAiControllerImpl extends RestBaseController implements IRestAiController {
 
     private final IAiService aiService;
 

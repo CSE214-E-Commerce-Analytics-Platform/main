@@ -8,8 +8,6 @@ import java.util.List;
 
 public interface IUserService {
 
-    DtoUser createUser(DtoUserRequest input);
-
     DtoUser findUserById(Long id);
 
     List<DtoUser> findAllUsers();
@@ -19,6 +17,4 @@ public interface IUserService {
     DtoUser updateUserById(Long id, DtoUserRequest input);
 
     void deleteUserById(Long id);
-
-    DtoUser login(DtoLoginRequest input);
 }

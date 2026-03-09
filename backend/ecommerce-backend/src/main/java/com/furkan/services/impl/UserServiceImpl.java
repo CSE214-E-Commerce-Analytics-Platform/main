@@ -1,6 +1,5 @@
 package com.furkan.services.impl;
 
-import com.furkan.dto.request.DtoLoginRequest;
 import com.furkan.dto.request.DtoUserRequest;
 import com.furkan.dto.response.DtoUser;
 import com.furkan.entities.User;
@@ -16,7 +15,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements IUserService {
+public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
 
@@ -26,22 +25,6 @@ public class UserService implements IUserService {
         dtoUser.setRoleType(user.getRoleType().name());
         dtoUser.setStoreId(user.getStore().getId());
         return dtoUser;
-    }
-
-    @Override
-    @Transactional
-    public DtoUser createUser(DtoUserRequest input) {
-        User user = new User();
-
-        user.setEmail(input.getEmail());
-        if (input.getGender() != null) {
-            user.setGender(input.getGender());
-        }
-        user.setPasswordHash(input.getPassword());
-        user.setRoleType(RoleType.valueOf(input.getRoleType().toUpperCase()));
-
-        userRepository.save(user);
-        return dtoTransformation(user);
     }
 
     @Override
@@ -90,17 +73,5 @@ public class UserService implements IUserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found!"));
         userRepository.delete(user);
-    }
-
-    @Override
-    public DtoUser login(DtoLoginRequest input) {
-        User user = userRepository.findByEmail(input.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found!"));
-
-        if (!user.getPasswordHash().equals(input.getPassword())) {
-            throw new RuntimeException("Invalid password!");
-        }
-
-        return dtoTransformation(user);
     }
 }

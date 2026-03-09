@@ -9,8 +9,6 @@ import java.util.List;
 
 public interface IRestUserController {
 
-    RootEntity<DtoUser> createUser(DtoUserRequest input);
-
     RootEntity<DtoUser> findUserById(Long id);
 
     RootEntity<List<DtoUser>> findAllUsers();
@@ -20,6 +18,4 @@ public interface IRestUserController {
     RootEntity<DtoUser> updateUserById(Long id, DtoUserRequest input);
 
     RootEntity<Void> deleteUserById(Long id);
-
-    RootEntity<DtoUser> login(DtoLoginRequest input);
 }

@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
-public class RestProductController extends RestBaseController implements IRestProductController {
+public class RestProductControllerImpl extends RestBaseController implements IRestProductController {
 
     private final IProductService productService;
 

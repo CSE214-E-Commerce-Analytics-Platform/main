@@ -16,7 +16,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class AiService implements IAiService {
+public class AiServiceImpl implements IAiService {
 
     private final IProductService productService;
     private final RestTemplate restTemplate;

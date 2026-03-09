@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/stores")
 @RequiredArgsConstructor
-public class RestStoreController extends RestBaseController implements IRestStoreController {
+public class RestStoreControllerImpl extends RestBaseController implements IRestStoreController {
 
     private final IStoreService storeService;
 

@@ -2,7 +2,6 @@ package com.furkan.controllers.impl;
 
 import com.furkan.controllers.IRestUserController;
 import com.furkan.controllers.RestBaseController;
-import com.furkan.dto.request.DtoLoginRequest;
 import com.furkan.dto.request.DtoUserRequest;
 import com.furkan.dto.response.DtoUser;
 import com.furkan.services.IUserService;
@@ -15,15 +14,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-public class RestUserController extends RestBaseController implements IRestUserController {
+public class RestUserControllerImpl extends RestBaseController implements IRestUserController {
 
     private final IUserService userService;
-
-    @PostMapping()
-    @Override
-    public RootEntity<DtoUser> createUser(@RequestBody DtoUserRequest input) {
-        return ok(userService.createUser(input));
-    }
 
     @GetMapping("/{id}")
     @Override
@@ -54,11 +47,5 @@ public class RestUserController extends RestBaseController implements IRestUserC
     public RootEntity<Void> deleteUserById(@PathVariable Long id) {
         userService.deleteUserById(id);
         return ok();
-    }
-
-    @PostMapping("/login")
-    @Override
-    public RootEntity<DtoUser> login(@RequestBody DtoLoginRequest input) {
-        return ok(userService.login(input));
     }
 }
