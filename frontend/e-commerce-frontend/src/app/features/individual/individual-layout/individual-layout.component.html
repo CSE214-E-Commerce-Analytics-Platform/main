@@ -1,0 +1,46 @@
+<div class="individual-layout">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a routerLink="/individual/products" class="logo-link">
+                <img src="assets/icons/web-icon.webp" alt="Platform Logo" class="sidebar-logo">
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <a routerLink="/individual/products" routerLinkActive="active">
+                <i class="icon">🔍</i> Browse Products
+            </a>
+            <a routerLink="/individual/cart" routerLinkActive="active">
+                <i class="icon">🛒</i> My Cart
+            </a>
+            <a routerLink="/individual/orders" routerLinkActive="active">
+                <i class="icon">📦</i> Active Orders
+            </a>
+            <a routerLink="/individual/history" routerLinkActive="active">
+                <i class="icon">📋</i> Purchase History
+            </a>
+            <a routerLink="/individual/reviews" routerLinkActive="active">
+                <i class="icon">⭐</i> My Reviews
+            </a>
+            <a routerLink="/individual/analytics" routerLinkActive="active">
+                <i class="icon">📊</i> Spending Analytics
+            </a>
+            <a routerLink="/individual/profile" routerLinkActive="active">
+                <i class="icon">👤</i> Profile Settings
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="logout-btn" (click)="logout()">
+                <i class="icon">🚪</i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <h3>Customer Portal</h3>
+        </header>
+        <div class="content">
+            <router-outlet></router-outlet>
+        </div>
+    </main>
+</div>

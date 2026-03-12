@@ -63,9 +63,8 @@ export class ChatbotComponent {
         this.isTyping = true;
         this.scrollToBottom();
 
-        // Get storeId from current user
-        const user = this.authService.currentUser();
-        const storeId = user?.storeId ?? 0;
+        // storeId auth yapısında mevcut değil, varsayılan değer kullanılıyor
+        const storeId = 0;
 
         // Send to AI
         this.aiService.askQuestion(query, storeId).subscribe({

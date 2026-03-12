@@ -1,11 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -14,28 +14,39 @@ export class LoginComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  // Form yapısını ve kurallarını (Validators) tanımlıyoruz
   loginForm = this.fb.group({
-    email: ['', [Validators.required, Validators.email]], // Email formatı kontrolü
-    password: ['', [Validators.required, Validators.minLength(6)]] // En az 6 karakter
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]]
   });
 
-  ngOnInit(): void {
+  isLoading = false;
+  showPassword = false;
 
-  }
+  ngOnInit(): void { }
 
   onLogin() {
     if (this.loginForm.valid) {
-      // Form geçerliyse backend'e gönderiyoruz
+      this.isLoading = true;
+      const { email, password } = this.loginForm.value as { email: string; password: string };
 
-      const credentials = this.loginForm.value as { email: string; password: string };
-
-      this.authService.login(credentials).subscribe({
-        next: (user) => {
-          console.log('Giriş başarılı!');
+      this.authService.login(email, password).subscribe({
+        next: () => {
+          this.isLoading = false;
+          const role = this.authService.getRole();
+          if (role === 'ADMIN') {
+            this.router.navigate(['/admin/dashboard']);
+          } else if (role === 'CORPORATE') {
+            this.router.navigate(['/corporate/dashboard']);
+          } else {
+            this.router.navigate(['/individual/products']);
+          }
         },
-        error: (err) => alert('Giriş yapılamadı. Bilgilerinizi kontrol edin.')
+        error: (err) => {
+          this.isLoading = false;
+          alert(err?.error?.message || err?.message || 'Login failed. Please check your credentials.');
+        }
       });
     }
   }
 }
+

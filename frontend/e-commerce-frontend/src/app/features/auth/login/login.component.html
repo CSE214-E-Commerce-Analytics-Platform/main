@@ -19,19 +19,36 @@
 
             <div class="form-field">
                 <label for="password">Password</label>
-                <input id="password" type="password" formControlName="password" placeholder="Min 6 characters"
-                    [class.error-border]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
+                <div class="password-wrapper">
+                    <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Min 6 characters"
+                        [class.error-border]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
+                    <span class="eye-icon" (mouseenter)="showPassword = true" (mouseleave)="showPassword = false">
+                        @if (showPassword) {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><title>Hide Password</title><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        } @else {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><title>Show Password</title><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                        }
+                    </span>
+                </div>
                 @if (loginForm.get('password')?.touched && loginForm.get('password')?.errors?.['minlength']) {
-                <span class="error-text">Password must be at least 6 characters long.</span>
+                    <span class="error-text">Password must be at least 6 characters long.</span>
                 }
+                <div style="text-align: right; margin-top: 5px;">
+                    <a routerLink="/forgot-password" class="link" style="font-size: 0.9rem;">Forgot Password?</a>
+                </div>
             </div>
 
-            <button type="submit" [disabled]="loginForm.invalid" class="login-btn">
-                Sign In
+            <button type="submit" [disabled]="loginForm.invalid || isLoading" class="login-btn" [class.btn-loading]="isLoading">
+                @if (isLoading) {
+                    <span class="spinner"></span> Wait...
+                } @else {
+                    Sign In
+                }
             </button>
         </form>
 
         <div class="login-footer">
+            <p>Don't have an account? <a routerLink="/register" class="link">Sign Up</a></p>
             <small>© 2026 E-Commerce AI Management System</small>
         </div>
     </div>
