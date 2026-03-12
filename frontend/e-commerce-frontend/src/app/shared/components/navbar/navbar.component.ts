@@ -13,11 +13,25 @@ export class NavbarComponent {
     private authService = inject(AuthService);
     private router = inject(Router);
 
-    get email(): string {
-        return this.authService.currentUser()?.email ?? '';
+    get isLoggedIn(): boolean {
+        return this.authService.isAuthenticated();
+    }
+
+    get userRole(): string {
+        return this.authService.getRole() ?? '';
     }
 
     onLogout(): void {
-        this.authService.logout();
+        this.authService.logout().subscribe({
+            next: () => {
+                this.authService.clearStorage();
+                this.router.navigate(['/login']);
+            },
+            error: () => {
+                // Sunucu hatası olsa bile local'i temizle ve login'e yönlendir
+                this.authService.clearStorage();
+                this.router.navigate(['/login']);
+            }
+        });
     }
 }

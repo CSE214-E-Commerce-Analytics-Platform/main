@@ -13,7 +13,8 @@ import { filter } from 'rxjs';
 })
 export class AppComponent {
   title = 'e-commerce-frontend';
-  showNavAndChat = false;
+  showNavbar = false;
+  showChatbot = false;
 
   private router = inject(Router);
 
@@ -21,7 +22,16 @@ export class AppComponent {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
-      this.showNavAndChat = !event.urlAfterRedirects.includes('/login');
+      const url = event.urlAfterRedirects;
+      const hideRoutes = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'];
+      
+      const isAuthRoute = hideRoutes.some(route => url.includes(route));
+      const isAdminRoute = url.startsWith('/admin');
+      const isCorporateRoute = url.startsWith('/corporate');
+      const isIndividualRoute = url.startsWith('/individual');
+
+      this.showNavbar = !(isAuthRoute || isAdminRoute || isCorporateRoute || isIndividualRoute);
+      this.showChatbot = !isAuthRoute;
     });
   }
 }

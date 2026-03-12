@@ -49,6 +49,8 @@ input {
     border-radius: 6px;
     font-size: 1rem;
     transition: border-color 0.3s;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 input:focus {
@@ -58,6 +60,26 @@ input:focus {
 
 input.error-border {
     border-color: #e74c3c;
+}
+
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.eye-icon {
+    position: absolute;
+    right: 12px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #95a5a6;
+    transition: color 0.3s ease;
+    user-select: none;
+}
+
+.eye-icon:hover {
+    color: #34495e;
 }
 
 .error-text {
@@ -92,4 +114,21 @@ input.error-border {
     text-align: center;
     margin-top: 1.5rem;
     color: #95a5a6;
+}
+
+.login-footer p {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+}
+
+.link {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.link:hover {
+    text-decoration: underline;
+    color: #2980b9;
 }

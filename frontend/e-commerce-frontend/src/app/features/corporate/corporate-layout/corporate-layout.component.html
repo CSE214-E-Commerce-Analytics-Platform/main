@@ -1,0 +1,41 @@
+<div class="corporate-layout">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Store Partner</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a routerLink="/corporate/dashboard" routerLinkActive="active">
+                <i class="icon">📈</i> Dashboard
+            </a>
+            <a routerLink="/corporate/products" routerLinkActive="active">
+                <i class="icon">🛍️</i> Products
+            </a>
+            <a routerLink="/corporate/inventory" routerLinkActive="active">
+                <i class="icon">📦</i> Inventory
+            </a>
+            <a routerLink="/corporate/orders" routerLinkActive="active">
+                <i class="icon">🚚</i> Orders
+            </a>
+            <a routerLink="/corporate/analytics" routerLinkActive="active">
+                <i class="icon">📊</i> Analytics
+            </a>
+            <a routerLink="/corporate/reviews" routerLinkActive="active">
+                <i class="icon">⭐</i> Reviews
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="logout-btn" (click)="logout()">
+                <i class="icon">🚪</i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <h3>Corporate Area</h3>
+        </header>
+        <div class="content">
+            <router-outlet></router-outlet>
+        </div>
+    </main>
+</div>

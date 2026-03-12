@@ -28,26 +28,13 @@ export class ProductListComponent implements OnInit {
     }
 
     loadProducts(): void {
-        const user = this.authService.currentUser();
-
-        // If user has a storeId, load only their store's products
-        if (user?.storeId) {
-            this.productService.getProductsByStoreId(user.storeId).subscribe({
-                next: (data) => this.handleProductsLoaded(data),
-                error: (err) => {
-                    this.errorMessage = 'Failed to load products. Please try again.';
-                    this.isLoading = false;
-                }
-            });
-        } else {
-            this.productService.getProducts().subscribe({
-                next: (data) => this.handleProductsLoaded(data),
-                error: (err) => {
-                    this.errorMessage = 'Failed to load products. Please try again.';
-                    this.isLoading = false;
-                }
-            });
-        }
+        this.productService.getProducts().subscribe({
+            next: (data) => this.handleProductsLoaded(data),
+            error: (err) => {
+                this.errorMessage = 'Failed to load products. Please try again.';
+                this.isLoading = false;
+            }
+        });
     }
 
     private handleProductsLoaded(data: Product[]): void {

@@ -1,0 +1,25 @@
+<div class="login-wrapper">
+    <div class="login-card" style="text-align: center;">
+        <div class="login-header">
+            <h2>Email Verification</h2>
+        </div>
+
+        @if (isVerifying) {
+            <p style="margin: 20px 0; color: #555;">Verifying your email, please wait...</p>
+        } @else {
+            @if (message) {
+                <div class="success-banner" style="background-color: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500;">
+                    {{ message }}
+                </div>
+            }
+
+            @if (errorMessage) {
+                <div class="error-banner">{{ errorMessage }}</div>
+            }
+
+            <div style="margin-top: 20px;">
+                <button routerLink="/login" class="login-btn" style="width: auto; padding: 10px 30px;">Go to Login</button>
+            </div>
+        }
+    </div>
+</div>
