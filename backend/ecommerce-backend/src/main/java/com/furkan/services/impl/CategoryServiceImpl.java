@@ -67,6 +67,8 @@ public class CategoryServiceImpl implements ICategoryService {
             Category parent = categoryRepository.findById(input.getParentId())
                     .orElseThrow(() -> new RuntimeException("Parent category not found!"));
             category.setParent(parent);
+        } else {
+            category.setParent(null);
         }
 
         return dtoTransformation(categoryRepository.save(category));
@@ -77,6 +79,11 @@ public class CategoryServiceImpl implements ICategoryService {
     public void deleteCategoryById(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found!"));
+
+        if (categoryRepository.existsByParentId(category.getParent().getId())) {
+            throw new RuntimeException("This category has children categories, first delete these!");
+        }
+
         categoryRepository.delete(category);
     }
 }

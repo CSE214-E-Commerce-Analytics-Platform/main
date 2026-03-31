@@ -7,15 +7,15 @@ import java.util.List;
 
 public interface IProductService {
 
-    DtoProduct createProduct(DtoProductRequest input);
+    DtoProduct createProduct(DtoProductRequest input, Long authenticatedUserId);
 
     DtoProduct findProductById(Long id);
 
     List<DtoProduct> findAllProducts();
 
-    DtoProduct updateProductById(Long id, DtoProductRequest input);
+    DtoProduct updateProductById(Long id, DtoProductRequest input, Long authenticatedUserId);
 
-    void deleteProductById(Long id);
+    void deleteProductById(Long id, Long authenticatedUserId);
 
     List<DtoProduct> findAllByStoreId(Long storeId);
 }

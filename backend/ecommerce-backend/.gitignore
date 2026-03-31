@@ -31,3 +31,38 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Security & Environments ###
+# Hassas bilgilerin Github'a gitmesini kesinlikle engeller
+.env
+.env.*
+application-secret.properties
+application-secret.yml
+application-dev.yml
+*.jks
+*.pem
+*.p12
+*.key
+
+### Logs ###
+# Uygulama loglarının repoyu şişirmesini engeller
+*.log
+logs/
+
+### OS Generated Files ###
+# Mac OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+### Others ###
+# Paketlenmiş dosyalar (Eğer target dışında oluşursa diye)
+*.jar
+*.war

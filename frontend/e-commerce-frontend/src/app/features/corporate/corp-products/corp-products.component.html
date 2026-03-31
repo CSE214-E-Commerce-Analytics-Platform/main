@@ -1,1 +1,141 @@
-<p>corp-products works!</p>
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Product Management</h2>
+    <div class="d-flex gap-3">
+      <select class="form-select form-select-lg" style="min-width: 250px;" [ngModel]="selectedStoreId"
+        (ngModelChange)="onStoreChange($event)" [disabled]="stores.length === 0">
+        <option [ngValue]="null" disabled>Select Store...</option>
+        <option *ngFor="let store of stores" [value]="store.id">{{ store.name }}</option>
+      </select>
+      <button class="btn btn-primary" (click)="openProductModal()" [disabled]="!selectedStoreId">
+        <i class="bi bi-plus-circle me-2"></i> New Product
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="stores.length === 0" class="alert alert-warning shadow-sm">
+    You do not have a store yet. To add products, you must first create a store from the Dashboard.
+  </div>
+
+  <div *ngIf="isLoading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && selectedStoreId && products.length === 0" class="alert alert-info shadow-sm">
+    There are absolutely no products for this store yet. You can add a new product from the top right.
+  </div>
+
+  <!-- Product Table -->
+  <div class="card shadow-sm border-0" *ngIf="!isLoading && products.length > 0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">Image</th>
+            <th scope="col">Product SKU</th>
+            <th scope="col">Product Name</th>
+            <th scope="col">Category</th>
+            <th scope="col">Price</th>
+            <th scope="col">Stock</th>
+            <th scope="col" class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of products">
+            <td>
+              <img [src]="getImageUrl(product.imageUrl)" alt="Product" class="rounded"
+                style="width: 50px; height: 50px; object-fit: cover;">
+            </td>
+            <td><code>{{ product.sku }}</code></td>
+            <td class="fw-bold">{{ product.name }}</td>
+            <td><span class="badge bg-secondary">{{ product.categoryName }}</span></td>
+            <td>{{ product.unitPrice | currency:'USD':'symbol':'1.2-2' }}</td>
+            <td>
+              <span class="badge"
+                [ngClass]="{'bg-success': product.stockQuantity > 10, 'bg-warning': product.stockQuantity <= 10 && product.stockQuantity > 0, 'bg-danger': product.stockQuantity === 0}">
+                {{ product.stockQuantity }} items
+              </span>
+            </td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-primary me-2" title="Edit" (click)="openProductModal(product)">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" title="Delete" (click)="deleteProduct(product.id)">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Product Modal -->
+  <div class="modal d-block" tabindex="-1" *ngIf="showProductModal"
+    style="background: rgba(0,0,0,0.5); overflow-y: auto;">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-light">
+          <h5 class="modal-title fw-bold">{{ editingProductId ? 'Edit Product' : 'Add New Product' }}</h5>
+          <button type="button" class="btn-close" (click)="closeProductModal()" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="productForm" (ngSubmit)="saveProduct()">
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Product Name*</label>
+                <input type="text" class="form-control" formControlName="name" placeholder="E.g.: Minimalist Vase">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Product SKU*</label>
+                <input type="text" class="form-control" formControlName="sku" placeholder="E.g.: VZ-1001">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Description*</label>
+              <textarea class="form-control" rows="3" formControlName="description"
+                placeholder="Describe the product features..."></textarea>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Unit Price (₺)*</label>
+                <input type="number" step="0.01" class="form-control" formControlName="unitPrice" placeholder="0.00">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Stock Quantity*</label>
+                <input type="number" class="form-control" formControlName="stockQuantity" placeholder="0">
+              </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label">Category*</label>
+                <select class="form-select" formControlName="categoryId">
+                  <option [ngValue]="null" disabled>Select Category</option>
+                  <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Image URL*</label>
+                <input type="url" class="form-control" formControlName="imageUrl" placeholder="https://...">
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 border-top pt-3">
+              <button type="button" class="btn btn-light" (click)="closeProductModal()">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid">
+                <i class="bi bi-save me-1"></i> {{ editingProductId ? 'Update' : 'Save' }}
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

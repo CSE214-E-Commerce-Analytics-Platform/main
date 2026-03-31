@@ -7,13 +7,15 @@ import java.util.List;
 
 public interface IStoreService {
 
-    DtoStore createStore(DtoStoreRequest input);
+    DtoStore createStore(DtoStoreRequest input, Long authenticatedUserId);
 
     DtoStore findStoreById(Long id);
 
     List<DtoStore> findAllStores();
 
-    DtoStore updateStoreById(Long id, DtoStoreRequest input);
+    DtoStore updateStoreById(Long id, DtoStoreRequest input, Long authenticatedUserId);
 
-    void deleteStoreById(Long id);
+    void deleteStoreById(Long id, Long authenticatedUserId);
+
+    List<DtoStore> findMyStores(Long authenticatedUserId);
 }

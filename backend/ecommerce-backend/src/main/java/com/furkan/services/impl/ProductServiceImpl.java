@@ -37,12 +37,16 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     @Transactional
-    public DtoProduct createProduct(DtoProductRequest input) {
-        Product product = new Product();
-        BeanUtils.copyProperties(input, product);
+    public DtoProduct createProduct(DtoProductRequest input, Long authenticatedUserId) {
+        if (productRepository.existsBySku(input.getSku())) {
+            throw new RuntimeException("This SKU already exists!");
+        }
 
         Store store = storeRepository.findById(input.getStoreId())
                 .orElseThrow(() -> new RuntimeException("Store not found!"));
+
+        Product product = new Product();
+        BeanUtils.copyProperties(input, product);
         product.setStore(store);
 
         if (input.getCategoryId() != null) {
@@ -52,6 +56,17 @@ public class ProductServiceImpl implements IProductService {
         }
 
         return dtoTransformation(productRepository.save(product));
+    }
+
+    private Product getProductIfOwner(Long productId, Long userId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found!"));
+
+        if (!product.getStore().getOwner().getId().equals(userId)) {
+            throw new RuntimeException("Unauthorized transaction! This product does not belong in your store.");
+        }
+
+        return product;
     }
 
     @Override
@@ -70,24 +85,33 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     @Transactional
-    public DtoProduct updateProductById(Long id, DtoProductRequest input) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found!"));
+    public DtoProduct updateProductById(Long id, DtoProductRequest input, Long authenticatedUserId) {
+        Product product = getProductIfOwner(id, authenticatedUserId);
+
+        if (!product.getSku().equals(input.getSku()) && productRepository.existsBySku(input.getSku())) {
+            throw new RuntimeException("This SKU already exists!");
+        }
 
         product.setName(input.getName());
         product.setDescription(input.getDescription());
         product.setUnitPrice(input.getUnitPrice());
         product.setStockQuantity(input.getStockQuantity());
         product.setImageUrl(input.getImageUrl());
+        product.setSku(input.getSku());
+
+        if (input.getCategoryId() != null && (product.getCategory() == null || !product.getCategory().getId().equals(input.getCategoryId()))) {
+            Category category = categoryRepository.findById(input.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Category not found!"));
+            product.setCategory(category);
+        }
 
         return dtoTransformation(productRepository.save(product));
     }
 
     @Override
     @Transactional
-    public void deleteProductById(Long id) {
-        Product product = productRepository.findById(id)
-                        .orElseThrow(() -> new RuntimeException("Product not found!"));
+    public void deleteProductById(Long id, Long authenticatedUserId) {
+        Product product = getProductIfOwner(id, authenticatedUserId);
         productRepository.delete(product);
     }
 

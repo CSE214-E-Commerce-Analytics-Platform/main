@@ -7,6 +7,10 @@ import com.furkan.dto.response.DtoStore;
 import com.furkan.services.IStoreService;
 import com.furkan.utils.RootEntity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.furkan.entities.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,12 +23,16 @@ public class RestStoreControllerImpl extends RestBaseController implements IRest
     private final IStoreService storeService;
 
     @PostMapping()
+    @PreAuthorize("hasRole('CORPORATE')")
     @Override
-    public RootEntity<DtoStore> createStore(@RequestBody DtoStoreRequest input) {
-        return ok(storeService.createStore(input));
+    public RootEntity<DtoStore> createStore(@RequestBody DtoStoreRequest input,
+                                            @AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = ((User) userDetails).getId();
+        return ok(storeService.createStore(input, userId));
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CORPORATE')")
     @Override
     public RootEntity<DtoStore> findStoreById(@PathVariable Long id) {
         return ok(storeService.findStoreById(id));
@@ -37,15 +45,29 @@ public class RestStoreControllerImpl extends RestBaseController implements IRest
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isStoreOwner(authentication, #id)")
     @Override
-    public RootEntity<DtoStore> updateStoreById(@PathVariable Long id, @RequestBody DtoStoreRequest input) {
-        return ok(storeService.updateStoreById(id, input));
+    public RootEntity<DtoStore> updateStoreById(@PathVariable Long id, @RequestBody DtoStoreRequest input, @AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = ((User) userDetails).getId();
+
+        return ok(storeService.updateStoreById(id, input, userId));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Override
-    public RootEntity<Void> deleteStoreById(@PathVariable Long id) {
-        storeService.deleteStoreById(id);
+    public RootEntity<Void> deleteStoreById(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = ((User) userDetails).getId();
+
+        storeService.deleteStoreById(id, userId);
         return ok();
+    }
+
+    @GetMapping("/my-stores")
+    @PreAuthorize("hasRole('CORPORATE')")
+    @Override
+    public RootEntity<List<DtoStore>> findMyStores(@AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = ((User) userDetails).getId();
+        return ok(storeService.findMyStores(userId));
     }
 }

@@ -13,7 +13,7 @@ public class DtoProductRequest {
     private String name;
     private String description;
     private String imageUrl;
-    @NotBlank(message = "SKU must be unique.")
+    @NotBlank(message = "SKU is required.")
     private String sku;
     @Positive(message = "Price must be greater than 0.")
     private BigDecimal unitPrice;

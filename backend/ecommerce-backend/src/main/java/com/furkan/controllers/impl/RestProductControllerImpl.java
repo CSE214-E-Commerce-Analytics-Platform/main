@@ -4,9 +4,14 @@ import com.furkan.controllers.IRestProductController;
 import com.furkan.controllers.RestBaseController;
 import com.furkan.dto.request.DtoProductRequest;
 import com.furkan.dto.response.DtoProduct;
+import com.furkan.entities.User;
 import com.furkan.services.IProductService;
 import com.furkan.utils.RootEntity;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,9 +24,11 @@ public class RestProductControllerImpl extends RestBaseController implements IRe
     private final IProductService productService;
 
     @PostMapping()
+    @PreAuthorize("hasRole('CORPORATE')")
     @Override
-    public RootEntity<DtoProduct> createProduct(@RequestBody DtoProductRequest input) {
-        return ok(productService.createProduct(input));
+    public RootEntity<DtoProduct> createProduct(@Valid @RequestBody DtoProductRequest input, @AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = ((User) userDetails).getId();
+        return ok(productService.createProduct(input, userId));
     }
 
     @GetMapping("/{id}")
@@ -37,15 +44,19 @@ public class RestProductControllerImpl extends RestBaseController implements IRe
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@securityService.isProductOwner(authentication, #id)")
     @Override
-    public RootEntity<DtoProduct> updateProductById(@PathVariable Long id, @RequestBody DtoProductRequest input) {
-        return ok(productService.updateProductById(id, input));
+    public RootEntity<DtoProduct> updateProductById(@PathVariable Long id, @Valid @RequestBody DtoProductRequest input, @AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = ((User) userDetails).getId();
+        return ok(productService.updateProductById(id, input, userId));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isProductOwner(authentication, #id)")
     @Override
-    public RootEntity<Void> deleteProductById(@PathVariable Long id) {
-        productService.deleteProductById(id);
+    public RootEntity<Void> deleteProductById(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = ((User) userDetails).getId();
+        productService.deleteProductById(id, userId);
         return ok();
     }
 
