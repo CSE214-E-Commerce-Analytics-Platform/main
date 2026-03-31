@@ -1,59 +1,76 @@
-# ECommerceFrontend
+# 🛍️ E-Commerce Analytics Platform (Frontend)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.7.
+Welcome to the frontend application for the E-Commerce Analytics Platform! This project is a modern, responsive, and robust web application built with **Angular**.
+It serves as the main user interface for our e-commerce platform, providing a seamless experience for three distinct types of users: Individuals (Customers), Corporates (Store Owners), and Admins.
 
-## Development server
+---
 
-To start a local development server, run:
+## ✨ Features and Capabilities
 
-```bash
-ng serve
-```
+### 🔐 Secure Authentication & Authorization
+- **Comprehensive Auth Flow:** Login, Registration, Forgot/Reset Password, and Email Verification.
+- **Role-Based Access Control (RBAC):** Dedicated layouts, routes, and features based on user roles (`INDIVIDUAL`, `CORPORATE`, `ADMIN`) protected by auth and role route guards.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+### 👤 Individual (Customer) Hub
+*Designed for a smooth shopping experience.*
+- **Product Discovery:** Browse products, view detailed descriptions, and manage shopping carts.
+- **Order Management:** Place orders, track shipment history, and review past purchases.
+- **Engagement:** Write and read product reviews.
+- **Personal Analytics & Profile:** View personal shopping analytics and manage user profile details.
 
-## Code scaffolding
+### 🏪 Corporate (Store Owner) Dashboard
+*Empowering sellers to manage and grow their businesses.*
+- **Store Analytics:** View comprehensive analytics dashboards to track store performance and sales.
+- **Inventory & Order Management:** Manage product listings, track inventory levels, and process incoming customer orders.
+- **Review Management:** Read and monitor customer reviews for their products.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### 🛡️ System Administration Panel
+*The central control hub for platform administrators.*
+- **Platform Overview:** High-level dashboard for monitoring system-wide activities.
+- **Entity Management:** Oversee and manage all users, stores, and product categories globally.
+- **System Configuration:** Keep track of global application settings and administrative controls.
 
-```bash
-ng generate component component-name
-```
+---
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## 💻 Tech Stack
 
-```bash
-ng generate --help
-```
+- **Framework:** [Angular 19](https://angular.dev/)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **Reactivity:** [RxJS](https://rxjs.dev/)
+- **UI & Styling:** [Bootstrap 5](https://getbootstrap.com/) for rapid and responsive UI implementation.
+- **Testing:** [Jasmine](https://jasmine.github.io/) & [Karma](https://karma-runner.github.io/) for dependable unit testing.
 
-## Building
+---
 
-To build the project run:
+## 🚀 Getting Started
 
-```bash
-ng build
-```
+### Prerequisites
+Make sure you have the following installed on your machine:
+- [Node.js](https://nodejs.org/) (LTS recommended)
+- [Angular CLI](https://github.com/angular/angular-cli) globally installed (`npm install -g @angular/cli`)
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+### Installation
 
-## Running unit tests
+1. Navigate into the frontend project directory:
+   ```bash
+   cd e-commerce-frontend
+   ```
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-```bash
-ng test
-```
+3. Start the development server:
+   ```bash
+   ng serve
+   ```
 
-## Running end-to-end tests
+4. Open your browser and navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files!
 
-For end-to-end (e2e) testing, run:
+---
 
-```bash
-ng e2e
-```
+## 🛠️ Build and Test
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- **Build for production:** Run `ng build` to build the required production files into the `dist/` directory.
+- **Unit Testing:** Run `ng test` to execute the unit tests via Karma.

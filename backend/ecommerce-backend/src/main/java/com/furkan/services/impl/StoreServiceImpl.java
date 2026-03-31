@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -33,8 +34,8 @@ public class StoreServiceImpl implements IStoreService {
 
     @Override
     @Transactional
-    public DtoStore createStore(DtoStoreRequest input) {
-        User owner = userRepository.findById(input.getOwnerId())
+    public DtoStore createStore(DtoStoreRequest input, Long authenticatedUserId) {
+        User owner = userRepository.findById(authenticatedUserId)
                 .orElseThrow(() -> new RuntimeException("Owner (User) not found!"));
 
         if (owner.getRoleType() != RoleType.CORPORATE) {
@@ -44,10 +45,20 @@ public class StoreServiceImpl implements IStoreService {
         Store store = new Store();
         store.setName(input.getName());
         store.setStatus("ACTIVE");
-
         store.setOwner(owner);
 
         return dtoTransformation(storeRepository.save(store));
+    }
+
+    private Store getStoreIfOwner(Long storeId, Long userId) {
+        Store store = storeRepository.findByIdAndOwnerId(storeId, userId)
+                .orElseThrow(() -> new RuntimeException("Store not found!"));
+
+        if (!store.getOwner().getId().equals(userId)) {
+            throw new RuntimeException("You are not authorized to perform this transaction! The store does not belong to you.");
+        }
+
+        return store;
     }
 
     @Override
@@ -66,20 +77,29 @@ public class StoreServiceImpl implements IStoreService {
 
     @Override
     @Transactional
-    public DtoStore updateStoreById(Long id, DtoStoreRequest input) {
-        Store store = storeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Store not found!"));
-
+    public DtoStore updateStoreById(Long id, DtoStoreRequest input, Long authenticatedUserId) {
+        Store store = getStoreIfOwner(id, authenticatedUserId);
         store.setName(input.getName());
-
         return dtoTransformation(storeRepository.save(store));
     }
 
     @Override
     @Transactional
-    public void deleteStoreById(Long id) {
-        Store store = storeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Store not found!"));
+    public void deleteStoreById(Long id, Long authenticatedUserId) {
+        Store store = getStoreIfOwner(id, authenticatedUserId);
         storeRepository.delete(store);
+    }
+
+    @Override
+    public List<DtoStore> findMyStores(Long authenticatedUserId) {
+        List<Store> myStores = storeRepository.findAllByOwnerId(authenticatedUserId);
+
+        if (myStores.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return myStores.stream()
+                .map(this::dtoTransformation)
+                .toList();
     }
 }

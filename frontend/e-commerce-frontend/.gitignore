@@ -40,3 +40,16 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Çevresel Değişkenler (Environment Variables)
+.env
+.env.*
+!.env.example
+
+# Genel Log Dosyaları
+*.log
+
+# Linter ve test önbellekleri
+.eslintcache
+.stylelintcache
