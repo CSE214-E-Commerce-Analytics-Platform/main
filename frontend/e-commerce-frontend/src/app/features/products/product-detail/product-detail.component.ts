@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
+import { Location, CommonModule } from '@angular/common';
 import { ProductService } from '../../../core/services/product.service';
 import { Product } from '../../../shared/models/product';
 
@@ -12,7 +12,7 @@ import { Product } from '../../../shared/models/product';
 })
 export class ProductDetailComponent implements OnInit {
     private route = inject(ActivatedRoute);
-    private router = inject(Router);
+    private location = inject(Location);
     private productService = inject(ProductService);
 
     product: Product | null = null;
@@ -36,6 +36,6 @@ export class ProductDetailComponent implements OnInit {
     }
 
     goBack(): void {
-        this.router.navigate(['/products']);
+        this.location.back();
     }
 }
