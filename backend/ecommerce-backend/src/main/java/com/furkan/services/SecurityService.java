@@ -23,4 +23,9 @@ public class SecurityService {
         User currentUser = (User) authentication.getPrincipal();
         return productRepository.findByIdAndStoreOwnerId(productId, currentUser.getId()).isPresent();
     }
+
+    public boolean isOwnUser(Authentication authentication, Long userId) {
+        User currentUser = (User) authentication.getPrincipal();
+        return currentUser.getId().equals(userId);
+    }
 }

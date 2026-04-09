@@ -23,7 +23,9 @@ public class UserServiceImpl implements IUserService {
         DtoUser dtoUser = new DtoUser();
         BeanUtils.copyProperties(user, dtoUser);
         dtoUser.setRoleType(user.getRoleType().name());
-        dtoUser.setStoreId(user.getStore().getId());
+        if (user.getRoleType().equals(RoleType.CORPORATE) && user.getStore() != null) {
+            dtoUser.setStoreId(user.getStore().getId());
+        }
         return dtoUser;
     }
 
