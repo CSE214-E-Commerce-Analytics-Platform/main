@@ -13,10 +13,6 @@
                 <button routerLink="/login" class="register-btn" style="width: auto; padding: 10px 30px;">Go to Login</button>
             </div>
         } @else {
-            @if (errorMessage) {
-            <div class="error-banner">{{ errorMessage }}</div>
-            }
-
             <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
                 <div class="form-field">
                     <label for="email">Email Address</label>
@@ -79,6 +75,10 @@
                     <span class="error-text">Gender is required.</span>
                     }
                 </div>
+
+                @if (errorMessage) {
+                    <div class="error-banner">{{ errorMessage }}</div>
+                }
 
                 <button type="submit" [disabled]="registerForm.invalid || isLoading" class="register-btn" [class.btn-loading]="isLoading">
                     @if (isLoading) {

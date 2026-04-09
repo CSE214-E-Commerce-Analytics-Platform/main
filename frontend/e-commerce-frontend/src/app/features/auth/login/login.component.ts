@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { extractErrorMessage } from '../../../core/utils/error.util';
 
 @Component({
   selector: 'app-login',
@@ -21,12 +22,14 @@ export class LoginComponent implements OnInit {
 
   isLoading = false;
   showPassword = false;
+  loginError: string | null = null;
 
   ngOnInit(): void { }
 
   onLogin() {
     if (this.loginForm.valid) {
       this.isLoading = true;
+      this.loginError = null;
       const { email, password } = this.loginForm.value as { email: string; password: string };
 
       this.authService.login(email, password).subscribe({
@@ -43,7 +46,8 @@ export class LoginComponent implements OnInit {
         },
         error: (err) => {
           this.isLoading = false;
-          alert(err?.error?.message || err?.message || 'Login failed. Please check your credentials.');
+          this.loginError = extractErrorMessage(err, 'Login failed. Please check your credentials.');
+          this.loginForm.reset();
         }
       });
     }

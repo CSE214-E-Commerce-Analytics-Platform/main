@@ -12,6 +12,9 @@ export class CorporateLayoutComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
+  corp_email: String | null = this.authService.getCurrentUserEmail();
+  corp_email_parsed = this.corp_email?.split('@')[0];
+
   logout() {
     this.authService.logout().subscribe(() => {
       this.router.navigate(['/login']);

@@ -5,6 +5,7 @@ import com.furkan.controllers.RestBaseController;
 import com.furkan.dto.request.DtoUserRequest;
 import com.furkan.dto.response.DtoUser;
 import com.furkan.entities.User;
+import com.furkan.enums.RoleType;
 import com.furkan.services.IUserService;
 import com.furkan.utils.RootEntity;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,13 @@ public class RestUserControllerImpl extends RestBaseController implements IRestU
     @Override
     public RootEntity<DtoUser> findUserByEmail(@PathVariable String email) {
         return ok(userService.findUserByEmail(email));
+    }
+
+    @GetMapping("/all-by-role")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Override
+    public RootEntity<List<DtoUser>> findAllUsersByRole(@RequestParam RoleType role) {
+        return ok(userService.findAllUsersByRole(role));
     }
 
     @PutMapping("/{id}")

@@ -19,6 +19,9 @@
             <a routerLink="/admin/settings" routerLinkActive="active">
                 <i class="icon">⚙️</i> Settings
             </a>
+            <a routerLink="/admin/corporate-requests" routerLinkActive="active">
+                <i class="icon">🏢</i> Corp. Requests
+            </a>
         </nav>
         <div class="sidebar-footer">
             <button class="logout-btn" (click)="logout()">
@@ -29,7 +32,7 @@
 
     <main class="main-content">
         <header class="top-header">
-            <h3>Welcome, Administrator</h3>
+            <h3>Welcome, {{ admin_email_parsed }}</h3>
         </header>
         <div class="content">
             <router-outlet></router-outlet>

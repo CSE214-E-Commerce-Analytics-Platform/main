@@ -5,6 +5,9 @@ import com.furkan.dto.response.DtoStore;
 import com.furkan.entities.Store;
 import com.furkan.entities.User;
 import com.furkan.enums.RoleType;
+import com.furkan.exception.BaseException;
+import com.furkan.exception.ErrorMessage;
+import com.furkan.exception.MessageType;
 import com.furkan.repositories.StoreRepository;
 import com.furkan.repositories.UserRepository;
 import com.furkan.services.IStoreService;
@@ -36,10 +39,10 @@ public class StoreServiceImpl implements IStoreService {
     @Transactional
     public DtoStore createStore(DtoStoreRequest input, Long authenticatedUserId) {
         User owner = userRepository.findById(authenticatedUserId)
-                .orElseThrow(() -> new RuntimeException("Owner (User) not found!"));
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.OWNER_NOT_FOUND, authenticatedUserId.toString())));
 
         if (owner.getRoleType() != RoleType.CORPORATE) {
-            throw new RuntimeException("Only Corporate users can create a store! Your role: " + owner.getRoleType());
+            throw new BaseException(new ErrorMessage(MessageType.STORE_CORPORATE_AUTH, authenticatedUserId.toString()));
         }
 
         Store store = new Store();
@@ -52,10 +55,10 @@ public class StoreServiceImpl implements IStoreService {
 
     private Store getStoreIfOwner(Long storeId, Long userId) {
         Store store = storeRepository.findByIdAndOwnerId(storeId, userId)
-                .orElseThrow(() -> new RuntimeException("Store not found!"));
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.STORE_NOT_FOUND, storeId.toString())));
 
         if (!store.getOwner().getId().equals(userId)) {
-            throw new RuntimeException("You are not authorized to perform this transaction! The store does not belong to you.");
+            throw new BaseException(new ErrorMessage(MessageType.STORE_OWNER_MISMATCH, storeId.toString()));
         }
 
         return store;
@@ -64,7 +67,7 @@ public class StoreServiceImpl implements IStoreService {
     @Override
     public DtoStore findStoreById(Long id) {
         Store store = storeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Store not found!"));
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.STORE_NOT_FOUND, id.toString())));
         return dtoTransformation(store);
     }
 
@@ -101,5 +104,16 @@ public class StoreServiceImpl implements IStoreService {
         return myStores.stream()
                 .map(this::dtoTransformation)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public DtoStore createStoreForCorporateUpgradeRole(User user, DtoStoreRequest input) {
+        Store store = new Store();
+        store.setName(input.getName());
+        store.setStatus("ACTIVE");
+        store.setOwner(user);
+
+        return dtoTransformation(storeRepository.save(store));
     }
 }

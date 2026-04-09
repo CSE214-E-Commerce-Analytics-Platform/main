@@ -3,6 +3,9 @@ package com.furkan.services.impl;
 import com.furkan.dto.request.DtoCategoryRequest;
 import com.furkan.dto.response.DtoCategory;
 import com.furkan.entities.Category;
+import com.furkan.exception.BaseException;
+import com.furkan.exception.ErrorMessage;
+import com.furkan.exception.MessageType;
 import com.furkan.repositories.CategoryRepository;
 import com.furkan.services.ICategoryService;
 import jakarta.transaction.Transactional;
@@ -35,7 +38,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
         if (input.getParentId() != null) {
             Category parent = categoryRepository.findById(input.getParentId())
-                    .orElseThrow(() -> new RuntimeException("Parent category not found!"));
+                    .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.PARENT_NOT_FOUND, input.getParentId().toString())));
             category.setParent(parent);
         }
 
@@ -45,7 +48,7 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public DtoCategory findCategoryById(Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found!"));
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.CATEGORY_NOT_FOUND, id.toString())));
         return dtoTransformation(category);
     }
 
@@ -60,12 +63,12 @@ public class CategoryServiceImpl implements ICategoryService {
     @Transactional
     public DtoCategory updateCategoryById(Long id, DtoCategoryRequest input) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found!"));
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.CATEGORY_NOT_FOUND, id.toString())));
 
         category.setName(input.getName());
         if (input.getParentId() != null) {
             Category parent = categoryRepository.findById(input.getParentId())
-                    .orElseThrow(() -> new RuntimeException("Parent category not found!"));
+                    .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.PARENT_NOT_FOUND, input.getParentId().toString())));
             category.setParent(parent);
         } else {
             category.setParent(null);
@@ -78,10 +81,10 @@ public class CategoryServiceImpl implements ICategoryService {
     @Transactional
     public void deleteCategoryById(Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found!"));
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.CATEGORY_NOT_FOUND, id.toString())));
 
-        if (categoryRepository.existsByParentId(category.getParent().getId())) {
-            throw new RuntimeException("This category has children categories, first delete these!");
+        if (categoryRepository.existsByParentId(id)) {
+            throw new BaseException(new ErrorMessage(MessageType.CHILD_CAT_EXISTS, id.toString()));
         }
 
         categoryRepository.delete(category);

@@ -113,3 +113,17 @@
     padding: 30px;
     flex: 1;
 }
+
+/* Special highlight for the corporate upgrade link */
+.sidebar-nav a.upgrade-link {
+    margin-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    color: #fbbf24;
+}
+
+.sidebar-nav a.upgrade-link:hover,
+.sidebar-nav a.upgrade-link.active {
+    background-color: rgba(251, 191, 36, 0.15);
+    color: #fde68a;
+    border-left: 4px solid #fbbf24;
+}
