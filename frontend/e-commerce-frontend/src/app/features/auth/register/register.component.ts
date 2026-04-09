@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { extractErrorMessage } from '../../../core/utils/error.util';
 
 @Component({
   selector: 'app-register',
@@ -52,7 +53,8 @@ export class RegisterComponent {
           this.isLoading = false;
         },
         error: (err) => {
-          this.errorMessage = err?.error?.message || err?.message || 'Registration failed. Please try again.';
+          this.errorMessage = extractErrorMessage(err, 'Registration failed. Please try again.');
+          this.registerForm.reset();
           this.isLoading = false;
         }
       });

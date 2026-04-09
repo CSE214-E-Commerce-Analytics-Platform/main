@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { RouterLink } from '@angular/router';
+import { extractErrorMessage } from '../../../core/utils/error.util';
 
 @Component({
   selector: 'app-forgot-password',
@@ -35,7 +36,8 @@ export class ForgotPasswordComponent {
           this.isLoading = false;
         },
         error: (err) => {
-          this.errorMessage = err?.error?.message || err?.message || 'An error occurred while sending the reset link.';
+          this.errorMessage = extractErrorMessage(err, 'An error occurred while sending the reset link.');
+          this.forgotPasswordForm.reset();
           this.isLoading = false;
         }
       });

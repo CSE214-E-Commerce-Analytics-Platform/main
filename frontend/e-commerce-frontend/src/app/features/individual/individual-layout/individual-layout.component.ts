@@ -12,6 +12,9 @@ export class IndividualLayoutComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
+  ind_email: String | null = this.authService.getCurrentUserEmail();
+  ind_email_parsed = this.ind_email?.split('@')[0];
+
   logout() {
     this.authService.logout().subscribe(() => {
       this.router.navigate(['/login']);

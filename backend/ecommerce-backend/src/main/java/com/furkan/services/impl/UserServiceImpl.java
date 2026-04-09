@@ -4,6 +4,9 @@ import com.furkan.dto.request.DtoUserRequest;
 import com.furkan.dto.response.DtoUser;
 import com.furkan.entities.User;
 import com.furkan.enums.RoleType;
+import com.furkan.exception.BaseException;
+import com.furkan.exception.ErrorMessage;
+import com.furkan.exception.MessageType;
 import com.furkan.repositories.UserRepository;
 import com.furkan.services.IUserService;
 import jakarta.transaction.Transactional;
@@ -32,7 +35,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public DtoUser findUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found!"));
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.USER_NOT_FOUND, id.toString())));
 
         return dtoTransformation(user);
     }
@@ -47,7 +50,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public DtoUser findUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found!"));
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.USER_NOT_FOUND_BY_EMAIL, email)));
         return dtoTransformation(user);
     }
 
@@ -55,7 +58,7 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     public DtoUser updateUserById(Long id, DtoUserRequest input) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found!"));
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.USER_NOT_FOUND, id.toString())));
 
         user.setEmail(input.getEmail());
         if (input.getGender() != null) {
@@ -73,7 +76,7 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     public void deleteUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found!"));
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.USER_NOT_FOUND, id.toString())));
         userRepository.delete(user);
     }
 }

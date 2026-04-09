@@ -5,6 +5,9 @@ import com.furkan.dto.response.DtoProduct;
 import com.furkan.entities.Category;
 import com.furkan.entities.Product;
 import com.furkan.entities.Store;
+import com.furkan.exception.BaseException;
+import com.furkan.exception.ErrorMessage;
+import com.furkan.exception.MessageType;
 import com.furkan.repositories.CategoryRepository;
 import com.furkan.repositories.ProductRepository;
 import com.furkan.repositories.StoreRepository;
@@ -39,11 +42,11 @@ public class ProductServiceImpl implements IProductService {
     @Transactional
     public DtoProduct createProduct(DtoProductRequest input, Long authenticatedUserId) {
         if (productRepository.existsBySku(input.getSku())) {
-            throw new RuntimeException("This SKU already exists!");
+            throw new BaseException(new ErrorMessage(MessageType.SKU_ALREADY_EXISTS, input.getSku()));
         }
 
         Store store = storeRepository.findById(input.getStoreId())
-                .orElseThrow(() -> new RuntimeException("Store not found!"));
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.STORE_NOT_FOUND, input.getStoreId().toString())));
 
         Product product = new Product();
         BeanUtils.copyProperties(input, product);
@@ -51,7 +54,7 @@ public class ProductServiceImpl implements IProductService {
 
         if (input.getCategoryId() != null) {
             Category category = categoryRepository.findById(input.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Category not found!"));
+                    .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.CATEGORY_NOT_FOUND, input.getCategoryId().toString())));
             product.setCategory(category);
         }
 
@@ -60,10 +63,10 @@ public class ProductServiceImpl implements IProductService {
 
     private Product getProductIfOwner(Long productId, Long userId) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found!"));
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.PRODUCT_NOT_FOUND, productId.toString())));
 
         if (!product.getStore().getOwner().getId().equals(userId)) {
-            throw new RuntimeException("Unauthorized transaction! This product does not belong in your store.");
+            throw new BaseException(new ErrorMessage(MessageType.UNAUTHORIZED_TRANSACTION, productId.toString()));
         }
 
         return product;
@@ -72,7 +75,7 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public DtoProduct findProductById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found!"));
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.PRODUCT_NOT_FOUND, id.toString())));
         return dtoTransformation(product);
     }
 
@@ -89,7 +92,7 @@ public class ProductServiceImpl implements IProductService {
         Product product = getProductIfOwner(id, authenticatedUserId);
 
         if (!product.getSku().equals(input.getSku()) && productRepository.existsBySku(input.getSku())) {
-            throw new RuntimeException("This SKU already exists!");
+            throw new BaseException(new ErrorMessage(MessageType.SKU_ALREADY_EXISTS, input.getSku()));
         }
 
         product.setName(input.getName());
@@ -101,7 +104,7 @@ public class ProductServiceImpl implements IProductService {
 
         if (input.getCategoryId() != null && (product.getCategory() == null || !product.getCategory().getId().equals(input.getCategoryId()))) {
             Category category = categoryRepository.findById(input.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Category not found!"));
+                    .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.CATEGORY_NOT_FOUND, input.getCategoryId().toString())));
             product.setCategory(category);
         }
 

@@ -10,6 +10,9 @@ import com.furkan.entities.User;
 import com.furkan.entities.VerificationToken;
 import com.furkan.enums.RoleType;
 import com.furkan.enums.TokenType;
+import com.furkan.exception.BaseException;
+import com.furkan.exception.ErrorMessage;
+import com.furkan.exception.MessageType;
 import com.furkan.repositories.RefreshTokenRepository;
 import com.furkan.repositories.UserRepository;
 import com.furkan.repositories.VerificationTokenRepository;
@@ -48,13 +51,13 @@ public class AuthServiceImpl implements IAuthService {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         } catch (DisabledException e) {
-            throw new RuntimeException("Account is not verified. Please check your email.");
+            throw new BaseException(new ErrorMessage(MessageType.ACCOUNT_IS_NOT_VERIFIED, null));
         } catch (BadCredentialsException e) {
-            throw new RuntimeException("Invalid email or password.");
+            throw new BaseException(new ErrorMessage(MessageType.INVALID_EMAIL_OR_PASSWORD, null));
         }
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found."));
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.USER_NOT_FOUND, request.getEmail())));
 
         refreshTokenRepository.revokeAllByUser(user, LocalDateTime.now());
 
@@ -72,7 +75,7 @@ public class AuthServiceImpl implements IAuthService {
     @Override
     public void register(DtoRegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already in use");
+            throw new BaseException(new ErrorMessage(MessageType.EMAIL_ALREADY_EXISTS, request.getEmail()));
         }
 
         User user = new User();
@@ -93,10 +96,10 @@ public class AuthServiceImpl implements IAuthService {
     public DtoAuthResponse refresh(String refreshTokenValue) {
         RefreshToken stored = refreshTokenRepository
                 .findByToken(refreshTokenValue)
-                .orElseThrow(() -> new RuntimeException("Refresh token not found"));
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.REFRESH_TOKEN_NOT_FOUND, null)));
 
         if (stored.isRevoked() || stored.isExpired()) {
-            throw new RuntimeException("Refresh token expired or revoked");
+            throw new BaseException(new ErrorMessage(MessageType.REFRESH_TOKEN_IS_EXPIRED, null));
         }
 
         RefreshToken newRefreshToken = new RefreshToken();
@@ -153,7 +156,7 @@ public class AuthServiceImpl implements IAuthService {
         User user = verificationToken.getUser();
 
         if (passwordEncoder.matches(request.getNewPassword(), user.getPasswordHash())) {
-            throw new RuntimeException("New password cannot be the same as the old password");
+            throw new BaseException(new ErrorMessage(MessageType.SAME_PASSWORD, null));
         }
 
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));

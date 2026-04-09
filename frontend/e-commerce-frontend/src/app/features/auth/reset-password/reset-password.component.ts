@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { extractErrorMessage } from '../../../core/utils/error.util';
 
 @Component({
   selector: 'app-reset-password',
@@ -61,7 +62,8 @@ export class ResetPasswordComponent implements OnInit {
           this.isLoading = false;
         },
         error: (err) => {
-          this.errorMessage = err?.error?.message || err?.message || 'An error occurred while resetting password.';
+          this.errorMessage = extractErrorMessage(err, 'An error occurred while resetting password.');
+          this.resetPasswordForm.reset();
           this.isLoading = false;
         }
       });

@@ -12,6 +12,9 @@ export class AdminLayoutComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
+  admin_email: String | null = this.authService.getCurrentUserEmail();
+  admin_email_parsed = this.admin_email?.split('@')[0];
+
   logout() {
     this.authService.logout().subscribe(() => {
       this.router.navigate(['/login']);

@@ -132,3 +132,15 @@ input.error-border {
     text-decoration: underline;
     color: #2980b9;
 }
+
+.login-error-banner {
+    background-color: #fdeaea;
+    color: #e74c3c;
+    padding: 0.8rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    text-align: center;
+    border: 1px solid #f5c6c6;
+    font-weight: 500;
+}
