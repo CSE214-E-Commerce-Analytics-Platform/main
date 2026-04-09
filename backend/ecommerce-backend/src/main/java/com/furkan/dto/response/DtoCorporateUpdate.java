@@ -1,7 +1,7 @@
 package com.furkan.dto.response;
 
 import com.furkan.dto.BaseDto;
-import com.furkan.enums.CorporateUpgradeRequestStatus;
+import com.furkan.enums.CorporateUpdateRequestStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -12,6 +12,6 @@ public class DtoCorporateUpdate extends BaseDto {
     private Long userId;
     private String companyName;
     private String reason;
-    private CorporateUpgradeRequestStatus status;
+    private CorporateUpdateRequestStatus status;
     private String adminNote;
 }

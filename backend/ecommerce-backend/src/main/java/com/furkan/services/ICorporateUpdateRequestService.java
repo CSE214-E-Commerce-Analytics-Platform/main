@@ -1,24 +1,23 @@
 package com.furkan.services;
 
-import com.furkan.dto.request.DtoCorporateUpdateRequest;
+import com.furkan.dto.request.DtoCorporateCreateRequest;
+import com.furkan.dto.request.DtoCorporateUpdateReviewRequest;
 import com.furkan.dto.response.DtoCorporateUpdate;
-import com.furkan.enums.CorporateUpgradeRequestStatus;
+import com.furkan.enums.CorporateUpdateRequestStatus;
 
 import java.util.List;
 
 public interface ICorporateUpdateRequestService {
 
-    DtoCorporateUpdate createRequest(DtoCorporateUpdateRequest request);
+    DtoCorporateUpdate createRequest(Long userId, DtoCorporateCreateRequest request);
+
+    DtoCorporateUpdate findMyLatestRequest(Long userId);
 
     DtoCorporateUpdate findRequestById(Long id);
 
-    DtoCorporateUpdate findRequestByUserId(Long userId);
-
     DtoCorporateUpdate findRequestByUserEmail(String email);
 
-    DtoCorporateUpdate approveRequest(DtoCorporateUpdateRequest request);
+    DtoCorporateUpdate reviewRequest(Long id, DtoCorporateUpdateReviewRequest reviewDto);
 
-    DtoCorporateUpdate rejectRequest(DtoCorporateUpdateRequest request);
-
-    List<DtoCorporateUpdate> findRequestsByStatus(CorporateUpgradeRequestStatus status);
+    List<DtoCorporateUpdate> findRequestsByStatus(CorporateUpdateRequestStatus status);
 }

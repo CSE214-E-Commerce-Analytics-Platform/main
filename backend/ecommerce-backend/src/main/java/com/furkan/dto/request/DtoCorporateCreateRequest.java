@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class DtoCorporateUpdateRequest {
+public class DtoCorporateCreateRequest {
     @NotBlank(message = "Reason must be not empty!")
     private String reason;
 

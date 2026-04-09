@@ -1,6 +1,6 @@
 package com.furkan.enums;
 
-public enum CorporateUpgradeRequestStatus {
+public enum CorporateUpdateRequestStatus {
     PENDING,
     APPROVED,
     REJECTED

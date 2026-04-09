@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../core/services/user.service';
 import { User, UserRequest } from '../../../shared/models/user';
-
 import { AuthService } from '../../../core/services/auth.service';
+
+type RoleFilter = 'ALL' | 'INDIVIDUAL' | 'CORPORATE' | 'ADMIN';
 
 @Component({
   selector: 'app-admin-users',
@@ -20,6 +21,8 @@ export class AdminUsersComponent implements OnInit {
   errorMessage = '';
   currentUserEmail: string | null = null;
 
+  selectedRole: RoleFilter = 'ALL';
+
   constructor(
     private userService: UserService,
     private authService: AuthService
@@ -32,7 +35,13 @@ export class AdminUsersComponent implements OnInit {
 
   loadUsers(): void {
     this.isLoading = true;
-    this.userService.findAllUsers().subscribe({
+    this.errorMessage = '';
+
+    const req$ = this.selectedRole === 'ALL'
+      ? this.userService.findAllUsers()
+      : this.userService.findAllUsersByRole(this.selectedRole);
+
+    req$.subscribe({
       next: (data) => {
         this.users = data || [];
         this.isLoading = false;
@@ -45,13 +54,18 @@ export class AdminUsersComponent implements OnInit {
     });
   }
 
+  setRoleFilter(role: RoleFilter): void {
+    this.selectedRole = role;
+    this.loadUsers();
+  }
+
   toggleUserStatus(user: User): void {
     const currentState = user.active !== undefined ? user.active : user.isActive;
     const request: UserRequest = {
       active: !currentState,
       isActive: !currentState
     };
-    
+
     this.userService.updateUserById(user.id, request).subscribe({
       next: (updatedUser) => {
         const index = this.users.findIndex(u => u.id === updatedUser.id);

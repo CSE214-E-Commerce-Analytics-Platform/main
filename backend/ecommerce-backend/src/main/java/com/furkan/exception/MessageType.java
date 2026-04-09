@@ -20,6 +20,13 @@ public enum MessageType {
     TOKEN_HAS_EXPIRED("1008", "Token has expired!"),
     TOKEN_HAS_ALREADY_BEEN_USED("1009", "Token has already been used."),
 
+    // Corporate Upgrade Request
+    UPGRADE_ALREADY_REQUESTED("1008", "You already have a request in pending status."),
+    UPGRADE_REQUEST_NOT_FOUND("1009", "The user's request for a corporate account could not be found."),
+    UPGRADE_REQUEST_NOT_FOUND_BY_ID("1010", "The user's request for a corporate account could not be found with this ID."),
+    UPGRADE_REQUEST_NOT_FOUND_BY_EMAIL("1011", "The user's request for a corporate account could not be found with this email."),
+    NOT_PENDING_REQUEST("1012", "Only requests with a pending status can be evaluated"),
+
     // Category
     CATEGORY_NOT_FOUND("2001", "Selected category not found."),
     PARENT_NOT_FOUND("2006", "No selected parent category was found!"),

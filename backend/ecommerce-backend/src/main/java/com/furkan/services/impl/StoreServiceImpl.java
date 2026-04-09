@@ -105,4 +105,15 @@ public class StoreServiceImpl implements IStoreService {
                 .map(this::dtoTransformation)
                 .toList();
     }
+
+    @Override
+    @Transactional
+    public DtoStore createStoreForCorporateUpgradeRole(User user, DtoStoreRequest input) {
+        Store store = new Store();
+        store.setName(input.getName());
+        store.setStatus("ACTIVE");
+        store.setOwner(user);
+
+        return dtoTransformation(storeRepository.save(store));
+    }
 }

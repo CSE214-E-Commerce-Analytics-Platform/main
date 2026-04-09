@@ -1,79 +1,108 @@
-<div class="admin-categories-container">
-    <div class="page-header">
-        <div class="header-content">
-            <h2>Taxonomy & Categories</h2>
+<div class="cat-page">
+
+    <!-- Header -->
+    <div class="cat-page-header">
+        <div>
+            <h2>Taxonomy &amp; Categories</h2>
             <p>Manage product categories to keep the platform organized.</p>
         </div>
-        <button class="add-btn" (click)="openCategoryModal()">
-            <i class="icon">➕</i> Add Category
+        <button class="cat-add-btn" (click)="openCreateModal()">
+            ➕ Add Category
         </button>
     </div>
 
-    <!-- Loading State -->
-    <div *ngIf="isLoading" class="loading-state">
-        <div class="spinner"></div>
+    <!-- Success Banner -->
+    <div class="cat-success-banner" *ngIf="successMessage">
+        ✅ {{ successMessage }}
+    </div>
+
+    <!-- Error Banner -->
+    <div class="cat-error-banner" *ngIf="errorMessage && !isLoading">
+        ⚠️ {{ errorMessage }}
+    </div>
+
+    <!-- Loading -->
+    <div class="cat-loading" *ngIf="isLoading">
+        <div class="cat-spinner"></div>
         <p>Loading categories...</p>
     </div>
 
-    <!-- Error State -->
-    <div *ngIf="errorMessage" class="error-message">
-        <i class="icon">⚠️</i> {{ errorMessage }}
+    <!-- Empty -->
+    <div class="cat-empty" *ngIf="!isLoading && !errorMessage && categories.length === 0">
+        <div class="cat-empty-icon">📁</div>
+        <p>No categories yet. Click <strong>Add Category</strong> to get started.</p>
     </div>
 
-    <!-- Empty State -->
-    <div *ngIf="!isLoading && !errorMessage && categories.length === 0" class="empty-state">
-        <i class="icon">📁</i>
-        <p>No categories found. Start organizing products by adding the first one!</p>
-    </div>
-
-    <!-- Categories Grid -->
-    <div *ngIf="!isLoading && !errorMessage && categories.length > 0" class="categories-grid">
-        <div class="category-card" *ngFor="let category of categories">
-            <div class="category-header">
-                <i class="icon folder-icon">📁</i>
-                <h3>{{ category.name }}</h3>
+    <!-- Grid -->
+    <div class="cat-grid" *ngIf="!isLoading && categories.length > 0">
+        <div class="cat-card" *ngFor="let cat of categories">
+            <div class="cat-card-top">
+                <span class="cat-folder">📁</span>
+                <div class="cat-id-badge">ID: {{ cat.id }}</div>
             </div>
-            
-            <div class="category-details">
-                <p>Parent ID: {{ category.parentId || 'None (Root Category)' }}</p>
-                <p class="category-date">Created: {{ category.createdAt | date:'short' }}</p>
-                <div class="id-badge">ID: {{ category.id }}</div>
-            </div>
-            
-            <div class="action-footer">
-                <button class="edit-btn" (click)="openCategoryModal(category)">Edit</button>
-                <button class="delete-btn" (click)="deleteCategory(category.id)">Delete</button>
+            <h3 class="cat-name">{{ cat.name }}</h3>
+            <p class="cat-parent">
+                {{ cat.parentId ? ('Parent ID: ' + cat.parentId) : 'Root Category' }}
+            </p>
+            <p class="cat-date">Created: {{ cat.createdAt | date:'dd MMM yyyy' }}</p>
+            <div class="cat-card-footer">
+                <button class="cat-edit-btn" (click)="openEditModal(cat)">✏️ Edit</button>
+                <button class="cat-delete-btn" (click)="deleteCategory(cat.id)">🗑️ Delete</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Overlay -->
-    <div class="modal-overlay" *ngIf="showCategoryModal" (click)="closeCategoryModal()"></div>
+</div>
 
-    <!-- Modal -->
-    <div class="modal" *ngIf="showCategoryModal">
-        <div class="modal-header">
-            <h3>{{ editingCategoryId ? 'Edit Category' : 'Create Category' }}</h3>
-            <button class="close-btn" (click)="closeCategoryModal()">×</button>
+<!-- ===== Modal ===== -->
+<div class="cat-modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="cat-modal" (click)="$event.stopPropagation()">
+
+        <div class="cat-modal-header">
+            <h3>{{ editingCategoryId !== null ? 'Edit Category' : 'Create Category' }}</h3>
+            <button class="cat-modal-close" (click)="closeModal()">✕</button>
         </div>
-        
-        <form [formGroup]="categoryForm" (ngSubmit)="saveCategory()">
-            <div class="form-group">
-                <label>Category Name</label>
-                <input type="text" formControlName="name" placeholder="E.g., Electronics, Fashion">
-            </div>
-            
-            <div class="form-group">
-                <label>Parent Category ID (Optional)</label>
-                <input type="number" formControlName="parentId" placeholder="ID of parent category">
-            </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn-cancel" (click)="closeCategoryModal()">Cancel</button>
-                <button type="submit" class="btn-save" [disabled]="categoryForm.invalid">
-                    {{ editingCategoryId ? 'Update' : 'Create' }}
-                </button>
-            </div>
-        </form>
+        <!-- Modal Error -->
+        <div class="cat-modal-error" *ngIf="modalError">
+            ⚠️ {{ modalError }}
+        </div>
+
+        <div class="cat-form-group">
+            <label for="catName">Category Name <span class="cat-required">*</span></label>
+            <input
+                id="catName"
+                type="text"
+                class="cat-input"
+                placeholder="e.g. Electronics, Fashion"
+                [(ngModel)]="formName"
+                [disabled]="isSaving"
+                (keyup.enter)="saveCategory()"
+            />
+        </div>
+
+        <div class="cat-form-group">
+            <label for="catParent">Parent Category ID <span class="cat-optional">(optional)</span></label>
+            <input
+                id="catParent"
+                type="number"
+                class="cat-input"
+                placeholder="Leave empty for root category"
+                [(ngModel)]="formParentId"
+                [disabled]="isSaving"
+                min="1"
+            />
+        </div>
+
+        <div class="cat-modal-footer">
+            <button class="cat-cancel-btn" (click)="closeModal()" [disabled]="isSaving">
+                Cancel
+            </button>
+            <button class="cat-save-btn" (click)="saveCategory()" [disabled]="isSaving || !formName.trim()">
+                <span *ngIf="!isSaving">{{ editingCategoryId !== null ? '✅ Update' : '✅ Create' }}</span>
+                <span *ngIf="isSaving">Saving...</span>
+            </button>
+        </div>
+
     </div>
 </div>

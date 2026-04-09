@@ -55,6 +55,13 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    public List<DtoUser> findAllUsersByRole(RoleType role) {
+        return userRepository.findAllByRoleType(role).stream()
+                .map(this::dtoTransformation)
+                .toList();
+    }
+
+    @Override
     @Transactional
     public DtoUser updateUserById(Long id, DtoUserRequest input) {
         User user = userRepository.findById(id)

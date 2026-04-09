@@ -1,6 +1,6 @@
 package com.furkan.entities;
 
-import com.furkan.enums.CorporateUpgradeRequestStatus;
+import com.furkan.enums.CorporateUpdateRequestStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,9 +26,9 @@ public class CorporateUpdateRequest extends BaseEntity {
     private String reason;
 
     @Enumerated(EnumType.STRING)
-    private CorporateUpgradeRequestStatus status = CorporateUpgradeRequestStatus.PENDING;
+    private CorporateUpdateRequestStatus status = CorporateUpdateRequestStatus.PENDING;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String adminNote;
 
     @ManyToOne(fetch = FetchType.LAZY)

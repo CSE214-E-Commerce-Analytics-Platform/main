@@ -1,41 +1,14 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './features/auth/login/login.component';
-import { ProductListComponent } from './features/products/product-list/product-list.component';
-import { ProductDetailComponent } from './features/products/product-detail/product-detail.component';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
-import { ForbiddenComponent } from './features/auth/forbidden/forbidden.component';
+
+// Auth sayfaları — eager (ilk yüklemede gerekli)
+import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
 import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './features/auth/reset-password/reset-password.component';
 import { VerifyEmailComponent } from './features/auth/verify-email/verify-email.component';
-
-import { AdminLayoutComponent } from './features/admin/admin-layout/admin-layout.component';
-import { AdminDashboardComponent } from './features/admin/admin-dashboard/admin-dashboard.component';
-import { AdminUsersComponent } from './features/admin/admin-users/admin-users.component';
-import { AdminStoresComponent } from './features/admin/admin-stores/admin-stores.component';
-import { AdminCategoriesComponent } from './features/admin/admin-categories/admin-categories.component';
-import { AdminSettingsComponent } from './features/admin/admin-settings/admin-settings.component';
-
-import { CorporateLayoutComponent } from './features/corporate/corporate-layout/corporate-layout.component';
-import { CorpDashboardComponent } from './features/corporate/corp-dashboard/corp-dashboard.component';
-import { CorpProductsComponent } from './features/corporate/corp-products/corp-products.component';
-import { CorpInventoryComponent } from './features/corporate/corp-inventory/corp-inventory.component';
-import { CorpOrdersComponent } from './features/corporate/corp-orders/corp-orders.component';
-import { CorpAnalyticsComponent } from './features/corporate/corp-analytics/corp-analytics.component';
-import { CorpReviewsComponent } from './features/corporate/corp-reviews/corp-reviews.component';
-
-import { IndividualLayoutComponent } from './features/individual/individual-layout/individual-layout.component';
-import { IndProductsComponent } from './features/individual/ind-products/ind-products.component';
-import { IndCartComponent } from './features/individual/ind-cart/ind-cart.component';
-import { IndOrdersComponent } from './features/individual/ind-orders/ind-orders.component';
-import { IndHistoryComponent } from './features/individual/ind-history/ind-history.component';
-import { IndReviewsComponent } from './features/individual/ind-reviews/ind-reviews.component';
-import { IndAnalyticsComponent } from './features/individual/ind-analytics/ind-analytics.component';
-import { IndProfileComponent } from './features/individual/ind-profile/ind-profile.component';
-
-import { IndStoresComponent } from './features/individual/ind-stores/ind-stores.component';
-import { IndStoreDetailComponent } from './features/individual/ind-store-detail/ind-store-detail.component';
+import { ForbiddenComponent } from './features/auth/forbidden/forbidden.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -45,64 +18,168 @@ export const routes: Routes = [
     { path: 'reset-password', component: ResetPasswordComponent },
     { path: 'verify-email', component: VerifyEmailComponent },
 
-    // Individual (Müşteri) Rotaları
+    // ── Individual Paneli ──────────────────────────────────────────────────────
     {
         path: 'individual',
-        component: IndividualLayoutComponent,
+        loadComponent: () => import('./features/individual/individual-layout/individual-layout.component')
+            .then(m => m.IndividualLayoutComponent),
         canActivate: [authGuard, roleGuard],
         data: { roles: ['INDIVIDUAL'] },
         children: [
-            { path: 'products', component: IndProductsComponent },
-            { path: 'products/:id', component: ProductDetailComponent },
-            { path: 'stores', component: IndStoresComponent },
-            { path: 'stores/:id', component: IndStoreDetailComponent },
-            { path: 'cart', component: IndCartComponent },
-            { path: 'orders', component: IndOrdersComponent },
-            { path: 'history', component: IndHistoryComponent },
-            { path: 'reviews', component: IndReviewsComponent },
-            { path: 'analytics', component: IndAnalyticsComponent },
-            { path: 'profile', component: IndProfileComponent },
+            {
+                path: 'products',
+                loadComponent: () => import('./features/individual/ind-products/ind-products.component')
+                    .then(m => m.IndProductsComponent)
+            },
+            {
+                path: 'products/:id',
+                loadComponent: () => import('./features/products/product-detail/product-detail.component')
+                    .then(m => m.ProductDetailComponent)
+            },
+            {
+                path: 'stores',
+                loadComponent: () => import('./features/individual/ind-stores/ind-stores.component')
+                    .then(m => m.IndStoresComponent)
+            },
+            {
+                path: 'stores/:id',
+                loadComponent: () => import('./features/individual/ind-store-detail/ind-store-detail.component')
+                    .then(m => m.IndStoreDetailComponent)
+            },
+            {
+                path: 'cart',
+                loadComponent: () => import('./features/individual/ind-cart/ind-cart.component')
+                    .then(m => m.IndCartComponent)
+            },
+            {
+                path: 'orders',
+                loadComponent: () => import('./features/individual/ind-orders/ind-orders.component')
+                    .then(m => m.IndOrdersComponent)
+            },
+            {
+                path: 'history',
+                loadComponent: () => import('./features/individual/ind-history/ind-history.component')
+                    .then(m => m.IndHistoryComponent)
+            },
+            {
+                path: 'reviews',
+                loadComponent: () => import('./features/individual/ind-reviews/ind-reviews.component')
+                    .then(m => m.IndReviewsComponent)
+            },
+            {
+                path: 'analytics',
+                loadComponent: () => import('./features/individual/ind-analytics/ind-analytics.component')
+                    .then(m => m.IndAnalyticsComponent)
+            },
+            {
+                path: 'profile',
+                loadComponent: () => import('./features/individual/ind-profile/ind-profile.component')
+                    .then(m => m.IndProfileComponent)
+            },
+            {
+                path: 'become-corporate',
+                loadComponent: () => import('./features/individual/ind-corporate-apply/ind-corporate-apply.component')
+                    .then(m => m.IndCorporateApplyComponent)
+            },
             { path: '', redirectTo: 'products', pathMatch: 'full' }
         ]
     },
 
-    // Admin Rotaları
+    // ── Admin Paneli ───────────────────────────────────────────────────────────
     {
         path: 'admin',
-        component: AdminLayoutComponent,
+        loadComponent: () => import('./features/admin/admin-layout/admin-layout.component')
+            .then(m => m.AdminLayoutComponent),
         canActivate: [authGuard, roleGuard],
         data: { roles: ['ADMIN'] },
         children: [
-            { path: 'dashboard', component: AdminDashboardComponent },
-            { path: 'users', component: AdminUsersComponent },
-            { path: 'stores', component: AdminStoresComponent },
-            { path: 'stores/:id', component: IndStoreDetailComponent },
-            { path: 'products/:id', component: ProductDetailComponent },
-            { path: 'categories', component: AdminCategoriesComponent },
-            { path: 'settings', component: AdminSettingsComponent },
+            {
+                path: 'dashboard',
+                loadComponent: () => import('./features/admin/admin-dashboard/admin-dashboard.component')
+                    .then(m => m.AdminDashboardComponent)
+            },
+            {
+                path: 'users',
+                loadComponent: () => import('./features/admin/admin-users/admin-users.component')
+                    .then(m => m.AdminUsersComponent)
+            },
+            {
+                path: 'stores',
+                loadComponent: () => import('./features/admin/admin-stores/admin-stores.component')
+                    .then(m => m.AdminStoresComponent)
+            },
+            {
+                path: 'stores/:id',
+                loadComponent: () => import('./features/individual/ind-store-detail/ind-store-detail.component')
+                    .then(m => m.IndStoreDetailComponent)
+            },
+            {
+                path: 'products/:id',
+                loadComponent: () => import('./features/products/product-detail/product-detail.component')
+                    .then(m => m.ProductDetailComponent)
+            },
+            {
+                path: 'categories',
+                loadComponent: () => import('./features/admin/admin-categories/admin-categories.component')
+                    .then(m => m.AdminCategoriesComponent)
+            },
+            {
+                path: 'settings',
+                loadComponent: () => import('./features/admin/admin-settings/admin-settings.component')
+                    .then(m => m.AdminSettingsComponent)
+            },
+            {
+                path: 'corporate-requests',
+                loadComponent: () => import('./features/admin/admin-corporate-requests/admin-corporate-requests.component')
+                    .then(m => m.AdminCorporateRequestsComponent)
+            },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]
     },
 
-    // Corporate (Mağaza) Rotaları
+    // ── Corporate Paneli ───────────────────────────────────────────────────────
     {
         path: 'corporate',
-        component: CorporateLayoutComponent,
+        loadComponent: () => import('./features/corporate/corporate-layout/corporate-layout.component')
+            .then(m => m.CorporateLayoutComponent),
         canActivate: [authGuard, roleGuard],
         data: { roles: ['CORPORATE'] },
         children: [
-            { path: 'dashboard', component: CorpDashboardComponent },
-            { path: 'products', component: CorpProductsComponent },
-            { path: 'inventory', component: CorpInventoryComponent },
-            { path: 'orders', component: CorpOrdersComponent },
-            { path: 'analytics', component: CorpAnalyticsComponent },
-            { path: 'reviews', component: CorpReviewsComponent },
+            {
+                path: 'dashboard',
+                loadComponent: () => import('./features/corporate/corp-dashboard/corp-dashboard.component')
+                    .then(m => m.CorpDashboardComponent)
+            },
+            {
+                path: 'products',
+                loadComponent: () => import('./features/corporate/corp-products/corp-products.component')
+                    .then(m => m.CorpProductsComponent)
+            },
+            {
+                path: 'inventory',
+                loadComponent: () => import('./features/corporate/corp-inventory/corp-inventory.component')
+                    .then(m => m.CorpInventoryComponent)
+            },
+            {
+                path: 'orders',
+                loadComponent: () => import('./features/corporate/corp-orders/corp-orders.component')
+                    .then(m => m.CorpOrdersComponent)
+            },
+            {
+                path: 'analytics',
+                loadComponent: () => import('./features/corporate/corp-analytics/corp-analytics.component')
+                    .then(m => m.CorpAnalyticsComponent)
+            },
+            {
+                path: 'reviews',
+                loadComponent: () => import('./features/corporate/corp-reviews/corp-reviews.component')
+                    .then(m => m.CorpReviewsComponent)
+            },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]
     },
 
-    // Erişim engeli sayfası
+    // ── Diğer ─────────────────────────────────────────────────────────────────
     { path: 'forbidden', component: ForbiddenComponent },
     { path: '**', redirectTo: 'login' }
 ];
-

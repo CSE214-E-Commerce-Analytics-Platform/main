@@ -20,6 +20,14 @@ export class UserService {
         );
     }
 
+    findAllUsersByRole(role: string): Observable<User[]> {
+        return this.http.get<ApiResponse<User[]>>(`${this.apiUrl}/all-by-role`, {
+            params: { role }
+        }).pipe(
+            map(res => res.payload as User[])
+        );
+    }
+
     findUserById(id: number): Observable<User> {
         return this.http.get<ApiResponse<User>>(`${this.apiUrl}/${id}`).pipe(
             map(res => res.payload as User)
