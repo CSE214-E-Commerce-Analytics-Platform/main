@@ -1,7 +1,7 @@
-<div class="admin-stores-container">
+<div class="stores-container">
     <div class="page-header">
-        <h2>Store Approval & Management</h2>
-        <p>Review and manage all corporate stores across the platform.</p>
+        <h2>Our Official Stores</h2>
+        <p>Browse products directly from your favorite vendors.</p>
     </div>
 
     <!-- Loading State -->
@@ -17,32 +17,32 @@
 
     <!-- Empty State -->
     <div *ngIf="!isLoading && !errorMessage && stores.length === 0" class="empty-state">
-        <i class="icon">🏬</i>
-        <p>No stores are currently active on the platform.</p>
+        <i class="icon">🏪</i>
+        <p>No stores available right now.</p>
     </div>
 
     <!-- Store Grid -->
     <div *ngIf="!isLoading && !errorMessage && stores.length > 0" class="store-grid">
-        <div class="store-card" *ngFor="let store of stores">
+        <div class="store-card" *ngFor="let store of stores" [routerLink]="['/individual/stores', store.id]" style="cursor: pointer;">
             <div class="store-header">
-                <div class="store-avatar">🏢</div>
+                <div class="store-avatar">
+                   🏢
+                </div>
                 <span class="status-badge" [ngClass]="store.status === 'ACTIVE' ? 'active' : 'inactive'">
                     {{ store.status }}
                 </span>
             </div>
             
             <div class="store-details">
-                <h3 class="store-name" [routerLink]="['/admin/stores', store.id]" style="cursor: pointer;">
-                    {{ store.name }}
-                </h3>
+                <h3 class="store-name">{{ store.name }}</h3>
                 <p class="store-joined" *ngIf="store.createdAt">Joined {{ store.createdAt | date:'mediumDate' }}</p>
-                <p class="store-owner">Owner ID: {{ store.ownerId }}</p>
-            </div>
-            
-            <div class="store-actions">
-                <button class="delete-btn" (click)="deleteStore(store.id)">
-                    <i class="icon">🗑️</i> Delete Store
-                </button>
+                <p class="store-joined" *ngIf="!store.createdAt">Recently Joined</p>
+                
+                <div class="store-footer">
+                    <button class="visit-btn" [routerLink]="['/individual/stores', store.id]">
+                        Visit Store <span>→</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>

@@ -32,7 +32,7 @@ public class RestStoreControllerImpl extends RestBaseController implements IRest
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CORPORATE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CORPORATE', 'INDIVIDUAL')")
     @Override
     public RootEntity<DtoStore> findStoreById(@PathVariable Long id) {
         return ok(storeService.findStoreById(id));

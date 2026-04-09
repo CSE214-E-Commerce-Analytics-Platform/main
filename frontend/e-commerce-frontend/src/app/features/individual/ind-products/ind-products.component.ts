@@ -1,11 +1,51 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { ProductService } from '../../../core/services/product.service';
+import { Product } from '../../../shared/models/product';
 
 @Component({
   selector: 'app-ind-products',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, RouterLink],
   templateUrl: './ind-products.component.html',
   styleUrl: './ind-products.component.css'
 })
-export class IndProductsComponent {
+export class IndProductsComponent implements OnInit {
+  private productService = inject(ProductService);
 
+  products: Product[] = [];
+  isLoading = true;
+  errorMessage = '';
+
+  ngOnInit(): void {
+    this.fetchProducts();
+  }
+
+  fetchProducts(): void {
+    this.isLoading = true;
+    this.productService.getProducts().subscribe({
+      next: (data) => {
+        this.products = data;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error fetching products', err);
+        this.errorMessage = 'Failed to load products. Please try again later.';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  addToCart(product: Product): void {
+    console.log('Added to cart', product);
+    alert(`${product.name} added to cart!`);
+  }
+
+  getImageUrl(url: string | null | undefined): string {
+    if (!url) return 'assets/placeholder-product.png';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    if (url.startsWith('assets/images/')) return url;
+    return `assets/images/${url}`;
+  }
 }

@@ -34,6 +34,9 @@ import { IndReviewsComponent } from './features/individual/ind-reviews/ind-revie
 import { IndAnalyticsComponent } from './features/individual/ind-analytics/ind-analytics.component';
 import { IndProfileComponent } from './features/individual/ind-profile/ind-profile.component';
 
+import { IndStoresComponent } from './features/individual/ind-stores/ind-stores.component';
+import { IndStoreDetailComponent } from './features/individual/ind-store-detail/ind-store-detail.component';
+
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
     { path: 'login', component: LoginComponent },
@@ -51,6 +54,8 @@ export const routes: Routes = [
         children: [
             { path: 'products', component: IndProductsComponent },
             { path: 'products/:id', component: ProductDetailComponent },
+            { path: 'stores', component: IndStoresComponent },
+            { path: 'stores/:id', component: IndStoreDetailComponent },
             { path: 'cart', component: IndCartComponent },
             { path: 'orders', component: IndOrdersComponent },
             { path: 'history', component: IndHistoryComponent },
@@ -71,6 +76,8 @@ export const routes: Routes = [
             { path: 'dashboard', component: AdminDashboardComponent },
             { path: 'users', component: AdminUsersComponent },
             { path: 'stores', component: AdminStoresComponent },
+            { path: 'stores/:id', component: IndStoreDetailComponent },
+            { path: 'products/:id', component: ProductDetailComponent },
             { path: 'categories', component: AdminCategoriesComponent },
             { path: 'settings', component: AdminSettingsComponent },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }

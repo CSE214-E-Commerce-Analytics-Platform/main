@@ -45,6 +45,9 @@ public class SecurityConfig {
                         // products
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
 
+                        // user
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
+
 
                         .anyRequest().authenticated()
                 )

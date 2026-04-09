@@ -114,6 +114,17 @@ export class AuthService {
     return !!this.getAccessToken();
   }
 
+  getCurrentUserEmail(): string | null {
+    const token = this.getAccessToken();
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.sub || null;
+    } catch {
+      return null;
+    }
+  }
+
   clearStorage() {
     localStorage.removeItem(this.ACCESS_TOKEN_KEY);
     localStorage.removeItem(this.ROLE_KEY);
