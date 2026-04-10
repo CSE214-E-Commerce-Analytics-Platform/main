@@ -77,10 +77,14 @@ export class AiAgentService {
      * Sends a validated query to the AI agent backend.
      * Parses the JSON response and extracts only the payload field.
      */
-    askQuestion(question: string, storeId: number): Observable<string> {
+    /**
+     * Sends a validated query to the AI agent backend.
+     * storeId, userId ve role backend tarafında JWT'den okunur — buradan gönderilmez!
+     */
+    askQuestion(question: string): Observable<string> {
         const params = new HttpParams()
-            .set('question', question)
-            .set('storeId', storeId.toString());
+            .set('question', question);
+            // storeId burada GÖNDERİLMİYOR — backend JWT'den alıyor (AV-02 güvencesi)
 
         return this.http.post(this.apiUrl, null, {
             params,

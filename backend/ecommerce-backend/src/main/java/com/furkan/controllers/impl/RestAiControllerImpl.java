@@ -5,6 +5,7 @@ import com.furkan.controllers.RestBaseController;
 import com.furkan.services.IAiService;
 import com.furkan.utils.RootEntity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,7 +20,10 @@ public class RestAiControllerImpl extends RestBaseController implements IRestAiC
 
     @PostMapping("/ask")
     @Override
-    public RootEntity<String> askAi(@RequestParam String question, @RequestParam Long storeId) {
-        return ok(aiService.askAi(question, storeId));
+    public RootEntity<String> askAi(
+            @RequestParam String question,
+            Authentication authentication   // storeId artık frontenden ALINMIYOR
+    ) {
+        return ok(aiService.askAi(question, authentication));
     }
 }

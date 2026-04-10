@@ -1,9 +1,9 @@
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
 from state import AgentState
 from dotenv import load_dotenv
 load_dotenv()
 
-llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0)
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
 SYSTEM_PROMPT = """Sen bir e-ticaret platformunun güvenlik filtresisin.
 Kullanıcının sorusunu analiz et ve şu kategorilerden birine koy:
