@@ -104,6 +104,11 @@ export const routes: Routes = [
                     .then(m => m.AdminUsersComponent)
             },
             {
+                path: 'carts',
+                loadComponent: () => import('./features/admin/admin-carts/admin-carts.component')
+                    .then(m => m.AdminCartsComponent)
+            },
+            {
                 path: 'stores',
                 loadComponent: () => import('./features/admin/admin-stores/admin-stores.component')
                     .then(m => m.AdminStoresComponent)

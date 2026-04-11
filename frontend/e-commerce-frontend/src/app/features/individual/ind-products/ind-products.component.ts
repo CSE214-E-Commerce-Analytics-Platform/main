@@ -4,6 +4,9 @@ import { RouterLink } from '@angular/router';
 import { ProductService } from '../../../core/services/product.service';
 import { Product } from '../../../shared/models/product';
 
+import { CartService } from '../../../core/services/cart.service';
+import { ToastService } from '../../../core/services/toast.service';
+
 @Component({
   selector: 'app-ind-products',
   standalone: true,
@@ -13,6 +16,8 @@ import { Product } from '../../../shared/models/product';
 })
 export class IndProductsComponent implements OnInit {
   private productService = inject(ProductService);
+  private cartService = inject(CartService);
+  private toastService = inject(ToastService);
 
   products: Product[] = [];
   isLoading = true;
@@ -38,8 +43,12 @@ export class IndProductsComponent implements OnInit {
   }
 
   addToCart(product: Product): void {
-    console.log('Added to cart', product);
-    alert(`${product.name} added to cart!`);
+    if (!product.id) return;
+    this.cartService.addItemToCart({ productId: product.id, quantity: 1 }).subscribe({
+        next: () => {
+            this.toastService.showSuccess(`🛒 ${product.name} added to cart!`);
+        }
+    });
   }
 
   getImageUrl(url: string | null | undefined): string {

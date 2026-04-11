@@ -5,6 +5,7 @@ import com.furkan.dto.request.DtoLoginRequest;
 import com.furkan.dto.request.DtoRegisterRequest;
 import com.furkan.dto.request.DtoResetPasswordRequest;
 import com.furkan.dto.response.DtoAuthResponse;
+import com.furkan.entities.Cart;
 import com.furkan.entities.RefreshToken;
 import com.furkan.entities.User;
 import com.furkan.entities.VerificationToken;
@@ -13,9 +14,9 @@ import com.furkan.enums.TokenType;
 import com.furkan.exception.BaseException;
 import com.furkan.exception.ErrorMessage;
 import com.furkan.exception.MessageType;
+import com.furkan.repositories.CartRepository;
 import com.furkan.repositories.RefreshTokenRepository;
 import com.furkan.repositories.UserRepository;
-import com.furkan.repositories.VerificationTokenRepository;
 import com.furkan.security.JwtService;
 import com.furkan.services.IAuthService;
 import com.furkan.services.IEmailService;
@@ -29,6 +30,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
@@ -38,12 +40,12 @@ public class AuthServiceImpl implements IAuthService {
 
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final VerificationTokenRepository verificationTokenRepository;
     private final IVerificationTokenService verificationTokenService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final IEmailService emailService;
+    private final CartRepository cartRepository;
 
     @Override
     public DtoAuthResponse login(DtoLoginRequest request) {
@@ -84,6 +86,10 @@ public class AuthServiceImpl implements IAuthService {
         user.setRoleType(RoleType.INDIVIDUAL); // default
         user.setGender(request.getGender());
         user.setActive(false);
+
+        Cart cart = new Cart();
+        cart.setUser(user);
+        cartRepository.save(cart);
 
         userRepository.save(user);
 

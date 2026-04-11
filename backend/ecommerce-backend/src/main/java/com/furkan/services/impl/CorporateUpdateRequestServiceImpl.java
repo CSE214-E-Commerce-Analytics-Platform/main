@@ -12,6 +12,7 @@ import com.furkan.enums.RoleType;
 import com.furkan.exception.BaseException;
 import com.furkan.exception.ErrorMessage;
 import com.furkan.exception.MessageType;
+import com.furkan.repositories.CartRepository;
 import com.furkan.repositories.CorporateUpdateRequestRepository;
 import com.furkan.repositories.UserRepository;
 import com.furkan.services.ICorporateUpdateRequestService;
@@ -31,6 +32,7 @@ public class CorporateUpdateRequestServiceImpl implements ICorporateUpdateReques
     private final CorporateUpdateRequestRepository corporateUpdateRequestRepository;
     private final UserRepository userRepository;
     private final IStoreService storeService;
+    private final CartRepository cartRepository;
 
     @Override
     @Transactional
@@ -90,6 +92,8 @@ public class CorporateUpdateRequestServiceImpl implements ICorporateUpdateReques
             User user = request.getUser();
             user.setRoleType(RoleType.CORPORATE);
             userRepository.save(user);
+
+            cartRepository.delete(user.getCart());
 
             DtoStoreRequest storeRequest = new DtoStoreRequest();
             storeRequest.setName(request.getCompanyName());
