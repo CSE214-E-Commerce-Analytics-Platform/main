@@ -43,6 +43,9 @@ public enum MessageType {
     STORE_CORPORATE_AUTH("4003", "Only Corporate users can create a store!"),
     STORE_OWNER_MISMATCH("4004", "You are not owner of this store!"),
 
+    // Cart
+    ITEM_NOT_FOUND("5001", "Item not found in this cart."),
+
     GENERAL_EXCEPTION("9999", "A general error occur.");
 
     final String code;

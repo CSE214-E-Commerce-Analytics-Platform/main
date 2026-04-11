@@ -55,6 +55,12 @@
                     <span class="info-value">{{ product.storeId }}</span>
                 </div>
             </div>
+
+            <div class="action-section">
+                <button class="add-to-cart-btn" (click)="addToCart(product.id)">
+                    🛒 Add to Cart
+                </button>
+            </div>
         </div>
     </div>
     }

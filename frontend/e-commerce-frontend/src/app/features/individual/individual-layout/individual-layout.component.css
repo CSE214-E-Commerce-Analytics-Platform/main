@@ -235,6 +235,42 @@
   box-shadow: 0 0 12px var(--ind-accent);
 }
 
+.cart-header-btn {
+  position: relative;
+  width: 38px; height: 38px;
+  background: var(--btn-ghost-bg);
+  border: 1px solid var(--btn-ghost-border);
+  border-radius: 10px; cursor: pointer;
+  font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+  text-decoration: none;
+  transition: all 0.22s ease;
+}
+
+.cart-header-btn:hover {
+  background: var(--ind-accent-hover);
+  border-color: var(--ind-accent);
+  transform: translateY(-2px);
+}
+
+[data-theme="dark"] .individual-layout .cart-header-btn:hover {
+  box-shadow: 0 0 12px var(--ind-accent);
+}
+
+.cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #ef4444;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 2px solid var(--header-bg);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
 /* ── Content Area ─────────────────────────────────────── */
 .content {
   padding: 28px;
@@ -271,4 +307,43 @@
   .content { padding: 16px; }
   .top-header { padding: 0 16px; }
   .user-chip { display: none; }
+}
+
+/* ── Toast Notification ── */
+.toast-notification {
+  position: fixed;
+  bottom: 90px;
+  right: 24px;
+  padding: 14px 24px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  z-index: 1000;
+  animation: slideInUp 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+  pointer-events: none;
+}
+
+@keyframes slideInUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; pointer-events: none; }
+}
+
+.toast-notification.success {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border: 1px solid #34d399;
+}
+
+.toast-notification.error {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  border: 1px solid #f87171;
+}
+
+.toast-notification.info {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border: 1px solid #60a5fa;
 }

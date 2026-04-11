@@ -76,6 +76,12 @@
 
       <div class="header-actions">
         <span class="user-chip" *ngIf="ind_email_parsed">{{ ind_email_parsed }}</span>
+        
+        <a routerLink="/individual/cart" class="cart-header-btn">
+          🛒
+          <span class="cart-badge" *ngIf="(cartService.currentCart$ | async)?.totalItems as count">{{ count }}</span>
+        </a>
+
         <button class="theme-toggle-btn" (click)="themeService.toggle()" [title]="themeService.isDark() ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
           <span *ngIf="themeService.isDark()">☀️</span>
           <span *ngIf="!themeService.isDark()">🌙</span>
@@ -88,4 +94,8 @@
     </div>
 
   </main>
+
+  <div *ngIf="toastMessage" class="toast-notification" [ngClass]="toastMessage.type">
+    {{ toastMessage.message }}
+  </div>
 </div>

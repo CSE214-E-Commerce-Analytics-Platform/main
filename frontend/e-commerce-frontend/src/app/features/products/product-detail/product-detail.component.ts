@@ -2,6 +2,8 @@ import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location, CommonModule } from '@angular/common';
 import { ProductService } from '../../../core/services/product.service';
+import { CartService } from '../../../core/services/cart.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { Product } from '../../../shared/models/product';
 
 @Component({
@@ -14,6 +16,8 @@ export class ProductDetailComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private location = inject(Location);
     private productService = inject(ProductService);
+    private cartService = inject(CartService);
+    private toastService = inject(ToastService);
 
     product: Product | null = null;
     isLoading = true;
@@ -33,6 +37,15 @@ export class ProductDetailComponent implements OnInit {
                 }
             });
         }
+    }
+
+    addToCart(productId: number | undefined) {
+        if (!productId) return;
+        this.cartService.addItemToCart({ productId, quantity: 1 }).subscribe({
+            next: () => {
+                this.toastService.showSuccess(`🛒 Product successfully added to cart!`);
+            }
+        });
     }
 
     goBack(): void {
