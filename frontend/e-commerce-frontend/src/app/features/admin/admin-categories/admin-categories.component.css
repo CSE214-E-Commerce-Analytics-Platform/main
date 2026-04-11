@@ -5,9 +5,10 @@
 
 /* Page Layout */
 app-admin-categories .cat-page {
-    padding: 2rem;
+    padding: 0;
     max-width: 1400px;
     margin: 0 auto;
+    font-family: 'Inter', sans-serif;
 }
 
 app-admin-categories .cat-page-header {
@@ -18,33 +19,37 @@ app-admin-categories .cat-page-header {
 }
 
 app-admin-categories .cat-page-header h2 {
-    font-size: 2rem;
-    color: #1f2937;
-    margin: 0 0 0.4rem 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 4px 0;
 }
 
 app-admin-categories .cat-page-header p {
-    color: #6b7280;
+    color: #64748b;
     margin: 0;
-    font-size: 0.95rem;
+    font-size: 0.875rem;
 }
 
 /* Add Button */
 app-admin-categories .cat-add-btn {
-    padding: 0.7rem 1.4rem;
-    background: #4f46e5;
+    padding: 10px 18px;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
     color: white;
     border: none;
     border-radius: 10px;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s, transform 0.15s;
+    transition: all 0.22s ease;
     white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    font-family: 'Inter', sans-serif;
 }
 app-admin-categories .cat-add-btn:hover {
-    background: #4338ca;
+    background: linear-gradient(135deg, #818cf8, #6366f1);
     transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(99, 102, 241, 0.4);
 }
 
 /* Banners */
@@ -70,18 +75,20 @@ app-admin-categories .cat-error-banner {
 app-admin-categories .cat-loading {
     text-align: center;
     padding: 3rem;
-    background: white;
+    background: var(--card-bg);
     border-radius: 14px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--card-border);
+    color: var(--text-secondary);
 }
 app-admin-categories .cat-spinner {
-    border: 3px solid #f3f4f6;
-    border-top: 3px solid #4f46e5;
+    border: 3px solid #f1f5f9;
+    border-top: 3px solid #6366f1;
     border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    animation: catSpin 1s linear infinite;
-    margin: 0 auto 1rem;
+    width: 36px;
+    height: 36px;
+    animation: catSpin 0.9s linear infinite;
+    margin: 0 auto 12px;
 }
 @keyframes catSpin {
     0%   { transform: rotate(0deg); }
@@ -113,18 +120,20 @@ app-admin-categories .cat-grid {
 
 /* Card */
 app-admin-categories .cat-card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 16px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    border-left: 4px solid #4f46e5;
+    padding: 18px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--card-border);
+    border-top: 3px solid var(--admin-accent);
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.22s, box-shadow 0.22s;
+    position: relative;
 }
 app-admin-categories .cat-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.09);
+    box-shadow: var(--card-shadow-hover);
 }
 app-admin-categories .cat-card-top {
     display: flex;
@@ -147,50 +156,51 @@ app-admin-categories .cat-name {
     margin: 0 0 0.4rem 0;
     font-size: 1.15rem;
     font-weight: 700;
-    color: #111827;
+    color: var(--text-primary);
 }
 app-admin-categories .cat-parent {
     margin: 0 0 0.25rem 0;
     font-size: 0.85rem;
-    color: #4f46e5;
+    color: #6366f1;
     font-weight: 500;
 }
 app-admin-categories .cat-date {
     margin: 0 0 1rem 0;
     font-size: 0.8rem;
-    color: #9ca3af;
+    color: var(--text-muted);
     flex: 1;
 }
 app-admin-categories .cat-card-footer {
     display: flex;
     gap: 0.5rem;
-    border-top: 1px solid #f3f4f6;
+    border-top: 1px solid var(--card-border);
     padding-top: 1rem;
 }
 app-admin-categories .cat-edit-btn,
 app-admin-categories .cat-delete-btn {
     flex: 1;
-    padding: 0.5rem;
+    padding: 8px 10px;
     border: none;
-    border-radius: 8px;
+    border-radius: 9px;
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
 }
 app-admin-categories .cat-edit-btn {
-    background: #f3f4f6;
-    color: #374151;
+    background: #eff6ff;
+    color: #2563eb;
 }
 app-admin-categories .cat-edit-btn:hover {
-    background: #e5e7eb;
+    background: #dbeafe;
 }
 app-admin-categories .cat-delete-btn {
-    background: #fee2e2;
-    color: #dc2626;
+    background: #fff1f2;
+    color: #e11d48;
 }
 app-admin-categories .cat-delete-btn:hover {
-    background: #fecaca;
+    background: #ffe4e6;
 }
 
 /* =========================================================
@@ -199,20 +209,24 @@ app-admin-categories .cat-delete-btn:hover {
 .cat-modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(15, 23, 42, 0.55);
     z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
+    backdrop-filter: blur(4px);
+    animation: catFadeIn 0.15s ease;
 }
+@keyframes catFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 .cat-modal {
-    background: white;
+    background: var(--modal-bg);
+    border: 1px solid var(--card-border);
     border-radius: 18px;
     padding: 2rem;
     width: 90%;
     max-width: 480px;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
     animation: catModalIn 0.2s ease;
 }
 
@@ -286,20 +300,20 @@ app-admin-categories .cat-delete-btn:hover {
 .cat-input {
     width: 100%;
     padding: 0.7rem 0.9rem;
-    border: 1.5px solid #d1d5db;
+    border: 1.5px solid var(--input-border);
     border-radius: 10px;
     font-size: 0.95rem;
-    color: #1f2937;
-    background: #f9fafb;
+    color: var(--text-primary);
+    background: var(--input-bg);
     transition: border-color 0.2s, box-shadow 0.2s;
     box-sizing: border-box;
     font-family: inherit;
 }
 .cat-input:focus {
     outline: none;
-    border-color: #4f46e5;
+    border-color: #6366f1;
     background: white;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
 }
 .cat-input:disabled {
     opacity: 0.6;
@@ -332,19 +346,21 @@ app-admin-categories .cat-delete-btn:hover {
 }
 
 .cat-save-btn {
-    padding: 0.65rem 1.5rem;
+    padding: 10px 20px;
     border: none;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    border-radius: 9px;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
     color: white;
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: opacity 0.2s, transform 0.15s;
+    transition: all 0.22s ease;
+    font-family: 'Inter', sans-serif;
 }
 .cat-save-btn:hover:not(:disabled) {
-    opacity: 0.9;
+    background: linear-gradient(135deg, #818cf8, #6366f1);
     transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
 }
 .cat-save-btn:disabled {
     opacity: 0.5;
