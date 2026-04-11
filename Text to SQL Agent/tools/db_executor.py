@@ -1,6 +1,7 @@
 import psycopg2
 import psycopg2.extras
 import os
+import re
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -41,10 +42,10 @@ def execute_query(sql: str, user_role: str, user_id: int, store_id: int = None) 
     if not sql_upper.startswith("SELECT"):
         return "ERROR: Only SELECT queries are permitted."
 
-    # Block dangerous keywords
+    # Block dangerous keywords (Use \b for exact word match so 'updated_at' is not blocked as 'UPDATE')
     dangerous = ["DROP", "DELETE", "INSERT", "UPDATE", "TRUNCATE", "ALTER", "EXEC"]
     for keyword in dangerous:
-        if keyword in sql_upper:
+        if re.search(r'\b' + keyword + r'\b', sql_upper):
             return f"ERROR: '{keyword}' command is not permitted."
 
     # Layer 5 — Block queries referencing sensitive columns (AV-12)

@@ -7,13 +7,18 @@ from agents.analysis_agent import analysis_agent
 from agents.visualization_agent import visualization_agent
 from tools.db_executor import execute_query
 
-BLOCKED_SIGNALS = {"SCOPE_VIOLATION", "INJECTION_DETECTED", "UNFIXABLE"}
+BLOCKED_SIGNALS = {"SCOPE_VIOLATION", "INJECTION_DETECTED", "UNFIXABLE", "MISSING_DATA_TABLE"}
 
 def execute_sql_node(state: AgentState) -> AgentState:
     sql = state.get("sql_query", "").strip().upper()
 
     # Short-circuit: blocked signal from SQL/error agent — do not hit the DB
-    if sql in BLOCKED_SIGNALS:
+    if sql == "MISSING_DATA_TABLE":
+        state["query_result"] = None
+        state["error"] = None
+        state["final_answer"] = "Currently, there are no data tables containing information like orders or revenue. The platform only tracks products and store details at this stage."
+        return state
+    elif sql in BLOCKED_SIGNALS:
         state["query_result"] = None
         state["error"] = None
         state["final_answer"] = "I'm sorry, I can only assist with questions related to your own e-commerce analytics data."
@@ -50,7 +55,7 @@ def check_error(state: AgentState) -> str:
     if state.get("error"):
         if state.get("iteration_count", 0) >= 3:
             # Max retries hit — return a friendly fallback instead of None
-            state["final_answer"] = "Bu sorgu şu an işlenemiyor, lütfen farklı bir soru deneyin."
+            state["final_answer"] = "This query cannot be processed at the moment, please try a different question."
             return "end"
         return "error"
     return "analysis"

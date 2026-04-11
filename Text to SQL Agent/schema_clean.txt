@@ -1,6 +1,0 @@
-USERS (is_active, id, created_at, updated_at, email, password_hash, role_type, gender)
-REFRESH_TOKENS (revoked_at, replaced_by, created_at, updated_at, id, user_id, expires_at, token)
-CATEGORIES (id, parent_id, created_at, updated_at, name)
-VERIFICATION_TOKENS (id, user_id, expires_at, used_at, created_at, updated_at, token_type, token)
-PRODUCTS (id, unit_price, stock_quantity, store_id, category_id, created_at, updated_at, name, description, image_url, sku)
-STORES (id, owner_id, created_at, updated_at, name, status)
