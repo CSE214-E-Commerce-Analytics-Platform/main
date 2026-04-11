@@ -31,6 +31,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+
+                        // auth
                         .requestMatchers("/api/auth/**").permitAll()
 
                         // categories
@@ -48,6 +50,11 @@ public class SecurityConfig {
                         // user
                         .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
 
+                        // swagger
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+
+                        // payment
+                        .requestMatchers("/api/payments/webhook").permitAll()
 
                         .anyRequest().authenticated()
                 )

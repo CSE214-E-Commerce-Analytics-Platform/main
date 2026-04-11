@@ -1,1 +1,99 @@
-<p>ind-orders works!</p>
+<div class="orders-container">
+  <div class="orders-header">
+    <h2>My Orders</h2>
+    <p class="header-sub">Track, manage, and view your order history.</p>
+  </div>
+
+  <div class="loader" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading your orders...</p>
+  </div>
+
+  <div class="orders-list" *ngIf="!isLoading && orders.length > 0">
+    <div class="order-card" *ngFor="let order of orders" [class.expanded]="expandedOrderId === order.id">
+      
+      <!-- Order Summary (Always Visible) -->
+      <div class="order-summary" (click)="toggleExpand(order.id)">
+        <div class="order-info-group">
+          <span class="order-label">Order #</span>
+          <span class="order-value">{{ order.id }}</span>
+        </div>
+        
+        <div class="order-info-group date-group">
+          <span class="order-label">Date</span>
+          <span class="order-value">{{ order.orderDate | date:'mediumDate' }}</span>
+        </div>
+
+        <div class="order-info-group status-group">
+          <span class="order-label">Status</span>
+          <span class="status-badge" [ngClass]="getStatusClass(order.status)">
+            {{ getStatusIcon(order.status) }} {{ order.status }}
+          </span>
+        </div>
+
+        <div class="order-info-group total-group">
+          <span class="order-label">Total</span>
+          <span class="order-value highlight">{{ order.grandTotal | currency:'USD' }}</span>
+        </div>
+
+        <div class="expand-icon">
+          <span *ngIf="expandedOrderId !== order.id">▼</span>
+          <span *ngIf="expandedOrderId === order.id">▲</span>
+        </div>
+      </div>
+
+      <!-- Order Details (Expanded) -->
+      <div class="order-details" *ngIf="expandedOrderId === order.id">
+        <div class="details-divider"></div>
+        
+        <div class="items-section" *ngIf="order.items && order.items.length > 0">
+          <h4>Items</h4>
+          <div class="item-line" *ngFor="let item of order.items">
+            <div class="item-name">{{ item.quantity }}x {{ item.productName }}</div>
+            <div class="item-price">{{ item.price | currency:'USD' }}</div>
+          </div>
+        </div>
+
+        <div class="items-section suborders" *ngIf="order.subOrders && order.subOrders.length > 0">
+          <h4>Packages (From different sellers)</h4>
+          <div class="suborder-line" *ngFor="let sub of order.subOrders">
+            <div class="sub-store">{{ sub.storeName }}</div>
+            <div class="sub-status" [ngClass]="getStatusClass(sub.status)">{{ sub.status }}</div>
+            <div class="sub-items">
+              <span *ngFor="let subItem of sub.items; let i = index">
+                {{ subItem.quantity }}x {{ subItem.productName }}{{ i < sub.items.length - 1 ? ', ' : '' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions-section">
+          <!-- Only show Cancel if order is Pending or Approved -->
+          <button class="action-btn cancel-btn" 
+                  *ngIf="isCancellable(order)" 
+                  (click)="cancelOrder(order.id); $event.stopPropagation()"
+                  [disabled]="cancellingId === order.id">
+            <span *ngIf="cancellingId !== order.id">Cancel Order</span>
+            <span *ngIf="cancellingId === order.id">Cancelling...</span>
+          </button>
+          
+          <!-- Only show Pay Now if order is Pending -->
+          <button class="action-btn pay-btn" 
+                  *ngIf="isPending(order)" 
+                  (click)="payNow(order.id); $event.stopPropagation()"
+                  [disabled]="payingId === order.id">
+            <span *ngIf="payingId !== order.id">💳 Pay Now</span>
+            <span *ngIf="payingId === order.id">Processing...</span>
+          </button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && orders.length === 0">
+    <div class="empty-icon">📦</div>
+    <h3>No orders found</h3>
+    <p>You haven't placed any orders yet.</p>
+  </div>
+</div>

@@ -6,11 +6,13 @@ import com.furkan.dto.response.DtoCartItem;
 import com.furkan.entities.Cart;
 import com.furkan.entities.CartItem;
 import com.furkan.entities.Product;
+import com.furkan.entities.User;
 import com.furkan.exception.BaseException;
 import com.furkan.exception.ErrorMessage;
 import com.furkan.exception.MessageType;
 import com.furkan.repositories.CartRepository;
 import com.furkan.repositories.ProductRepository;
+import com.furkan.repositories.UserRepository;
 import com.furkan.services.ICartService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,6 +31,7 @@ public class CartServiceImpl implements ICartService {
 
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
+    private final UserRepository userRepository;
 
     @Override
     public DtoCart findCartByUserId(Long userId) {
@@ -102,6 +106,22 @@ public class CartServiceImpl implements ICartService {
     public void adminDeleteCart(Long cartId) {
         Cart cart = getCart(cartId);
         cartRepository.delete(cart);
+    }
+
+    @Override
+    @Transactional
+    public Cart findEntityCartByUserId(Long userId) {
+        return cartRepository.findByUserId(userId)
+                .orElseGet(() -> {
+                    User user = userRepository.findById(userId)
+                            .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.USER_NOT_FOUND, userId.toString())));
+
+                    Cart newCart = new Cart();
+                    newCart.setUser(user);
+                    newCart.setTotalPrice(BigDecimal.ZERO);
+                    newCart.setCartItems(new ArrayList<>());
+                    return cartRepository.save(newCart);
+                });
     }
 
     private Cart getCart(Long userId) {

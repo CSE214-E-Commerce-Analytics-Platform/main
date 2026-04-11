@@ -138,6 +138,11 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/admin/admin-corporate-requests/admin-corporate-requests.component')
                     .then(m => m.AdminCorporateRequestsComponent)
             },
+            {
+                path: 'orders',
+                loadComponent: () => import('./features/admin/admin-orders/admin-orders.component')
+                    .then(m => m.AdminOrdersComponent)
+            },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]
     },

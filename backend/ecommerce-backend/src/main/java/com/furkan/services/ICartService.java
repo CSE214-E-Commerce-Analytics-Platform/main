@@ -2,6 +2,7 @@ package com.furkan.services;
 
 import com.furkan.dto.request.DtoCartItemRequest;
 import com.furkan.dto.response.DtoCart;
+import com.furkan.entities.Cart;
 
 import java.util.List;
 
@@ -21,4 +22,6 @@ public interface ICartService {
     List<DtoCart> findAllCarts();
 
     void adminDeleteCart(Long cartId);
+
+    Cart findEntityCartByUserId(Long userId);
 }

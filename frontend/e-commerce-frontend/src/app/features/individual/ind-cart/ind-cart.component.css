@@ -404,3 +404,73 @@
 .modal-btn.danger:hover {
   background: #dc2626;
 }
+
+/* ── Checkout Modal Extra ── */
+.checkout-content {
+  max-width: 480px;
+}
+
+.checkout-sub {
+  margin: 0 0 16px 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.body-checkout {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-group textarea {
+  background: var(--input-bg, rgba(255,255,255,0.05));
+  border: 1px solid var(--input-border, rgba(255,255,255,0.1));
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+.form-group textarea:focus {
+  border-color: var(--ind-accent);
+  box-shadow: 0 0 0 3px var(--ind-accent-hover);
+}
+
+.modal-btn.checkout-confirm {
+  background: var(--ind-header-accent);
+  border: none;
+  color: white;
+}
+
+.modal-btn.checkout-confirm:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.modal-btn.checkout-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

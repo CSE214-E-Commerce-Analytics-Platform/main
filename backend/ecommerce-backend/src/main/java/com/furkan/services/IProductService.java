@@ -18,4 +18,8 @@ public interface IProductService {
     void deleteProductById(Long id, Long authenticatedUserId);
 
     List<DtoProduct> findAllByStoreId(Long storeId);
+
+    void reduceStock(Long productId, int quantity);
+
+    void increaseStock(Long productId, int quantity);
 }
