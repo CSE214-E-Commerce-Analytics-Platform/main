@@ -63,11 +63,9 @@ export class ChatbotComponent {
         this.isTyping = true;
         this.scrollToBottom();
 
-        // storeId auth yapısında mevcut değil, varsayılan değer kullanılıyor
-        const storeId = 0;
-
+        // storeId artık buradan gönderilmiyor — backend JWT'den alıyor (AV-02 güvencesi)
         // Send to AI
-        this.aiService.askQuestion(query, storeId).subscribe({
+        this.aiService.askQuestion(query).subscribe({
             next: (response: string) => {
                 this.messages.push({
                     role: 'ai',
