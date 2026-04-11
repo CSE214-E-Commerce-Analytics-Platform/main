@@ -1,24 +1,200 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-/* Global Spinner Styles */
+/* ================================================================
+   GLOBAL RESET & BASE
+   ================================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+/* ================================================================
+   LIGHT MODE — DEFAULT
+   ================================================================ */
+:root,
+[data-theme="light"] {
+  /* ── Shared ── */
+  --content-bg: #f0f2f5;
+  --card-bg: #ffffff;
+  --card-border: #e8ecf0;
+  --card-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  --card-shadow-hover: 0 10px 28px rgba(0,0,0,0.11);
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --border-color: #e2e8f0;
+  --input-bg: #f8fafc;
+  --input-border: #cbd5e1;
+  --input-focus-shadow: rgba(0,0,0,0.08);
+  --header-bg: #ffffff;
+  --header-border: #e5e7eb;
+  --header-shadow: 0 1px 8px rgba(0,0,0,0.05);
+  --modal-overlay: rgba(15,23,42,0.55);
+  --modal-bg: #ffffff;
+  --btn-ghost-bg: #f8fafc;
+  --btn-ghost-border: #e2e8f0;
+  --btn-ghost-color: #475569;
+
+  /* ── Admin Panel (Indigo/Violet) ── */
+  --admin-sidebar-bg: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%);
+  --admin-sidebar-top: linear-gradient(90deg, #6366f1, #818cf8, #6366f1);
+  --admin-accent: #6366f1;
+  --admin-accent-hover: rgba(99,102,241,0.14);
+  --admin-accent-active: rgba(99,102,241,0.2);
+  --admin-nav-color: #a5b4fc;
+  --admin-nav-hover: #c7d2fe;
+  --admin-header-accent: linear-gradient(180deg, #6366f1, #4f46e5);
+  --admin-content-bg: #eef0ff;
+
+  /* ── Corporate Panel (Amber/Gold) ── */
+  --corp-sidebar-bg: linear-gradient(180deg, #1c1917 0%, #292524 100%);
+  --corp-sidebar-top: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b);
+  --corp-accent: #f59e0b;
+  --corp-accent-hover: rgba(245,158,11,0.13);
+  --corp-accent-active: rgba(245,158,11,0.2);
+  --corp-nav-color: #fde68a;
+  --corp-nav-hover: #fef3c7;
+  --corp-header-accent: linear-gradient(180deg, #f59e0b, #d97706);
+  --corp-content-bg: #fffbeb;
+
+  /* ── Individual Panel (Cyan/Teal) ── */
+  --ind-sidebar-bg: linear-gradient(180deg, #052e3a 0%, #0c4a6e 100%);
+  --ind-sidebar-top: linear-gradient(90deg, #06b6d4, #22d3ee, #06b6d4);
+  --ind-accent: #06b6d4;
+  --ind-accent-hover: rgba(6,182,212,0.12);
+  --ind-accent-active: rgba(6,182,212,0.2);
+  --ind-nav-color: #67e8f9;
+  --ind-nav-hover: #a5f3fc;
+  --ind-header-accent: linear-gradient(180deg, #06b6d4, #0891b2);
+  --ind-content-bg: #ecfeff;
+
+  /* ── Upgrade link (Individual) ── */
+  --upgrade-color: #fbbf24;
+  --upgrade-hover-bg: rgba(251,191,36,0.12);
+  --upgrade-active-border: #fbbf24;
+}
+
+/* ================================================================
+   DARK MODE — NEON VARIANT
+   ================================================================ */
+[data-theme="dark"] {
+  /* ── Shared ── */
+  --content-bg: #080c10;
+  --card-bg: #111827;
+  --card-border: #1f2937;
+  --card-shadow: 0 2px 16px rgba(0,0,0,0.4);
+  --card-shadow-hover: 0 10px 32px rgba(0,0,0,0.6);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #475569;
+  --border-color: #1e2a3a;
+  --input-bg: #0f172a;
+  --input-border: #1e293b;
+  --input-focus-shadow: rgba(0,0,0,0.4);
+  --header-bg: #0f172a;
+  --header-border: #1e293b;
+  --header-shadow: 0 1px 12px rgba(0,0,0,0.35);
+  --modal-overlay: rgba(0,0,0,0.75);
+  --modal-bg: #111827;
+  --btn-ghost-bg: #1e293b;
+  --btn-ghost-border: #334155;
+  --btn-ghost-color: #94a3b8;
+
+  /* ── Admin — Neon Violet ── */
+  --admin-sidebar-bg: linear-gradient(180deg, #0d0b2e 0%, #150e3d 100%);
+  --admin-sidebar-top: linear-gradient(90deg, #7c3aed, #a78bfa, #7c3aed);
+  --admin-accent: #a78bfa;
+  --admin-accent-hover: rgba(167,139,250,0.15);
+  --admin-accent-active: rgba(167,139,250,0.25);
+  --admin-nav-color: #c4b5fd;
+  --admin-nav-hover: #ddd6fe;
+  --admin-header-accent: linear-gradient(180deg, #7c3aed, #a78bfa);
+  --admin-content-bg: #09071d;
+
+  /* ── Corporate — Neon Amber ── */
+  --corp-sidebar-bg: linear-gradient(180deg, #0c0a09 0%, #1a1108 100%);
+  --corp-sidebar-top: linear-gradient(90deg, #d97706, #fbbf24, #d97706);
+  --corp-accent: #fbbf24;
+  --corp-accent-hover: rgba(251,191,36,0.15);
+  --corp-accent-active: rgba(251,191,36,0.25);
+  --corp-nav-color: #fde68a;
+  --corp-nav-hover: #fef9c3;
+  --corp-header-accent: linear-gradient(180deg, #d97706, #fbbf24);
+  --corp-content-bg: #0c0900;
+
+  /* ── Individual — Neon Cyan ── */
+  --ind-sidebar-bg: linear-gradient(180deg, #030d15 0%, #071b27 100%);
+  --ind-sidebar-top: linear-gradient(90deg, #0891b2, #22d3ee, #0891b2);
+  --ind-accent: #22d3ee;
+  --ind-accent-hover: rgba(34,211,238,0.14);
+  --ind-accent-active: rgba(34,211,238,0.22);
+  --ind-nav-color: #67e8f9;
+  --ind-nav-hover: #a5f3fc;
+  --ind-header-accent: linear-gradient(180deg, #0891b2, #22d3ee);
+  --ind-content-bg: #020c12;
+
+  /* ── Upgrade ── */
+  --upgrade-color: #fbbf24;
+  --upgrade-hover-bg: rgba(251,191,36,0.14);
+  --upgrade-active-border: #fbbf24;
+}
+
+/* ================================================================
+   DARK MODE — NEON CARD GLOW EFFECTS
+   ================================================================ */
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .store-card,
+[data-theme="dark"] .user-card,
+[data-theme="dark"] .request-card,
+[data-theme="dark"] .table-card {
+  border-color: #1e293b;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.4);
+}
+
+[data-theme="dark"] .stat-card:hover,
+[data-theme="dark"] .store-card:hover,
+[data-theme="dark"] .user-card:hover,
+[data-theme="dark"] .request-card:hover {
+  box-shadow: 0 0 28px rgba(0,0,0,0.5);
+}
+
+/* ================================================================
+   GLOBAL SPINNER
+   ================================================================ */
 .btn-loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    opacity: 0.8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.8;
 }
 
-.spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.4);
-    border-top: 2px solid white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+/* ================================================================
+   MOBILE SIDEBAR OVERLAY (shared across all layouts)
+   ================================================================ */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 99;
+  backdrop-filter: blur(2px);
+  animation: overlayIn 0.2s ease;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+
+.sidebar-overlay.visible { display: block; }
+
+/* ================================================================
+   SCROLLBAR (Dark Mode)
+   ================================================================ */
+[data-theme="dark"] ::-webkit-scrollbar { width: 6px; }
+[data-theme="dark"] ::-webkit-scrollbar-track { background: #0f172a; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #475569; }

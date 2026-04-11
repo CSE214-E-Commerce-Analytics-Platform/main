@@ -1,77 +1,85 @@
-<div class="container-fluid py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Corporate Dashboard</h2>
-    <button class="btn btn-primary" (click)="openCreateModal()">
-      <i class="bi bi-plus-circle me-2"></i> Add New Store
+<div class="dash-page">
+
+  <!-- Page Header -->
+  <div class="dash-header">
+    <div class="dash-header-left">
+      <h2>Corporate Dashboard</h2>
+      <p>Manage your stores and track your business performance.</p>
+    </div>
+    <button class="btn-add-store" (click)="openCreateModal()">
+      <i class="bi bi-plus-circle-fill"></i> Add New Store
     </button>
   </div>
 
-  <div class="row mb-4">
-    <div class="col-md-4">
-      <div class="card bg-primary text-white h-100 shadow-sm">
-        <div class="card-body d-flex flex-column justify-content-center align-items-center">
-          <h1 class="display-4 fw-bold">{{ stores.length }}</h1>
-          <p class="fs-5 mb-0">Total Stores</p>
-        </div>
-      </div>
-    </div>
-    <!-- Add more stats here if needed later -->
-  </div>
-
-  <h4 class="mb-3">My Stores</h4>
-  
-  <div *ngIf="isLoading" class="text-center my-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-  </div>
-
-  <div *ngIf="!isLoading && stores.length === 0" class="alert alert-info shadow-sm">
-    You don't have any stores yet. Create a new store to start selling immediately!
-  </div>
-
-  <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4" *ngIf="!isLoading && stores.length > 0">
-    <div class="col" *ngFor="let store of stores">
-      <div class="card h-100 shadow-sm border-0">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <h5 class="card-title fw-bold text-dark mb-0">{{ store.name }}</h5>
-            <span class="badge" [ngClass]="{'bg-success': store.status === 'ACTIVE', 'bg-warning': store.status !== 'ACTIVE'}">
-              {{ store.status }}
-            </span>
-          </div>
-          <p class="text-muted small mb-3">Created At: {{ store.createdAt | date:'shortDate' }}</p>
-          <a href="/corporate/products?storeId={{ store.id }}" class="btn btn-outline-primary w-100">
-            Manage Products
-          </a>
-        </div>
+  <!-- Stats Row -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon">🏪</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ stores.length }}</div>
+        <div class="stat-label">Total Stores</div>
       </div>
     </div>
   </div>
 
-  <!-- Create Store Modal -->
-  <div class="modal d-block" tabindex="-1" *ngIf="showCreateModal" style="background: rgba(0,0,0,0.5);">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content border-0 shadow-lg">
-        <div class="modal-header bg-light">
-          <h5 class="modal-title fw-bold">Create New Store</h5>
-          <button type="button" class="btn-close" (click)="closeCreateModal()" aria-label="Close"></button>
+  <!-- Section Title -->
+  <h4 class="section-title">My Stores</h4>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading your stores...</p>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!isLoading && stores.length === 0" class="empty-state">
+    <div class="empty-icon">🏬</div>
+    <p>You don't have any stores yet. Click <strong>Add New Store</strong> to start selling immediately!</p>
+  </div>
+
+  <!-- Store Grid -->
+  <div class="store-grid" *ngIf="!isLoading && stores.length > 0">
+    <div class="store-card" *ngFor="let store of stores">
+      <div class="store-card-banner"></div>
+      <div class="store-card-body">
+        <div class="store-card-meta">
+          <h5 class="store-card-name">{{ store.name }}</h5>
+          <span class="status-pill" [ngClass]="store.status === 'ACTIVE' ? 'active' : 'inactive'">
+            {{ store.status }}
+          </span>
         </div>
-        <div class="modal-body">
-          <form [formGroup]="storeForm" (ngSubmit)="createStore()">
-            <div class="mb-3">
-              <label for="storeName" class="form-label">Store Name</label>
-              <input type="text" class="form-control form-control-lg" id="storeName" formControlName="name" placeholder="Name of your awesome store...">
-              <div *ngIf="storeForm.get('name')?.invalid && storeForm.get('name')?.touched" class="text-danger small mt-1">
-                Store name must be at least 3 characters.
-              </div>
-            </div>
-            <div class="d-grid mt-4">
-              <button type="submit" class="btn btn-primary btn-lg" [disabled]="storeForm.invalid">Create</button>
-            </div>
-          </form>
-        </div>
+        <p class="store-card-date">Created {{ store.createdAt | date:'dd MMM yyyy' }}</p>
+        <a href="/corporate/products?storeId={{ store.id }}" class="btn-manage">
+          <i class="bi bi-box-seam"></i> Manage Products
+        </a>
       </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== Create Store Modal ===== -->
+<div class="modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h5>Create New Store</h5>
+      <button class="modal-close" (click)="closeCreateModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="storeForm" (ngSubmit)="createStore()">
+        <label class="form-label-text" for="storeName">Store Name</label>
+        <input
+          type="text"
+          class="form-input"
+          id="storeName"
+          formControlName="name"
+          placeholder="Name of your awesome store..."
+        >
+        <p *ngIf="storeForm.get('name')?.invalid && storeForm.get('name')?.touched" class="form-error">
+          Store name must be at least 3 characters.
+        </p>
+        <button type="submit" class="btn-submit" [disabled]="storeForm.invalid">Create Store</button>
+      </form>
     </div>
   </div>
 </div>
