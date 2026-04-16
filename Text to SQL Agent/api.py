@@ -31,6 +31,12 @@ class ChatResponse(BaseModel):
 
 @app.post("/chat", response_model=ChatResponse)
 def chat(request: ChatRequest):
+    print("\n" + "*"*50)
+    print(f"[API] YENİ İSTEK GELDİ!")
+    print(f"Soru: {request.question}")
+    print(f"Rol: {request.user_role} | User ID: {request.user_id} | Store ID: {request.store_id}")
+    print("*"*50 + "\n")
+    
     """
     Sadece Spring Boot backend'i tarafından çağrılır.
     user_role, user_id, store_id frontend'den değil, JWT'den gelir.

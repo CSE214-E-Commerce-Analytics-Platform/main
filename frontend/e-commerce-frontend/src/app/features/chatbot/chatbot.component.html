@@ -78,3 +78,13 @@
 
 </div>
 }
+
+<!-- Expanded Graph Overlay -->
+@if (isGraphExpanded) {
+<div class="graph-overlay" (click)="closeExpandedGraph()">
+  <div class="graph-modal" (click)="$event.stopPropagation()">
+    <button class="close-graph-btn" (click)="closeExpandedGraph()" aria-label="Close graph">✕</button>
+    <img [src]="expandedGraphSrc" alt="Expanded Graph" class="expanded-img">
+  </div>
+</div>
+}

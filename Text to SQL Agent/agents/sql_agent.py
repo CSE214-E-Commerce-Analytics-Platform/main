@@ -38,8 +38,6 @@ def build_scope_rule(user_role: str, user_id: int, store_id: int) -> str:
             f"If the question asks for any other user's data → output exactly: SCOPE_VIOLATION"
         )
     elif user_role == "CORPORATE":
-        if not store_id:
-            return "SCOPE RULE: CORPORATE user has no store assigned. Output exactly: SCOPE_VIOLATION for any data query."
         return (
             f"SCOPE RULE (mandatory):\n"
             f"This user is CORPORATE with store_id = {store_id}. Every query MUST include WHERE store_id = {store_id}.\n"

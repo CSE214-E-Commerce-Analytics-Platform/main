@@ -453,3 +453,135 @@
     height: 52px;
   }
 }
+
+/* ── Graph Image Wrapper ── */
+::ng-deep .chat-img-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-top: 10px;
+  width: 100%;
+}
+
+::ng-deep .chat-img {
+  max-width: 100%;
+  max-height: 250px;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  display: block;
+}
+
+[data-theme="dark"] ::ng-deep .chat-img {
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+::ng-deep .expand-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.65);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease, background 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+::ng-deep .chat-img-wrapper:hover .expand-btn {
+  opacity: 1;
+}
+
+::ng-deep .expand-btn:hover {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+/* ── Graph Overlay ── */
+.graph-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.graph-modal {
+  position: relative;
+  background: var(--card-bg, #111827);
+  padding: 12px;
+  border-radius: 16px;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.6);
+  animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+[data-theme="dark"] .graph-modal { 
+  background: #0f172a; 
+  border: 1px solid #1e293b;
+}
+
+.expanded-img {
+  max-width: 100%;
+  max-height: calc(90vh - 24px);
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.close-graph-btn {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  background: #ef4444;
+  color: white;
+  border: 2px solid var(--card-bg, #111827);
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  transition: transform 0.2s ease, background 0.2s ease;
+  z-index: 10;
+}
+
+[data-theme="dark"] .close-graph-btn {
+  border-color: #0f172a;
+}
+
+.close-graph-btn:hover {
+  transform: scale(1.1);
+  background: #dc2626;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}

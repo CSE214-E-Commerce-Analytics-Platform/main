@@ -12,16 +12,27 @@ BLOCKED_SIGNALS = {"SCOPE_VIOLATION", "INJECTION_DETECTED", "UNFIXABLE", "MISSIN
 def execute_sql_node(state: AgentState) -> AgentState:
     sql = state.get("sql_query", "").strip().upper()
 
+    print("\n" + "-"*50)
+    print(f"[SQL AGENT] Veritabanına Gönderilecek SQL:")
+    print(f"{state.get('sql_query')}")
+    print("-"*50 + "\n")
+
     # Short-circuit: blocked signal from SQL/error agent — do not hit the DB
     if sql == "MISSING_DATA_TABLE":
         state["query_result"] = None
-        state["error"] = None
-        state["final_answer"] = "Currently, there are no data tables containing information like orders or revenue. The platform only tracks products and store details at this stage."
+        state["final_answer"] = "There is currently no table on the platform containing this information."
         return state
-    elif sql in BLOCKED_SIGNALS:
+    elif sql == "SCOPE_VIOLATION":
         state["query_result"] = None
-        state["error"] = None
-        state["final_answer"] = "I'm sorry, I can only assist with questions related to your own e-commerce analytics data."
+        state["final_answer"] = "[AUTHORIZATION ERROR] SQL Agent: You do not have permission to view this data, or it does not belong to you."
+        return state
+    elif sql == "INJECTION_DETECTED":
+        state["query_result"] = None
+        state["final_answer"] = "[SECURITY] SQL Agent: Malicious command detected."
+        return state
+    elif sql == "UNFIXABLE":
+        state["query_result"] = None
+        state["final_answer"] = "[SYSTEM] SQL Agent: Your query cannot be processed at this time."
         return state
 
     result = execute_query(
@@ -59,11 +70,6 @@ def check_error(state: AgentState) -> str:
             return "end"
         return "error"
     return "analysis"
-
-def decide_graph_need(state: AgentState) -> str:
-    if state.get("visualization_code"):
-        return "visualization"
-    return "end"
 
 # --- Graph ---
 
@@ -109,14 +115,7 @@ def build_graph():
     graph.add_edge("error", "execute")
 
     # analysis → decide_graph_need
-    graph.add_conditional_edges(
-        "analysis",
-        decide_graph_need,
-        {
-            "visualization": "visualization",
-            "end": END
-        }
-    )
+    graph.add_edge("analysis", "visualization")
 
     # visualization → END
     graph.add_edge("visualization", END)

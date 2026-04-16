@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 
@@ -8,7 +8,8 @@ import { environment } from '../../../environments/environment.development';
 })
 export class AiAgentService {
 
-    private readonly apiUrl = `${environment.baseUrl}/ai/ask`;
+    // Artık tek bir endpoint yok, rol tabanlı dinamik URL oluşturacağız
+    private readonly baseAiUrl = `${environment.baseUrl}/ai/ask`;
 
     // Patterns that indicate prompt injection attempts
     private readonly INJECTION_PATTERNS = [
@@ -74,20 +75,30 @@ export class AiAgentService {
         'Sorry, I wasn\'t able to get a proper answer right now. Please try again in a moment.';
 
     /**
-     * Sends a validated query to the AI agent backend.
-     * Parses the JSON response and extracts only the payload field.
+     * Sends a validated query to the AI agent backend based on the user's role.
+     * JSON body olarak gönderilir (@RequestBody AskAiRequest'e denk gelir).
      */
-    /**
-     * Sends a validated query to the AI agent backend.
-     * storeId, userId ve role backend tarafında JWT'den okunur — buradan gönderilmez!
-     */
-    askQuestion(question: string): Observable<string> {
-        const params = new HttpParams()
-            .set('question', question);
-            // storeId burada GÖNDERİLMİYOR — backend JWT'den alıyor (AV-02 güvencesi)
+    askQuestion(question: string, role: string): Observable<string> {
 
-        return this.http.post(this.apiUrl, null, {
-            params,
+        // 1. Role göre uygun endpoint suffix'ini belirle
+        let endpointSuffix = '';
+        if (role === 'INDIVIDUAL') {
+            endpointSuffix = '/individual';
+        } else if (role === 'CORPORATE') {
+            endpointSuffix = '/corporate';
+        } else if (role === 'ADMIN') {
+            endpointSuffix = '/admin';
+        } else {
+            throw new Error('Geçersiz veya eksik kullanıcı rolü.');
+        }
+
+        const url = `${this.baseAiUrl}${endpointSuffix}`;
+
+        // 2. HttpParams yerine JSON Body oluştur (Backend'deki AskAiRequest ile eşleşir)
+        const body = { question: question };
+
+        // 3. POST isteğini JSON gövdesiyle at
+        return this.http.post(url, body, {
             responseType: 'text'
         }).pipe(
             map((raw: string) => {
@@ -117,10 +128,6 @@ export class AiAgentService {
 
     /**
      * Converts basic markdown syntax to HTML:
-     * - **bold** → <strong>bold</strong>
-     * - *italic* → <em>italic</em>
-     * - \n → <br>
-     * - Lines starting with "* " → bullet list items
      */
     formatMarkdown(text: string): string {
         // Escape HTML special characters first

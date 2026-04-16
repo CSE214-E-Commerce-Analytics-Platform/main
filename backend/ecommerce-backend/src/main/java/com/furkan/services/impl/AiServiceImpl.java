@@ -1,7 +1,7 @@
 package com.furkan.services.impl;
 
-import com.furkan.entities.Store;
 import com.furkan.entities.User;
+import com.furkan.enums.RoleType;
 import com.furkan.services.IAiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,22 +25,38 @@ public class AiServiceImpl implements IAiService {
     private String agentUrl;
 
     @Override
-    public String askAi(String userQuestion, Authentication authentication) {
-        // JWT'den doğrulanmış kullanıcı bilgilerini al — frontend'den asla alma!
+    public String askAiIndividual(String userQuestion, Authentication authentication) {
+        User currentUser = (User) authentication.getPrincipal();
+        // Individual users do not have a storeId, so we send null.
+        return sendRequestToAgent(userQuestion, RoleType.INDIVIDUAL.toString(), currentUser.getId(), null);
+    }
+
+    @Override
+    public String askAiCorporate(String userQuestion, Authentication authentication) {
         User currentUser = (User) authentication.getPrincipal();
 
-        Long userId = currentUser.getId();
-        String role = currentUser.getRoleType().name(); // INDIVIDUAL, CORPORATE, ADMIN
-
-        // Store ID: sadece CORPORATE kullanıcılar için, kendi store'u
-        Long storeId = null;
-        if (currentUser.getStore() != null) {
-            storeId = currentUser.getStore().getId();
+        // If the corporate user has no store assigned, block the request directly without hitting the AI service.
+        if (currentUser.getStore() == null) {
+            return "No store found associated with your account. Please contact support.";
         }
 
-        // Python agent'a gönderilecek payload
+        Long storeId = currentUser.getStore().getId();
+        return sendRequestToAgent(userQuestion, RoleType.CORPORATE.toString(), currentUser.getId(), storeId);
+    }
+
+    @Override
+    public String askAiAdmin(String userQuestion, Authentication authentication) {
+        User currentUser = (User) authentication.getPrincipal();
+        // Admins can access all data, so no storeId restriction is sent.
+        return sendRequestToAgent(userQuestion, RoleType.ADMIN.toString(), currentUser.getId(), null);
+    }
+
+    /**
+     * Extracted the repetitive HTTP Request logic into a private method (Clean Code approach).
+     */
+    private String sendRequestToAgent(String question, String role, Long userId, Long storeId) {
         Map<String, Object> payload = new HashMap<>();
-        payload.put("question", userQuestion);
+        payload.put("question", question);
         payload.put("user_role", role);
         payload.put("user_id", userId);
         payload.put("store_id", storeId);
@@ -51,10 +67,12 @@ public class AiServiceImpl implements IAiService {
 
         try {
             Map<String, Object> response = restTemplate.postForObject(agentUrl, entity, Map.class);
-            if (response == null) return "Agent yanıt vermedi.";
-            return (String) response.getOrDefault("answer", "Cevap alınamadı.");
+            if (response == null) {
+                return "Agent did not respond.";
+            }
+            return (String) response.getOrDefault("answer", "Could not get a response.");
         } catch (Exception e) {
-            return "AI servisi şu anda kullanılamıyor: " + e.getMessage();
+            return "AI service is currently unavailable: " + e.getMessage();
         }
     }
 }

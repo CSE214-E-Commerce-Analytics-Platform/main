@@ -3,7 +3,7 @@ import psycopg2.extras
 import os
 import re
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(override=True)
 
 BLOCKED_COLUMNS = {
     "password_hash", "token", "replaced_by", "revoked_at",
@@ -36,7 +36,8 @@ def sanitize_result(rows: list[dict]) -> list[dict]:
     ]
 
 def execute_query(sql: str, user_role: str, user_id: int, store_id: int = None) -> str:
-    sql_upper = sql.strip().upper()
+    sql = sql.replace("```sql", "").replace("```", "").strip()
+    sql_upper = sql.upper()
 
     # Only SELECT is allowed
     if not sql_upper.startswith("SELECT"):

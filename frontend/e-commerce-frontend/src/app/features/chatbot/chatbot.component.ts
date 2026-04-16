@@ -1,4 +1,4 @@
-import { Component, inject, ElementRef, ViewChild } from '@angular/core';
+import { Component, inject, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AiAgentService } from '../../core/services/ai-agent.service';
@@ -32,6 +32,33 @@ export class ChatbotComponent {
         }
     ];
     isTyping = false;
+    isGraphExpanded = false;
+    expandedGraphSrc = '';
+
+    @HostListener('click', ['$event'])
+    onClick(event: Event) {
+        const target = event.target as HTMLElement;
+        const expandBtn = target.closest('.expand-btn');
+        if (expandBtn) {
+            const wrapper = expandBtn.closest('.chat-img-wrapper');
+            if (wrapper) {
+                const img = wrapper.querySelector('img.chat-img') as HTMLImageElement;
+                if (img && img.src) {
+                    this.expandGraph(img.src);
+                }
+            }
+        }
+    }
+
+    expandGraph(src: string): void {
+        this.expandedGraphSrc = src;
+        this.isGraphExpanded = true;
+    }
+
+    closeExpandedGraph(): void {
+        this.isGraphExpanded = false;
+        this.expandedGraphSrc = '';
+    }
 
     toggleChat(): void {
         this.isOpen = !this.isOpen;
@@ -63,9 +90,12 @@ export class ChatbotComponent {
         this.isTyping = true;
         this.scrollToBottom();
 
-        // storeId artık buradan gönderilmiyor — backend JWT'den alıyor (AV-02 güvencesi)
-        // Send to AI
-        this.aiService.askQuestion(query).subscribe({
+        // 1. AuthService üzerinden kullanıcının rolünü alıyoruz.
+        // NOT: Kendi AuthService altyapına göre burayı güncelle (Örn: authService.currentUserValue?.roleType)
+        const userRole = this.authService.getRole() || 'INDIVIDUAL';
+
+        // 2. Rol bilgisini aiService'e gönderiyoruz
+        this.aiService.askQuestion(query, userRole).subscribe({
             next: (response: string) => {
                 this.messages.push({
                     role: 'ai',
@@ -113,7 +143,14 @@ export class ChatbotComponent {
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;');
         }
-        return this.aiService.formatMarkdown(msg.content);
+
+        // AI mesajını al
+        let html = this.aiService.formatMarkdown(msg.content);
+
+        // İçindeki resim (grafik) linklerini container, img ve expand butonuna çeviriyoruz
+        html = html.replace(/!\[.*?\]\((.+?)\)/g, '<div class="chat-img-wrapper"><img src="$1" class="chat-img" alt="Graph"><div class="expand-btn" title="Expand Graph">⤢</div></div>');
+
+        return html;
     }
 
     private scrollToBottom(): void {
