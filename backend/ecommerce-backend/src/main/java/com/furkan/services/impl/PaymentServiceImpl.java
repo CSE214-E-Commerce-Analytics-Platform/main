@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 
 // --- Java Standart Kütüphane Importları ---
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -96,31 +97,48 @@ public class PaymentServiceImpl implements IPaymentService {
             throw new BaseException(new ErrorMessage(MessageType.ORDER_ALREADY_CANCELLED, order.getId().toString()));
         }
 
-        boolean hasPaid = paymentRepository.findByOrderId(order.getId())
-                .stream().anyMatch(p -> p.getStatus() == PaymentStatus.SUCCESS);
+        Payment existingPayment = paymentRepository.findByOrderId(order.getId())
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_PAYMENT_FOUND_FOR_THIS_ORDER, order.getId().toString())));
 
-        if (hasPaid) {
-            throw new BaseException(new ErrorMessage(MessageType.PAYMENT_ALREADY_COMPLETED, request.getOrderId().toString()));
-        }
-
-        List<Payment> pendingPayments = paymentRepository.findByOrderIdAndStatus(order.getId(), PaymentStatus.PENDING);
-        for (Payment p : pendingPayments) {
-            p.setStatus(PaymentStatus.FAILED);
-            paymentRepository.save(p);
-        }
 
         try {
+            if (existingPayment != null) {
+                PaymentStatus currentStatus = existingPayment.getStatus();
+
+                if (currentStatus == PaymentStatus.SUCCESS ||
+                        currentStatus == PaymentStatus.PARTIALLY_REFUNDED ||
+                        currentStatus == PaymentStatus.REFUNDED) {
+                    throw new BaseException(new ErrorMessage(MessageType.PAYMENT_ALREADY_COMPLETED, request.getOrderId().toString()));
+                }
+
+                if (currentStatus == PaymentStatus.PENDING || currentStatus == PaymentStatus.FAILED) {
+                    String newSessionId = createStripeCheckoutSession(order);
+
+                    existingPayment.setTransactionKey(newSessionId);
+                    existingPayment.setStatus(PaymentStatus.PENDING);
+                    existingPayment.setUpdatedAt(LocalDateTime.now());
+                    existingPayment.setPaymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod() : PaymentMethod.CREDIT_CARD);
+                    existingPayment.setAmount(order.getGrandTotal());
+
+                    Payment updatedPayment = paymentRepository.save(existingPayment);
+                    return dtoConverter(updatedPayment);
+                }
+            }
+
             String sessionId = createStripeCheckoutSession(order);
 
-            Payment payment = new Payment();
-            payment.setOrder(order);
-            payment.setAmount(order.getGrandTotal());
-            payment.setPaymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod() : PaymentMethod.CREDIT_CARD);
-            payment.setTransactionKey(sessionId);
-            payment.setStatus(PaymentStatus.PENDING);
+            Payment newPayment = new Payment();
+            newPayment.setCreatedAt(LocalDateTime.now());
+            newPayment.setUpdatedAt(LocalDateTime.now());
+            newPayment.setOrder(order);
+            newPayment.setAmount(order.getGrandTotal());
+            newPayment.setPaymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod() : PaymentMethod.CREDIT_CARD);
+            newPayment.setTransactionKey(sessionId);
+            newPayment.setStatus(PaymentStatus.PENDING);
 
-            Payment savedPayment = paymentRepository.save(payment);
+            Payment savedPayment = paymentRepository.save(newPayment);
             return dtoConverter(savedPayment);
+
         } catch (StripeException e) {
             throw new RuntimeException("Stripe session creation failed", e);
         }
@@ -128,16 +146,10 @@ public class PaymentServiceImpl implements IPaymentService {
 
     @Override
     public DtoPayment findPaymentByOrderId(Long orderId) {
-        List<Payment> payments = paymentRepository.findByOrderId(orderId);
-        if (payments.isEmpty()) {
-            throw new BaseException(new ErrorMessage(MessageType.NO_PAYMENT_FOUND_FOR_THIS_ORDER, orderId.toString()));
-        }
+        Payment payment = paymentRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_PAYMENT_FOUND_FOR_THIS_ORDER, orderId.toString())));
 
-        Payment latestPayment = payments.stream()
-                .max(Comparator.comparing(Payment::getCreatedAt))
-                .orElseThrow();
-
-        return dtoConverter(latestPayment);
+        return dtoConverter(payment);
     }
 
     @Override
@@ -155,10 +167,9 @@ public class PaymentServiceImpl implements IPaymentService {
     @Override
     @Transactional
     public DtoPayment updatePaymentStatus(Long orderId, PaymentStatus newStatus, String transactionKey) {
-        List<Payment> payments = paymentRepository.findByOrderIdAndStatus(orderId, PaymentStatus.PENDING);
-        if (payments.isEmpty()) return null;
+        Payment payment = paymentRepository.findByOrderIdAndStatus(orderId, PaymentStatus.PENDING)
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_PAYMENT_FOUND_FOR_THIS_ORDER, orderId.toString())));
 
-        Payment payment = payments.get(0);
         payment.setStatus(newStatus);
         if (transactionKey != null) {
             payment.setTransactionKey(transactionKey);

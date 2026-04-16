@@ -4,10 +4,12 @@ import com.furkan.dto.response.DtoOrder;
 import com.furkan.dto.response.DtoOrderItem;
 import com.furkan.entities.*;
 import com.furkan.enums.OrderStatus;
+import com.furkan.enums.PaymentStatus;
 import com.furkan.exception.BaseException;
 import com.furkan.exception.ErrorMessage;
 import com.furkan.exception.MessageType;
 import com.furkan.repositories.OrderRepository;
+import com.furkan.repositories.PaymentRepository;
 import com.furkan.repositories.StoreRepository;
 import com.furkan.repositories.UserRepository;
 import com.furkan.services.ICartService;
@@ -34,6 +36,7 @@ public class OrderServiceImpl implements IOrderService {
     private final IProductService productService;
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
+    private final PaymentRepository paymentRepository;
 
     @Override
     @Transactional
@@ -101,6 +104,12 @@ public class OrderServiceImpl implements IOrderService {
         }
 
         order.setStatus(OrderStatus.CANCELLED);
+
+        Payment payment = paymentRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_PAYMENT_FOUND_FOR_THIS_ORDER, order.toString())));
+
+        payment.setStatus(PaymentStatus.FAILED);
+        paymentRepository.save(payment);
 
         if (order.getSubOrders() != null && !order.getSubOrders().isEmpty()) {
             for (Order subOrder : order.getSubOrders()) {
