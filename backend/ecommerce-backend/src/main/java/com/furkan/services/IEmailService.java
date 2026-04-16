@@ -20,4 +20,7 @@ public interface IEmailService {
     void sendOrderCancellationEmail(String toEmail, String orderNumber, String reason);
 
     void sendNewOrderNotificationToStore(String storeEmail, String orderNumber);
+    void sendAccountCreatedEmail(String toEmail, String email);
+
+    void sendOrderConfirmationEmail(String toEmail, Long orderNumber, byte[] pdfAttachment);
 }

@@ -1,6 +1,11 @@
 package com.furkan.services;
 
-public interface IAiService {
+import org.springframework.security.core.Authentication;
 
-    String askAi(String userQuestion, Long storeId);
+public interface IAiService {
+    String askAiIndividual(String userQuestion, Authentication authentication);
+
+    String askAiCorporate(String userQuestion, Authentication authentication);
+
+    String askAiAdmin(String userQuestion, Authentication authentication);
 }

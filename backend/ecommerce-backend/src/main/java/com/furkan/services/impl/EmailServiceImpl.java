@@ -2,10 +2,11 @@ package com.furkan.services.impl;
 
 import com.furkan.enums.OrderStatus;
 import com.furkan.services.IEmailService;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -43,7 +44,8 @@ public class EmailServiceImpl implements IEmailService {
                 + "</div>";
     }
 
-    private void sendHtmlEmail(String to, String subject, String htmlBody) {
+
+    private void sendHtmlEmail(String to, String subject, String htmlBody, String attachmentName, byte[] attachmentData) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -53,98 +55,102 @@ public class EmailServiceImpl implements IEmailService {
             helper.setSubject(subject);
             helper.setText(htmlBody, true);
 
+            if (attachmentData != null && attachmentData.length > 0) {
+                helper.addAttachment(attachmentName, new ByteArrayResource(attachmentData));
+            }
+
             mailSender.send(message);
-        } catch (Exception e) {
-            System.err.println("Email sending failed to: " + to + " Error: " + e.getMessage());
+        } catch (MessagingException e) {
+            throw new RuntimeException("An error occurred while sending email to: " + to, e);
         }
+    }
+    
+    private void sendHtmlEmail(String to, String subject, String htmlBody) {
+        sendHtmlEmail(to, subject, htmlBody, null, null);
     }
 
     @Override
     @Async
     public void sendVerificationEmail(String toEmail, String token) {
         String verifyLink = baseUrl + "/verify-email?token=" + token;
-        String subject = "Account Verification - E-Commerce Analytics Platform";
-
         String content = "<p>Welcome aboard!</p>"
-                + "<p>To activate your account and start exploring, please verify your email address by clicking the button below.</p>"
+                + "<p>To activate your account, please verify your email address by clicking the button below:</p>"
                 + "<div style='text-align: center; margin: 30px 0;'>"
                 + "<a href='" + verifyLink + "' style='background-color: #3498db; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;'>Verify My Account</a>"
                 + "</div>"
                 + "<p style='font-size: 14px; color: #7f8c8d;'>This link will expire in 24 hours.</p>";
 
-        sendHtmlEmail(toEmail, subject, buildHtmlTemplate("Verify Your Email Address", content));
+        sendHtmlEmail(toEmail, "Account Verification Required", buildHtmlTemplate("Verify Your Email", content));
     }
 
     @Override
     @Async
     public void sendPasswordResetEmail(String toEmail, String token) {
         String resetLink = baseUrl + "/reset-password?token=" + token;
-        String subject = "Password Reset Request - E-Commerce Analytics Platform";
-
-        String content = "<p>Hello,</p>"
-                + "<p>We received a request to reset the password for your account. Click the button below to set a new password.</p>"
+        String content = "<p>We received a request to reset your password. Click the button below to set a new one:</p>"
                 + "<div style='text-align: center; margin: 30px 0;'>"
                 + "<a href='" + resetLink + "' style='background-color: #e74c3c; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;'>Reset My Password</a>"
                 + "</div>"
-                + "<p style='font-size: 14px; color: #7f8c8d;'>If you did not request a password reset, please ignore this email. This link is valid for 15 minutes.</p>";
+                + "<p style='font-size: 14px; color: #7f8c8d;'>Valid for 15 minutes.</p>";
 
-        sendHtmlEmail(toEmail, subject, buildHtmlTemplate("Reset Your Password", content));
+        sendHtmlEmail(toEmail, "Password Reset Request", buildHtmlTemplate("Reset Your Password", content));
     }
 
     @Override
     @Async
     public void sendOrderConfirmationEmail(String toEmail, String orderNumber, BigDecimal totalAmount) {
-        String subject = "Order Confirmation - #" + orderNumber;
+        String content = "<p>Your payment was successful and your order is confirmed.</p>"
+                + "<table style='width: 100%; margin: 20px 0;'>"
+                + "<tr><td><b>Order:</b></td><td style='text-align: right;'>#" + orderNumber + "</td></tr>"
+                + "<tr><td><b>Total:</b></td><td style='text-align: right; color: #27ae60; font-weight: bold;'>" + totalAmount + " TL</td></tr>"
+                + "</table>";
 
-        String content = "<p>Your payment has been successfully processed and your order is confirmed.</p>"
-                + "<table style='width: 100%; margin: 20px 0; border-collapse: collapse;'>"
-                + "<tr><td style='padding: 10px; border-bottom: 1px solid #eee;'><b>Order Number:</b></td><td style='padding: 10px; border-bottom: 1px solid #eee; text-align: right;'>#" + orderNumber + "</td></tr>"
-                + "<tr><td style='padding: 10px; border-bottom: 1px solid #eee;'><b>Total Amount:</b></td><td style='padding: 10px; border-bottom: 1px solid #eee; text-align: right; color: #27ae60; font-weight: bold;'>" + totalAmount + " TL</td></tr>"
-                + "</table>"
-                + "<p>We will notify you once your items are prepared and shipped. Thank you for choosing us.</p>";
+        sendHtmlEmail(toEmail, "Order Confirmation - #" + orderNumber, buildHtmlTemplate("Thank You!", content));
+    }
 
-        sendHtmlEmail(toEmail, subject, buildHtmlTemplate("Thank You For Your Order!", content));
+    @Override
+    @Async
+    public void sendOrderConfirmationEmail(String toEmail, Long orderNumber, byte[] pdfAttachment) {
+        String content = "<p>Your order <b>#" + orderNumber + "</b> has been placed successfully.</p>"
+                + "<p>You can find your invoice in the attached <b>PDF</b> document.</p>";
+
+        String fileName = "Invoice_" + orderNumber + ".pdf";
+        sendHtmlEmail(toEmail, "Order Summary - #" + orderNumber, buildHtmlTemplate("Order Details", content), fileName, pdfAttachment);
     }
 
     @Override
     @Async
     public void sendOrderStatusUpdateEmail(String toEmail, String orderNumber, OrderStatus status) {
-        String subject = "Order Status Updated - #" + orderNumber;
+        String content = "<p>The status of your order <b>#" + orderNumber + "</b> has changed:</p>"
+                + "<div style='background-color: #fdf2e9; padding: 15px; border-left: 5px solid #e67e22;'>"
+                + "New Status: <b>" + status.name() + "</b></div>";
 
-        String content = "<p>The status of your order <b>#" + orderNumber + "</b> has been updated.</p>"
-                + "<div style='background-color: #fdf2e9; border-left: 5px solid #e67e22; padding: 15px; margin: 20px 0;'>"
-                + "<p style='margin: 0; font-size: 16px;'>New Status: <strong style='color: #d35400;'>" + status.name() + "</strong></p>"
-                + "</div>"
-                + "<p>You can track the current details of your order from your user dashboard.</p>";
-
-        sendHtmlEmail(toEmail, subject, buildHtmlTemplate("Order Status Update", content));
+        sendHtmlEmail(toEmail, "Order Status Updated", buildHtmlTemplate("Status Update", content));
     }
 
     @Override
     @Async
     public void sendOrderCancellationEmail(String toEmail, String orderNumber, String reason) {
-        String subject = "Order Cancelled - #" + orderNumber;
+        String content = "<p>Order <b>#" + orderNumber + "</b> was cancelled.</p>"
+                + "<p>Reason: <i style='color: #c0392b;'>" + reason + "</i></p>";
 
-        String content = "<p>Your order <b>#" + orderNumber + "</b> has been cancelled for the following reason:</p>"
-                + "<div style='background-color: #fbedec; border-left: 5px solid #c0392b; padding: 15px; margin: 20px 0;'>"
-                + "<p style='margin: 0; color: #c0392b;'>" + reason + "</p>"
-                + "</div>"
-                + "<p>Your payment will be refunded to your card within 1-3 business days, depending on your bank. We apologize for any inconvenience caused.</p>";
-
-        sendHtmlEmail(toEmail, subject, buildHtmlTemplate("Order Cancelled", content));
+        sendHtmlEmail(toEmail, "Order Cancelled", buildHtmlTemplate("Cancellation Notice", content));
     }
 
     @Override
     @Async
     public void sendNewOrderNotificationToStore(String storeEmail, String orderNumber) {
-        String subject = "NEW ORDER RECEIVED! - #" + orderNumber;
-
-        String content = "<p>Congratulations! You have received a new order <b>#" + orderNumber + "</b> for your store.</p>"
-                + "<p>The customer has successfully completed the payment. Please log in to your seller dashboard as soon as possible to begin preparing the items for shipment.</p>"
+        String content = "<p>You have received a new order <b>#" + orderNumber + "</b>.</p>"
                 + "<div style='text-align: center; margin: 30px 0;'>"
-                + "<a href='" + baseUrl + "/admin/orders' style='background-color: #27ae60; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;'>View Order</a>"
+                + "<a href='" + baseUrl + "/admin/orders' style='background-color: #27ae60; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold;'>View Order</a>"
                 + "</div>";
 
-        sendHtmlEmail(storeEmail, subject, buildHtmlTemplate("You Have a New Order!", content));
+        sendHtmlEmail(storeEmail, "NEW ORDER! - #" + orderNumber, buildHtmlTemplate("New Order Received", content));
+    }
+
+    @Override
+    public void sendAccountCreatedEmail(String toEmail, String email) {
+        String content = "<p>Hello " + email + ", your account has been successfully created.</p>";
+        sendHtmlEmail(toEmail, "Welcome!", buildHtmlTemplate("Account Created", content));
     }
 }

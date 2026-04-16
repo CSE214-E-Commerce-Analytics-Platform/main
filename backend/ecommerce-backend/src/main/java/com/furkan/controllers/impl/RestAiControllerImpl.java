@@ -2,13 +2,14 @@ package com.furkan.controllers.impl;
 
 import com.furkan.controllers.IRestAiController;
 import com.furkan.controllers.RestBaseController;
+import com.furkan.dto.request.DtoAiRequest;
 import com.furkan.services.IAiService;
 import com.furkan.utils.RootEntity;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/ai")
@@ -17,9 +18,24 @@ public class RestAiControllerImpl extends RestBaseController implements IRestAiC
 
     private final IAiService aiService;
 
-    @PostMapping("/ask")
+    @PostMapping("/ask/individual")
+    @PreAuthorize("hasRole('INDIVIDUAL')")
     @Override
-    public RootEntity<String> askAi(@RequestParam String question, @RequestParam Long storeId) {
-        return ok(aiService.askAi(question, storeId));
+    public RootEntity<String> askIndividualAi(@Valid @RequestBody DtoAiRequest request, Authentication authentication) {
+        return ok(aiService.askAiIndividual(request.getQuestion(), authentication));
+    }
+
+    @PostMapping("/ask/corporate")
+    @PreAuthorize("hasRole('CORPORATE')")
+    @Override
+    public RootEntity<String> askCorporateAi(@Valid @RequestBody DtoAiRequest request, Authentication authentication) {
+        return ok(aiService.askAiCorporate(request.getQuestion(), authentication));
+    }
+
+    @PostMapping("/ask/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Override
+    public RootEntity<String> askAdminAi(@RequestBody DtoAiRequest request, Authentication authentication) {
+        return ok(aiService.askAiAdmin(request.getQuestion(), authentication));
     }
 }

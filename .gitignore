@@ -1,0 +1,15 @@
+# Sensitive / environment files
+.env
+*.env
+application.properties
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# LangGraph internal files
+.langgraph_api/
+
+# Build artifacts
+start-backend.ps1

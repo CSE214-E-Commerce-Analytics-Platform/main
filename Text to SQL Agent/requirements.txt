@@ -1,0 +1,9 @@
+langgraph
+langchain
+langchain-openai
+openai
+python-dotenv
+pandas
+psycopg2-binary
+fastapi
+uvicorn
