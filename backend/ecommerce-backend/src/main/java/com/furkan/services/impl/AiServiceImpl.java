@@ -51,9 +51,6 @@ public class AiServiceImpl implements IAiService {
         return sendRequestToAgent(userQuestion, RoleType.ADMIN.toString(), currentUser.getId(), null);
     }
 
-    /**
-     * Extracted the repetitive HTTP Request logic into a private method (Clean Code approach).
-     */
     private String sendRequestToAgent(String question, String role, Long userId, Long storeId) {
         Map<String, Object> payload = new HashMap<>();
         payload.put("question", question);

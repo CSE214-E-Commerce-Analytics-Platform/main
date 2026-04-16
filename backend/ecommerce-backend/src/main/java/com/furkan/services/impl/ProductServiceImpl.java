@@ -130,4 +130,24 @@ public class ProductServiceImpl implements IProductService {
                 .map(this::dtoTransformation)
                 .toList();
     }
+
+    @Override
+    @Transactional
+    public void reduceStock(Long productId, int quantity) {
+        Product product = productRepository.findById(productId).orElseThrow();
+        if (product.getStockQuantity() < quantity) {
+            throw new BaseException(new ErrorMessage(MessageType.INSUFFICIENT_STOCK, product.getName()));
+        }
+        product.setStockQuantity(product.getStockQuantity() - quantity);
+        productRepository.save(product);
+    }
+
+    @Override
+    @Transactional
+    public void increaseStock(Long productId, int quantity) {
+        Product product = productRepository.findById(productId).orElseThrow();
+
+        product.setStockQuantity(product.getStockQuantity() + quantity);
+        productRepository.save(product);
+    }
 }

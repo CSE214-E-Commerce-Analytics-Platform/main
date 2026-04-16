@@ -1,0 +1,30 @@
+export enum OrderStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  SHIPPED = 'SHIPPED',
+  DELIVERED = 'DELIVERED',
+  CANCELLED = 'CANCELLED'
+}
+
+export interface DtoOrderRequest {
+  shippingAddress: string;
+  shippingCost: number;
+}
+
+export interface DtoOrderItem {
+  id?: number;
+  productName: string;
+  quantity: number;
+  price: number;
+}
+
+export interface DtoOrder {
+  id?: number;
+  status: OrderStatus;
+  grandTotal: number;
+  orderDate: string;
+  storeId: number;
+  storeName: string;
+  items: DtoOrderItem[];
+  subOrders: DtoOrder[];
+}

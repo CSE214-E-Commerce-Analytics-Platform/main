@@ -41,7 +41,7 @@
       </div>
       
       <div class="summary-actions">
-        <button class="checkout-btn" (click)="checkout()">Secure Checkout</button>
+        <button class="checkout-btn" (click)="openCheckoutModal()">Secure Checkout</button>
         <button class="clear-btn" (click)="confirmClearCart()">Clear Cart</button>
       </div>
     </div>
@@ -80,6 +80,31 @@
     <div class="modal-footer">
       <button class="modal-btn outline" (click)="cancelClearCart()">Cancel</button>
       <button class="modal-btn danger" (click)="executeClearCart()">Yes, clear it</button>
+    </div>
+  </div>
+</div>
+
+<!-- Checkout Modal Overlay -->
+<div class="modal-overlay" *ngIf="showCheckoutModal" (click)="cancelCheckout()">
+  <div class="modal-content checkout-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>🚚 Checkout</h3>
+      <button class="close-modal-btn" (click)="cancelCheckout()">✕</button>
+    </div>
+    <div class="modal-body body-checkout">
+      <p class="checkout-sub">Please provide your delivery details to proceed to payment.</p>
+      <div class="form-group">
+        <label for="shippingAddress">Shipping Address</label>
+        <textarea id="shippingAddress" [(ngModel)]="shippingAddress" rows="4"
+          placeholder="Enter your full delivery address (street, city, zip code, country)..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn outline" (click)="cancelCheckout()">Cancel</button>
+      <button class="modal-btn checkout-confirm" (click)="proceedToPayment()" [disabled]="!shippingAddress.trim() || isProcessing">
+        <span *ngIf="!isProcessing">💳 Proceed to Payment</span>
+        <span *ngIf="isProcessing">Processing...</span>
+      </button>
     </div>
   </div>
 </div>

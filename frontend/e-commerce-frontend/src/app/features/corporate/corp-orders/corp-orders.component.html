@@ -1,1 +1,94 @@
-<p>corp-orders works!</p>
+<div class="orders-container">
+  <div class="orders-header">
+    <div class="header-content">
+      <h2>Store Orders & Fulfillment</h2>
+      <p class="header-sub">Manage your store's shipments, view sub-orders, and update statuses.</p>
+    </div>
+    
+    <div class="store-selector" *ngIf="stores.length > 0">
+      <label for="storeSelect">Active Store:</label>
+      <select id="storeSelect" [(ngModel)]="selectedStoreId" (change)="onStoreChange()">
+        <option *ngFor="let store of stores" [value]="store.id">{{ store.name }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="loader" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading sub-orders...</p>
+  </div>
+
+  <div class="orders-list" *ngIf="!isLoading && orders.length > 0">
+    <div class="order-card" *ngFor="let order of orders" [class.expanded]="expandedOrderId === order.id">
+      
+      <!-- Order Summary -->
+      <div class="order-summary" (click)="toggleExpand(order.id)">
+        <div class="order-info-group">
+          <span class="order-label">Sub-Order #</span>
+          <span class="order-value">{{ order.id }}</span>
+        </div>
+        
+        <div class="order-info-group date-group">
+          <span class="order-label">Date</span>
+          <span class="order-value">{{ order.orderDate | date:'mediumDate' }}</span>
+        </div>
+
+        <div class="order-info-group total-group">
+          <span class="order-label">Sales</span>
+          <span class="order-value highlight">{{ order.grandTotal | currency:'USD' }}</span>
+        </div>
+
+        <div class="order-info-group status-group">
+          <span class="order-label">Fulfillment Status</span>
+          <span class="status-badge" [ngClass]="getStatusClass(order.status)">
+            {{ getStatusIcon(order.status) }} {{ order.status }}
+          </span>
+        </div>
+
+        <div class="expand-icon">
+          <span *ngIf="expandedOrderId !== order.id">▼</span>
+          <span *ngIf="expandedOrderId === order.id">▲</span>
+        </div>
+      </div>
+
+      <!-- Expanded Details -->
+      <div class="order-details" *ngIf="expandedOrderId === order.id">
+        <div class="details-divider"></div>
+        
+        <div class="details-grid">
+          <!-- Items to fulfill -->
+          <div class="items-section">
+            <h4>Items to Pack</h4>
+            <div class="item-line" *ngFor="let item of order.items">
+              <div class="item-qty">{{ item.quantity }}x</div>
+              <div class="item-name">{{ item.productName }}</div>
+              <div class="item-price">{{ item.price | currency:'USD' }}</div>
+            </div>
+          </div>
+
+          <!-- Status Update -->
+          <div class="status-update-section">
+            <h4>Update Status</h4>
+            <div class="status-controls">
+              <select #statusSelect class="status-dropdown">
+                <option *ngFor="let opt of statusOptions" [value]="opt" [selected]="opt === order.status">{{ opt }}</option>
+              </select>
+              <button class="update-btn" (click)="updateStatus(order, $any(statusSelect.value)); $event.stopPropagation()">
+                Apply
+              </button>
+            </div>
+            <p class="status-help">Changing status will notify the user.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && orders.length === 0">
+    <div class="empty-icon">🏪</div>
+    <h3 *ngIf="!selectedStoreId">No store selected</h3>
+    <h3 *ngIf="selectedStoreId">No orders yet</h3>
+    <p *ngIf="selectedStoreId">When customers purchase your items, their orders will appear here.</p>
+  </div>
+</div>

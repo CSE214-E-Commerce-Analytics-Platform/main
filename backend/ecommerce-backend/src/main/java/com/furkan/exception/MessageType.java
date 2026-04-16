@@ -14,6 +14,7 @@ public enum MessageType {
     INVALID_EMAIL_OR_PASSWORD("1004", "Password or Email is incorrect. Please check the authentication information."),
     ACCOUNT_IS_NOT_VERIFIED("1005", "Your account is not verified yet please verify your account before login."),
     SAME_PASSWORD("1006", "Your new password must not be the same as the old password."),
+    UNAUTHORIZED("1007", "You do not have the authority to perform this function."),
 
     // VerificationToken
     INVALID_VERIFICATION_TOKEN("1007", "Invalid verification token!"),
@@ -36,6 +37,7 @@ public enum MessageType {
     PRODUCT_NOT_FOUND("3001", "Product not found!"),
     SKU_ALREADY_EXISTS("3005", "This SKU is already exists! Please change the SKU value for this product."),
     UNAUTHORIZED_TRANSACTION("3007", "This product does not belong in your store!"),
+    INSUFFICIENT_STOCK("3008", "This product is out of stock!"),
 
     // Store
     STORE_NOT_FOUND("4001", "Store not found!"),
@@ -45,6 +47,18 @@ public enum MessageType {
 
     // Cart
     ITEM_NOT_FOUND("5001", "Item not found in this cart."),
+    CART_IS_EMPTY("5002", "The current cart is empty!"),
+
+    // Order
+    ORDER_NOT_FOUND("6001", "Order not found!"),
+    ORDER_CANNOT_BE_CANCELLED("6002", "This order can not be cancelled"),
+    ORDER_ALREADY_CANCELLED("6003", "Order is already cancelled"),
+    ORDER_ITEM_NOT_FOUND("6004", "Order item not found in this order"),
+
+    // Payment
+    PAYMENT_ALREADY_COMPLETED("7001", "Payment is already completed"),
+    NO_PAYMENT_FOUND_FOR_THIS_ORDER("7002", "No payment found for this order"),
+    NO_PAYMENT_FOUND("7003", "No payment found for this order"),
 
     GENERAL_EXCEPTION("9999", "A general error occur.");
 

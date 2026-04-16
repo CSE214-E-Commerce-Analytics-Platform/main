@@ -534,8 +534,8 @@
   animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-[data-theme="dark"] .graph-modal { 
-  background: #0f172a; 
+[data-theme="dark"] .graph-modal {
+  background: #0f172a;
   border: 1px solid #1e293b;
 }
 
