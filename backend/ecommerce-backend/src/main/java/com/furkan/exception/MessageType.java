@@ -60,6 +60,7 @@ public enum MessageType {
     NO_PAYMENT_FOUND_FOR_THIS_ORDER("7002", "No payment found for this order"),
     NO_PAYMENT_FOUND("7003", "No payment found for this order"),
     PAYMENT_ALREADY_EXISTS("7004", "Payment for this order is already exists!"),
+    PAYMENT_FAILED("7005", "ERROR: Payment failed for this order."),
 
     GENERAL_EXCEPTION("9999", "A general error occur.");
 

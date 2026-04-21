@@ -20,18 +20,15 @@ export class CorpOrdersComponent implements OnInit {
   private storeService = inject(StoreService);
   private toastService = inject(ToastService);
 
+  OrderStatus = OrderStatus;
+
   stores: Store[] = [];
   selectedStoreId: number | null = null;
   orders: DtoOrder[] = [];
   isLoading = false;
   expandedOrderId: number | null = null;
 
-  readonly statusOptions = [
-    OrderStatus.APPROVED,
-    OrderStatus.SHIPPED,
-    OrderStatus.DELIVERED,
-    OrderStatus.CANCELLED
-  ];
+
 
   ngOnInit(): void {
     this.storeService.getMyStores().subscribe({
@@ -88,7 +85,8 @@ export class CorpOrdersComponent implements OnInit {
   getStatusClass(status: OrderStatus): string {
     switch (status) {
       case OrderStatus.PENDING:   return 'status-pending';
-      case OrderStatus.APPROVED:  return 'status-approved';
+      case OrderStatus.PAID:  return 'status-approved';
+      case OrderStatus.PARTIALLY_SHIPPED:   return 'status-shipped';
       case OrderStatus.SHIPPED:   return 'status-shipped';
       case OrderStatus.DELIVERED: return 'status-delivered';
       case OrderStatus.CANCELLED: return 'status-cancelled';
@@ -99,9 +97,10 @@ export class CorpOrdersComponent implements OnInit {
   getStatusIcon(status: OrderStatus): string {
     switch (status) {
       case OrderStatus.PENDING:   return '⏳';
-      case OrderStatus.APPROVED:  return '✅';
+      case OrderStatus.PAID:  return '✅';
+      case OrderStatus.PARTIALLY_SHIPPED:   return '📦';
       case OrderStatus.SHIPPED:   return '🚚';
-      case OrderStatus.DELIVERED: return '📦';
+      case OrderStatus.DELIVERED: return '🎉';
       case OrderStatus.CANCELLED: return '❌';
       default: return '•';
     }

@@ -246,6 +246,59 @@
   filter: brightness(1.1);
 }
 
+.action-buttons-group {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ship-btn {
+  background: var(--corp-accent);
+  color: white;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.ship-btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
+}
+
+.deliver-btn {
+  background: #10b981; /* Green color for delivered */
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.deliver-btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+}
+
+.action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(80%);
+  transform: none;
+  box-shadow: none;
+}
+
 .status-help {
   margin: 0;
   font-size: 0.8rem;

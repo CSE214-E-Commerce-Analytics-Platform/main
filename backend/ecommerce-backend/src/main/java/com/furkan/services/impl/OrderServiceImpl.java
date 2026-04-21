@@ -105,11 +105,10 @@ public class OrderServiceImpl implements IOrderService {
 
         order.setStatus(OrderStatus.CANCELLED);
 
-        Payment payment = paymentRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_PAYMENT_FOUND_FOR_THIS_ORDER, order.toString())));
-
-        payment.setStatus(PaymentStatus.FAILED);
-        paymentRepository.save(payment);
+        paymentRepository.findByOrderId(orderId).ifPresent(payment -> {
+            payment.setStatus(PaymentStatus.FAILED);
+            paymentRepository.save(payment);
+        });
 
         if (order.getSubOrders() != null && !order.getSubOrders().isEmpty()) {
             for (Order subOrder : order.getSubOrders()) {

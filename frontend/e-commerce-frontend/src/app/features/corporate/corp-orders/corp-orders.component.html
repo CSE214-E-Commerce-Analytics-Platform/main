@@ -66,18 +66,33 @@
             </div>
           </div>
 
-          <!-- Status Update -->
-          <div class="status-update-section">
-            <h4>Update Status</h4>
-            <div class="status-controls">
-              <select #statusSelect class="status-dropdown">
-                <option *ngFor="let opt of statusOptions" [value]="opt" [selected]="opt === order.status">{{ opt }}</option>
-              </select>
-              <button class="update-btn" (click)="updateStatus(order, $any(statusSelect.value)); $event.stopPropagation()">
-                Apply
+          <!-- Status Actions -->
+          <div class="status-update-section" *ngIf="order.status === OrderStatus.PAID || order.status === OrderStatus.PARTIALLY_SHIPPED || order.status === OrderStatus.SHIPPED">
+            <h4>Fulfillment Actions</h4>
+            <div class="status-controls action-buttons-group">
+              <button class="action-btn ship-btn" 
+                      [disabled]="order.status === OrderStatus.SHIPPED"
+                      (click)="updateStatus(order, OrderStatus.SHIPPED); $event.stopPropagation()">
+                Mark as Shipped
+              </button>
+
+              <button class="action-btn deliver-btn" 
+                      [disabled]="order.status !== OrderStatus.SHIPPED"
+                      (click)="updateStatus(order, OrderStatus.DELIVERED); $event.stopPropagation()">
+                Mark as Delivered
               </button>
             </div>
-            <p class="status-help">Changing status will notify the user.</p>
+            <p class="status-help">Track your fulfillment progress and update the system accordingly.</p>
+          </div>
+          
+          <div class="status-update-section" *ngIf="order.status === OrderStatus.CANCELLED">
+             <h4>Status</h4>
+             <p class="status-help" style="color: var(--danger);">This order has been cancelled and cannot be updated.</p>
+          </div>
+          
+          <div class="status-update-section" *ngIf="order.status === OrderStatus.DELIVERED">
+             <h4>Status</h4>
+             <p class="status-help" style="color: var(--success);">Order has been successfully delivered. No further actions needed.</p>
           </div>
         </div>
       </div>

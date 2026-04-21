@@ -29,7 +29,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-// --- Java Standart Kütüphane Importları ---
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -66,8 +65,8 @@ public class PaymentServiceImpl implements IPaymentService {
 
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl("http://localhost:4200/payment-success?orderId=" + order.getId())
-                .setCancelUrl("http://localhost:4200/payment-cancel?orderId=" + order.getId())
+                .setSuccessUrl("http://localhost:4200/individual/orders?payment=success&orderId=" + order.getId())
+                .setCancelUrl("http://localhost:4200/individual/orders?payment=cancel&orderId=" + order.getId())
                 .setCustomerEmail(order.getUser().getEmail())
                 .putMetadata("orderId", order.getId().toString())
                 .addLineItem(
@@ -97,11 +96,9 @@ public class PaymentServiceImpl implements IPaymentService {
             throw new BaseException(new ErrorMessage(MessageType.ORDER_ALREADY_CANCELLED, order.getId().toString()));
         }
 
-        Payment existingPayment = paymentRepository.findByOrderId(order.getId())
-                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_PAYMENT_FOUND_FOR_THIS_ORDER, order.getId().toString())));
-
-
         try {
+            Payment existingPayment = paymentRepository.findByOrderId(order.getId()).orElse(null);
+
             if (existingPayment != null) {
                 PaymentStatus currentStatus = existingPayment.getStatus();
 
@@ -113,7 +110,6 @@ public class PaymentServiceImpl implements IPaymentService {
 
                 if (currentStatus == PaymentStatus.PENDING || currentStatus == PaymentStatus.FAILED) {
                     String newSessionId = createStripeCheckoutSession(order);
-
                     existingPayment.setTransactionKey(newSessionId);
                     existingPayment.setStatus(PaymentStatus.PENDING);
                     existingPayment.setUpdatedAt(LocalDateTime.now());
@@ -230,12 +226,25 @@ public class PaymentServiceImpl implements IPaymentService {
         try {
             Stripe.apiKey = stripeSecretKey;
             Event event = Webhook.constructEvent(payload, sigHeader, stripeWebhookSecret);
-            StripeObject stripeObject = event.getData().getObject();
 
-            if (stripeObject instanceof Session session) {
-                String orderIdStr = session.getMetadata().get("orderId");
-                if (orderIdStr != null) {
-                    updatePaymentStatus(Long.parseLong(orderIdStr), PaymentStatus.SUCCESS, session.getId());
+            if ("checkout.session.completed".equals(event.getType())) {
+                StripeObject stripeObject = event.getData().getObject();
+
+                if (stripeObject instanceof Session session) {
+                    String orderIdStr = session.getMetadata().get("orderId");
+                    if (orderIdStr != null) {
+                        updatePaymentStatus(Long.parseLong(orderIdStr), PaymentStatus.SUCCESS, session.getId());
+                    }
+                }
+            }
+
+            if ("checkout.session.expired".equals(event.getType())) {
+                StripeObject stripeObject = event.getData().getObject();
+                if (stripeObject instanceof Session session) {
+                    String orderIdStr = session.getMetadata().get("orderId");
+                    if (orderIdStr != null) {
+                        updatePaymentStatus(Long.parseLong(orderIdStr), PaymentStatus.FAILED, session.getId());
+                    }
                 }
             }
         } catch (Exception e) {

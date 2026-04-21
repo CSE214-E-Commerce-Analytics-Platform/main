@@ -8,6 +8,9 @@ import { OrderService } from '../../../core/services/order.service';
 import { PaymentService } from '../../../core/services/payment.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { environment } from '../../../../environments/environment.development';
+
+declare var Stripe: any;
 
 @Component({
   selector: 'app-ind-cart',
@@ -98,9 +101,14 @@ export class IndCartComponent implements OnInit {
           })
         ).subscribe(payment => {
           if (payment && payment.transactionKey) {
-            // Redirect to Stripe or other payment gateway
             this.toastService.showSuccess('Redirecting to payment gateway...');
-            window.location.href = payment.transactionKey;
+            const stripe = Stripe(environment.stripePublicKey);
+            stripe.redirectToCheckout({ sessionId: payment.transactionKey }).then((result: any) => {
+              if (result.error) {
+                this.toastService.showError(result.error.message);
+                this.isProcessing = false;
+              }
+            });
           } else {
             this.isProcessing = false;
           }

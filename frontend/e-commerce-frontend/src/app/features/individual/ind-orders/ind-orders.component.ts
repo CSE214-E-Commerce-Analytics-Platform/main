@@ -6,6 +6,10 @@ import { ToastService } from '../../../core/services/toast.service';
 import { DtoOrder, OrderStatus } from '../../../shared/models/order';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { environment } from '../../../../environments/environment.development';
+import { ActivatedRoute } from '@angular/router';
+
+declare var Stripe: any;
 
 @Component({
   selector: 'app-ind-orders',
@@ -17,6 +21,7 @@ export class IndOrdersComponent implements OnInit {
   private orderService = inject(OrderService);
   private paymentService = inject(PaymentService);
   private toastService = inject(ToastService);
+  private route = inject(ActivatedRoute);
 
   orders: DtoOrder[] = [];
   isLoading = true;
@@ -27,6 +32,14 @@ export class IndOrdersComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadOrders();
+
+    this.route.queryParams.subscribe(params => {
+      if (params['payment'] === 'success') {
+        this.toastService.showSuccess('Payment completed successfully!');
+      } else if (params['payment'] === 'cancel') {
+        this.toastService.showError('Payment cancelled.');
+      }
+    });
   }
 
   loadOrders(): void {
@@ -78,7 +91,13 @@ export class IndOrdersComponent implements OnInit {
     ).subscribe(payment => {
       if (payment && payment.transactionKey) {
         this.toastService.showSuccess('Redirecting to payment...');
-        window.location.href = payment.transactionKey;
+        const stripe = Stripe(environment.stripePublicKey);
+        stripe.redirectToCheckout({ sessionId: payment.transactionKey }).then((result: any) => {
+          if (result.error) {
+            this.toastService.showError(result.error.message);
+            this.payingId = null;
+          }
+        });
       } else {
         this.payingId = null;
       }
@@ -86,7 +105,7 @@ export class IndOrdersComponent implements OnInit {
   }
 
   isCancellable(order: DtoOrder): boolean {
-    return order.status === OrderStatus.PENDING || order.status === OrderStatus.APPROVED;
+    return order.status === OrderStatus.PENDING || order.status === OrderStatus.PAID;
   }
 
   isPending(order: DtoOrder): boolean {
@@ -95,9 +114,10 @@ export class IndOrdersComponent implements OnInit {
 
   getStatusClass(status: OrderStatus): string {
     switch (status) {
-      case OrderStatus.PENDING:   return 'status-pending';
-      case OrderStatus.APPROVED:  return 'status-approved';
-      case OrderStatus.SHIPPED:   return 'status-shipped';
+      case OrderStatus.PENDING: return 'status-pending';
+      case OrderStatus.PAID: return 'status-approved'; // Keeping same style for now
+      case OrderStatus.PARTIALLY_SHIPPED: return 'status-shipped';
+      case OrderStatus.SHIPPED: return 'status-shipped';
       case OrderStatus.DELIVERED: return 'status-delivered';
       case OrderStatus.CANCELLED: return 'status-cancelled';
       default: return '';
@@ -106,10 +126,11 @@ export class IndOrdersComponent implements OnInit {
 
   getStatusIcon(status: OrderStatus): string {
     switch (status) {
-      case OrderStatus.PENDING:   return '⏳';
-      case OrderStatus.APPROVED:  return '✅';
-      case OrderStatus.SHIPPED:   return '🚚';
-      case OrderStatus.DELIVERED: return '📦';
+      case OrderStatus.PENDING: return '⏳';
+      case OrderStatus.PAID: return '✅';
+      case OrderStatus.PARTIALLY_SHIPPED: return '📦';
+      case OrderStatus.SHIPPED: return '🚚';
+      case OrderStatus.DELIVERED: return '🎉';
       case OrderStatus.CANCELLED: return '❌';
       default: return '•';
     }

@@ -46,7 +46,8 @@ export class AdminOrdersComponent implements OnInit {
   getStatusClass(status: OrderStatus): string {
     switch (status) {
       case OrderStatus.PENDING:   return 'status-pending';
-      case OrderStatus.APPROVED:  return 'status-approved';
+      case OrderStatus.PAID:  return 'status-approved';
+      case OrderStatus.PARTIALLY_SHIPPED:   return 'status-shipped';
       case OrderStatus.SHIPPED:   return 'status-shipped';
       case OrderStatus.DELIVERED: return 'status-delivered';
       case OrderStatus.CANCELLED: return 'status-cancelled';
@@ -57,9 +58,10 @@ export class AdminOrdersComponent implements OnInit {
   getStatusIcon(status: OrderStatus): string {
     switch (status) {
       case OrderStatus.PENDING:   return '⏳';
-      case OrderStatus.APPROVED:  return '✅';
+      case OrderStatus.PAID:  return '✅';
+      case OrderStatus.PARTIALLY_SHIPPED:   return '📦';
       case OrderStatus.SHIPPED:   return '🚚';
-      case OrderStatus.DELIVERED: return '📦';
+      case OrderStatus.DELIVERED: return '🎉';
       case OrderStatus.CANCELLED: return '❌';
       default: return '•';
     }
