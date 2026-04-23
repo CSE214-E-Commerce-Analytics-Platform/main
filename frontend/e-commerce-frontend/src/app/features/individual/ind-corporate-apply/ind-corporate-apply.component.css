@@ -206,11 +206,11 @@
 .form-control {
   width: 100%;
   padding: 10px 14px;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--input-border);
   border-radius: var(--radius-input);
   font-size: 0.9rem;
   color: var(--text-primary);
-  background: rgba(255,255,255,0.04);
+  background: var(--surface-bg);
   transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
   box-sizing: border-box;
   font-family: 'DM Sans', sans-serif;
@@ -310,11 +310,11 @@
 }
 
 .benefit-card {
-  background: rgba(255,255,255,0.03);
+  background: var(--card-bg);
   border-radius: 12px;
   padding: 20px 16px;
   text-align: center;
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid var(--border-color);
   transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
 }
 

@@ -21,8 +21,8 @@
   gap: 6px;
   padding: 0 16px;
   height: 36px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--surface-bg);
+  border: 1px solid var(--input-border);
   border-radius: var(--radius-btn);
   color: var(--text-secondary);
   font-size: 0.875rem;
@@ -35,7 +35,7 @@
 
 .back-btn:hover {
   border-color: rgba(99,102,241,0.3);
-  color: #a5b4fc;
+  color: var(--ind-nav-color);
   background: rgba(99,102,241,0.08);
 }
 
@@ -92,7 +92,7 @@
   display: inline-block;
   width: fit-content;
   background: rgba(99,102,241,0.12);
-  color: #818cf8;
+  color: var(--ind-nav-color);
   border: 1px solid rgba(99,102,241,0.2);
   padding: 3px 12px;
   border-radius: var(--radius-badge);

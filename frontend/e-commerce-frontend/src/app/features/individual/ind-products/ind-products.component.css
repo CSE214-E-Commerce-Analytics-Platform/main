@@ -39,7 +39,7 @@
   text-align: center;
   background: var(--card-bg);
   border-radius: var(--radius-card);
-  border: 2px dashed rgba(99,102,241,0.25);
+  border: 2px dashed var(--accent);
   color: var(--text-secondary);
   animation: pulse-border 3s ease-in-out infinite;
   gap: 16px;
@@ -92,9 +92,9 @@
   background-repeat: no-repeat;
   background-position: center;
   position: relative;
-  background-color: rgba(255,255,255,0.02);
+  background-color: var(--surface-bg);
   padding: 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .badge {
@@ -127,7 +127,7 @@
 
 .product-category {
   font-size: 0.7rem;
-  color: #818cf8;
+  color: var(--ind-nav-color);
   text-transform: uppercase;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -145,7 +145,7 @@
   transition: color 0.2s;
 }
 
-.product-title:hover { color: #a5b4fc; }
+.product-title:hover { color: var(--ind-nav-color); }
 
 .product-desc {
   color: var(--text-secondary);
@@ -166,7 +166,7 @@
   justify-content: space-between;
   margin-top: auto;
   padding-top: 14px;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid var(--border-color);
 }
 
 .price {

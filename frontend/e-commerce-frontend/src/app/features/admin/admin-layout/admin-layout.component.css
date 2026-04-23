@@ -1,11 +1,11 @@
 /* ================================================================
-   ADMIN LAYOUT — Premium SaaS Dark
+   ADMIN LAYOUT — Theme-aware (uses CSS vars for both modes)
    ================================================================ */
 
 .admin-layout {
   display: flex;
   height: 100vh;
-  background: var(--app-bg, #0a0a0f);
+  background: var(--app-bg);
   overflow: hidden;
   font-family: 'DM Sans', sans-serif;
 }
@@ -14,8 +14,8 @@
 .sidebar {
   width: 220px;
   flex-shrink: 0;
-  background: #07070a;
-  border-right: 1px solid rgba(255,255,255,0.06);
+  background: var(--sidebar-bg);
+  border-right: var(--sidebar-border);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -28,9 +28,9 @@
   display: none;
   position: absolute;
   top: 12px; right: 12px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
-  color: #94a3b8;
+  background: var(--btn-ghost-bg);
+  border: 1px solid var(--btn-ghost-border);
+  color: var(--text-muted);
   font-size: 1rem;
   width: 30px; height: 30px;
   border-radius: 8px;
@@ -40,12 +40,12 @@
   align-items: center;
   justify-content: center;
 }
-.sidebar-close-btn:hover { background: rgba(255,255,255,0.1); color: #f8fafc; }
+.sidebar-close-btn:hover { background: var(--accent-hover); color: var(--text-primary); }
 
 /* ── Brand Header ─────────────────────────────────────────── */
 .sidebar-header {
   padding: 20px 16px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -53,12 +53,12 @@
 
 .brand-icon {
   width: 34px; height: 34px;
-  background: rgba(99,102,241,0.15);
-  border: 1px solid rgba(99,102,241,0.25);
+  background: var(--admin-accent-hover);
+  border: 1px solid var(--admin-accent);
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
   font-size: 1rem;
-  color: #a5b4fc;
+  color: var(--admin-nav-color);
   flex-shrink: 0;
 }
 
@@ -67,12 +67,12 @@
 .brand-name {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.85rem; font-weight: 700;
-  color: #f8fafc;
+  color: var(--text-primary);
   letter-spacing: 0.01em;
   white-space: nowrap;
 }
 
-.brand-sub { font-size: 0.68rem; color: #475569; white-space: nowrap; }
+.brand-sub { font-size: 0.68rem; color: var(--text-muted); white-space: nowrap; }
 
 /* ── Navigation ─────────────────────────────────────────── */
 .sidebar-nav {
@@ -86,7 +86,7 @@
 .sidebar-nav a {
   height: 40px;
   padding: 0 12px;
-  color: #475569;
+  color: var(--text-muted);
   text-decoration: none;
   display: flex; align-items: center; gap: 10px;
   transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
@@ -103,21 +103,21 @@
 .nav-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 
 .sidebar-nav a:hover {
-  background: rgba(255,255,255,0.04);
-  color: #94a3b8;
+  background: var(--accent-hover);
+  color: var(--text-secondary);
 }
 
 .sidebar-nav a.active {
-  background: rgba(99,102,241,0.15);
-  color: #a5b4fc;
+  background: var(--admin-accent-active);
+  color: var(--admin-nav-color);
   font-weight: 600;
-  border-left-color: #6366f1;
+  border-left-color: var(--admin-accent);
 }
 
 /* ── Footer ─────────────────────────────────────────────── */
 .sidebar-footer {
   padding: 10px 8px;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid var(--border-color);
 }
 
 .logout-btn {
@@ -125,7 +125,7 @@
   padding: 0 12px;
   background: transparent;
   border: 1px solid transparent;
-  color: #475569;
+  color: var(--text-muted);
   border-radius: 8px;
   cursor: pointer;
   display: flex; align-items: center; gap: 10px;
@@ -145,16 +145,16 @@
 .main-content {
   flex: 1; display: flex; flex-direction: column;
   overflow-y: auto; min-width: 0;
-  background: var(--app-bg, #0a0a0f);
+  background: var(--app-bg);
 }
 
 /* ── Top Header ─────────────────────────────────────────── */
 .top-header {
-  background: rgba(10,10,15,0.85);
+  background: var(--topbar-bg);
   padding: 0 32px;
   height: 56px;
   display: flex; align-items: center; gap: 14px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid var(--border-color);
   position: sticky; top: 0; z-index: 50;
   flex-shrink: 0;
   backdrop-filter: blur(16px);
@@ -164,26 +164,26 @@
   display: none;
   flex-direction: column; justify-content: center; gap: 4px;
   width: 34px; height: 34px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--btn-ghost-bg);
+  border: 1px solid var(--btn-ghost-border);
   border-radius: 8px; cursor: pointer; padding: 8px;
   flex-shrink: 0; transition: all 0.2s;
 }
-.hamburger-btn span { display: block; height: 2px; background: #475569; border-radius: 2px; }
-.hamburger-btn:hover { background: rgba(99,102,241,0.1); }
-.hamburger-btn:hover span { background: #a5b4fc; }
+.hamburger-btn span { display: block; height: 2px; background: var(--text-muted); border-radius: 2px; }
+.hamburger-btn:hover { background: var(--admin-accent-hover); }
+.hamburger-btn:hover span { background: var(--admin-nav-color); }
 
 .header-title { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; }
 
 .header-accent-bar {
   display: block; width: 3px; height: 18px;
-  background: #6366f1;
+  background: var(--admin-accent);
   border-radius: 2px; flex-shrink: 0;
 }
 
 .top-header h3 {
   margin: 0; font-size: 0.9rem; font-weight: 600;
-  color: #f8fafc;
+  color: var(--text-primary);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
@@ -191,24 +191,24 @@
 
 .theme-toggle-btn {
   width: 34px; height: 34px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--btn-ghost-bg);
+  border: 1px solid var(--btn-ghost-border);
   border-radius: 8px; cursor: pointer; font-size: 1rem;
   display: flex; align-items: center; justify-content: center;
   transition: all 0.2s;
-  color: #475569;
+  color: var(--text-muted);
 }
 .theme-toggle-btn:hover {
-  background: rgba(99,102,241,0.1);
-  border-color: rgba(99,102,241,0.3);
-  color: #a5b4fc;
+  background: var(--admin-accent-hover);
+  border-color: var(--admin-accent);
+  color: var(--admin-nav-color);
 }
 
 /* ── Content Area ─────────────────────────────────────────── */
 .content {
   padding: 28px 32px;
   flex: 1;
-  background: #0a0a0f;
+  background: var(--content-bg);
   animation: fadeSlideUp 0.4s cubic-bezier(0.4,0,0.2,1);
 }
 

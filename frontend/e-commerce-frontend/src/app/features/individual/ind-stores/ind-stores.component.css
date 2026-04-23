@@ -39,7 +39,7 @@
   text-align: center;
   background: var(--card-bg);
   border-radius: var(--radius-card);
-  border: 2px dashed rgba(99,102,241,0.25);
+  border: 2px dashed var(--accent);
   color: var(--text-secondary);
   gap: 16px;
 }
@@ -86,7 +86,7 @@
 .store-header {
   height: 100px;
   background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.1));
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid var(--border-color);
   position: relative;
   display: flex;
   align-items: center;
@@ -148,7 +148,7 @@
   transition: color 0.2s;
 }
 
-.store-name:hover { color: #a5b4fc; }
+.store-name:hover { color: var(--ind-nav-color); }
 
 .store-joined {
   color: var(--text-muted);
@@ -164,12 +164,12 @@
   justify-content: flex-end;
   margin-top: auto;
   padding-top: 14px;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid var(--border-color);
 }
 
 .visit-btn {
   background: rgba(99,102,241,0.1);
-  color: #818cf8;
+  color: var(--ind-nav-color);
   border: 1px solid rgba(99,102,241,0.2);
   border-radius: var(--radius-btn);
   padding: 0 14px;

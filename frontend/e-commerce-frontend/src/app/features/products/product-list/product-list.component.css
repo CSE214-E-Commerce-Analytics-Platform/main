@@ -44,9 +44,9 @@
 .filter-chip {
   padding: 0 16px;
   height: 34px;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--input-border);
   border-radius: 999px;
-  background: rgba(255,255,255,0.04);
+  background: var(--surface-bg);
   color: var(--text-secondary);
   font-size: 0.82rem;
   font-weight: 500;
@@ -58,13 +58,13 @@
 
 .filter-chip:hover {
   border-color: rgba(99,102,241,0.35);
-  color: #a5b4fc;
+  color: var(--ind-nav-color);
   background: rgba(99,102,241,0.06);
 }
 
 .filter-chip.active {
   background: rgba(99,102,241,0.15);
-  color: #a5b4fc;
+  color: var(--ind-nav-color);
   border-color: rgba(99,102,241,0.35);
   font-weight: 600;
 }
@@ -98,7 +98,7 @@
   height: 200px;
   overflow: hidden;
   background: rgba(255,255,255,0.02);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .card-image img {
@@ -162,7 +162,7 @@
   justify-content: space-between;
   align-items: center;
   padding-top: 12px;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid var(--border-color);
 }
 
 .price {
