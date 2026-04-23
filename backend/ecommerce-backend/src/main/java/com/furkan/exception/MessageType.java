@@ -28,6 +28,10 @@ public enum MessageType {
     UPGRADE_REQUEST_NOT_FOUND_BY_EMAIL("1011", "The user's request for a corporate account could not be found with this email."),
     NOT_PENDING_REQUEST("1012", "Only requests with a pending status can be evaluated"),
 
+    // Customer Profile
+    PROFILE_NOT_FOUND("1013", "User profile not found. Please update your profile information."),
+    CAN_NOT_DOWN_GRADE("1014", "You can not downgrade your package"),
+
     // Category
     CATEGORY_NOT_FOUND("2001", "Selected category not found."),
     PARENT_NOT_FOUND("2006", "No selected parent category was found!"),
@@ -62,6 +66,22 @@ public enum MessageType {
     PAYMENT_ALREADY_EXISTS("7004", "Payment for this order is already exists!"),
     PAYMENT_FAILED("7005", "ERROR: Payment failed for this order."),
 
+    // Shipment
+    SHIPMENT_NOT_FOUND_FOR_TR_NUM("8001", "Shipment not found for this tracking number"),
+    SHIPMENT_NOT_FOUND("8002", "Shipment not found!"),
+    SHIPMENT_NOT_FOUND_FOR_ORDER_ID("8006","Not shipment found for this order number"),
+    SHIPMENT_FOR_NOT_CHILD_ORDER("8003", "The order creation process must be done via the Child Order, not the Master Order."),
+    ORDER_NOT_PAID("8004", "Only orders with confirmed payment can be shipped!"),
+    SHIPMENT_TRACK_NOT_FOUND("8005", "Shipment track id not found!"),
+    SHIPMENT_CAN_NOT_CANCEL("8007", "Orders that have been dispatched or delivered cannot be cancelled. The return process must be initiated."),
+
+    // Review
+    REVIEW_NOT_FOUND("9001", "Review not found!"),
+    REVIEW_OWNER_IS_DIFFERENT("9002", "You are able to delete just your own reviews"),
+    USER_ALREADY_REVIEWED_PRODUCT("9003", "You already reviewed this product."),
+    CAN_NOT_REVIEW_THIS_PRODUCT("9004", "To be able to review this product, you must have purchased and received it."),
+
+    // General
     GENERAL_EXCEPTION("9999", "A general error occur.");
 
     final String code;

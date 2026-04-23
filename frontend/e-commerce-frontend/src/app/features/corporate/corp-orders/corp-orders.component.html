@@ -35,7 +35,7 @@
 
         <div class="order-info-group total-group">
           <span class="order-label">Sales</span>
-          <span class="order-value highlight">{{ order.grandTotal | currency:'USD' }}</span>
+          <span class="order-value highlight">{{ order.grandTotal | currency:'TRY':'₺' }}</span>
         </div>
 
         <div class="order-info-group status-group">
@@ -62,7 +62,7 @@
             <div class="item-line" *ngFor="let item of order.items">
               <div class="item-qty">{{ item.quantity }}x</div>
               <div class="item-name">{{ item.productName }}</div>
-              <div class="item-price">{{ item.price | currency:'USD' }}</div>
+              <div class="item-price">{{ item.price | currency:'TRY':'₺' }}</div>
             </div>
           </div>
 

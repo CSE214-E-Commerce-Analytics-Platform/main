@@ -33,7 +33,7 @@
           <tr class="main-row" [class.expanded]="expandedOrderId === order.id" (click)="toggleExpand(order.id)">
             <td class="id-cell">#{{ order.id }}</td>
             <td>{{ order.orderDate | date:'medium' }}</td>
-            <td class="price-cell">{{ order.grandTotal | currency:'USD' }}</td>
+            <td class="price-cell">{{ order.grandTotal | currency:'TRY':'₺' }}</td>
             <td>
               <span class="status-badge" [ngClass]="getStatusClass(order.status)">
                 {{ getStatusIcon(order.status) }} {{ order.status }}
@@ -59,7 +59,7 @@
                     <div class="item-pill" *ngFor="let item of order.items">
                       <span class="item-qty">{{ item.quantity }}x</span>
                       <span class="item-name">{{ item.productName }}</span>
-                      <span class="item-price">{{ item.price | currency:'USD' }}</span>
+                      <span class="item-price">{{ item.price | currency:'TRY':'₺' }}</span>
                     </div>
                   </div>
                 </div>

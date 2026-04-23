@@ -12,7 +12,7 @@
         </div>
         <div class="item-details">
           <h3 class="product-name">{{ item.productName }}</h3>
-          <p class="product-price">{{ item.productPrice | currency:'USD' }}</p>
+          <p class="product-price">{{ item.productPrice | currency:'TRY':'₺' }}</p>
         </div>
         
         <div class="item-actions">
@@ -21,7 +21,7 @@
             <span class="qty-value">{{ item.quantity }}</span>
             <button class="qty-btn" (click)="updateQuantity(item.id, item.quantity + 1)">+</button>
           </div>
-          <p class="total-line-price">{{ item.totalLinePrice | currency:'USD' }}</p>
+          <p class="total-line-price">{{ item.totalLinePrice | currency:'TRY':'₺' }}</p>
           <button class="remove-btn" (click)="removeItem(item.id)" title="Remove item">
             <span class="icon">🗑️</span>
           </button>
@@ -33,11 +33,11 @@
       <h3>Order Summary</h3>
       <div class="summary-line">
         <span>Subtotal</span>
-        <span>{{ cart.totalPrice | currency:'USD' }}</span>
+        <span>{{ cart.totalPrice | currency:'TRY':'₺' }}</span>
       </div>
       <div class="summary-line total">
         <span>Total</span>
-        <span>{{ cart.totalPrice | currency:'USD' }}</span>
+        <span>{{ cart.totalPrice | currency:'TRY':'₺' }}</span>
       </div>
       
       <div class="summary-actions">

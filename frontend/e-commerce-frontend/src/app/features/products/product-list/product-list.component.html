@@ -55,7 +55,7 @@
                 <h3 class="product-name">{{ product.name }}</h3>
                 <p class="product-desc">{{ product.description }}</p>
                 <div class="card-footer">
-                    <span class="price">${{ product.unitPrice | number:'1.2-2' }}</span>
+                    <span class="price">₺{{ product.unitPrice | number:'1.2-2' }}</span>
                     <span class="stock" [class.low-stock]="product.stockQuantity < 10">
                         {{ product.stockQuantity }} in stock
                     </span>
