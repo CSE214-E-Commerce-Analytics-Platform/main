@@ -2,8 +2,10 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OrderService } from '../../../core/services/order.service';
 import { PaymentService } from '../../../core/services/payment.service';
+import { ShipmentService } from '../../../core/services/shipment.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DtoOrder, OrderStatus } from '../../../shared/models/order';
+import { DtoShipment, ShipmentStatus } from '../../../shared/models/shipment';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { environment } from '../../../../environments/environment.development';
@@ -20,6 +22,7 @@ declare var Stripe: any;
 export class IndOrdersComponent implements OnInit {
   private orderService = inject(OrderService);
   private paymentService = inject(PaymentService);
+  private shipmentService = inject(ShipmentService);
   private toastService = inject(ToastService);
   private route = inject(ActivatedRoute);
 
@@ -29,6 +32,8 @@ export class IndOrdersComponent implements OnInit {
   payingId: number | null = null;
 
   expandedOrderId: number | null = null;
+  shipmentsMap: Record<number, DtoShipment | null> = {};
+  ShipmentStatus = ShipmentStatus;
 
   ngOnInit(): void {
     this.loadOrders();
@@ -59,6 +64,31 @@ export class IndOrdersComponent implements OnInit {
   toggleExpand(orderId: number | undefined): void {
     if (!orderId) return;
     this.expandedOrderId = this.expandedOrderId === orderId ? null : orderId;
+    if (this.expandedOrderId && !(orderId in this.shipmentsMap)) {
+      this.loadShipmentForOrder(orderId);
+    }
+  }
+
+  loadShipmentForOrder(orderId: number): void {
+    this.shipmentsMap[orderId] = null;
+    this.shipmentService.getByOrderId(orderId).pipe(
+      catchError(() => of(null))
+    ).subscribe(shipment => {
+      this.shipmentsMap[orderId] = shipment;
+    });
+  }
+
+  getShipmentStatusClass(status: ShipmentStatus): string {
+    switch (status) {
+      case ShipmentStatus.PENDING:          return 'status-pending';
+      case ShipmentStatus.LABEL_CREATED:    return 'status-approved';
+      case ShipmentStatus.IN_TRANSIT:       return 'status-shipped';
+      case ShipmentStatus.OUT_FOR_DELIVERY: return 'status-shipped';
+      case ShipmentStatus.DELIVERED:        return 'status-delivered';
+      case ShipmentStatus.RETURNED:
+      case ShipmentStatus.CANCELLED:        return 'status-cancelled';
+      default:                               return '';
+    }
   }
 
   cancelOrder(orderId: number | undefined): void {

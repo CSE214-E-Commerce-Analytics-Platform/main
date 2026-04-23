@@ -1,1 +1,84 @@
-<p>corp-reviews works!</p>
+<div class="reviews-container">
+  <div class="reviews-header">
+    <div class="header-content">
+      <h2>Product Reviews</h2>
+      <p class="header-sub">See what customers are saying about your products.</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="filter-group" *ngIf="stores.length > 0">
+      <label>Store</label>
+      <select [(ngModel)]="selectedStoreId" (change)="onStoreChange()">
+        <option *ngFor="let store of stores" [value]="store.id">{{ store.name }}</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Product</label>
+      <select [(ngModel)]="selectedProductId" (change)="onProductChange()" [disabled]="isLoadingProducts">
+        <option [ngValue]="null">{{ isLoadingProducts ? 'Loading...' : 'Select a product' }}</option>
+        <option *ngFor="let product of products" [value]="product.id">{{ product.name }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Stats Summary -->
+  <div class="stats-bar" *ngIf="reviews.length > 0">
+    <div class="stat-chip">
+      <span class="stat-value">{{ reviews.length }}</span>
+      <span class="stat-label">Total Reviews</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-value">{{ averageRating | number:'1.1-1' }} ★</span>
+      <span class="stat-label">Avg Rating</span>
+    </div>
+    <div class="stat-chip positive">
+      <span class="stat-value">{{ positiveCount }}</span>
+      <span class="stat-label">Positive</span>
+    </div>
+    <div class="stat-chip negative">
+      <span class="stat-value">{{ negativeCount }}</span>
+      <span class="stat-label">Negative</span>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loader" *ngIf="isLoadingReviews">
+    <div class="spinner"></div>
+    <p>Loading reviews...</p>
+  </div>
+
+  <!-- Reviews List -->
+  <div class="reviews-list" *ngIf="!isLoadingReviews && reviews.length > 0">
+    <div class="review-card" *ngFor="let review of reviews">
+      <div class="review-top">
+        <div class="reviewer">Customer #{{ review.userId }}</div>
+        <span class="sentiment-badge" [ngClass]="getSentimentClass(review.sentiment)">
+          {{ review.sentiment }}
+        </span>
+      </div>
+
+      <div class="star-display">
+        <span class="star" *ngFor="let filled of getStars(review.starRating)" [class.filled]="filled">★</span>
+      </div>
+
+      <p class="comment-text" *ngIf="review.commentText">{{ review.commentText }}</p>
+      <p class="comment-text muted" *ngIf="!review.commentText">No comment provided.</p>
+    </div>
+  </div>
+
+  <!-- Empty States -->
+  <div class="empty-state" *ngIf="!isLoadingReviews && !selectedProductId">
+    <div class="empty-icon">🔍</div>
+    <h3>Select a product</h3>
+    <p>Choose a product above to see its customer reviews.</p>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoadingReviews && selectedProductId && reviews.length === 0">
+    <div class="empty-icon">⭐</div>
+    <h3>No reviews yet</h3>
+    <p>This product hasn't received any reviews.</p>
+  </div>
+</div>

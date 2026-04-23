@@ -125,6 +125,11 @@ export class AuthService {
     }
   }
 
+  setAuthData(token: string, role: string) {
+    localStorage.setItem(this.ACCESS_TOKEN_KEY, token);
+    localStorage.setItem(this.ROLE_KEY, role);
+  }
+
   clearStorage() {
     localStorage.removeItem(this.ACCESS_TOKEN_KEY);
     localStorage.removeItem(this.ROLE_KEY);

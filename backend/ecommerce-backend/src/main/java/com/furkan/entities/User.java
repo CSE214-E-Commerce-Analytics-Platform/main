@@ -1,5 +1,6 @@
 package com.furkan.entities;
 
+import com.furkan.enums.AuthProvider;
 import com.furkan.enums.RoleType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,8 +25,10 @@ public class User extends BaseEntity implements UserDetails {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
     private String passwordHash;
+
+    @Enumerated(EnumType.STRING)
+    private AuthProvider provider = AuthProvider.LOCAL;
 
     @Enumerated(EnumType.STRING)
     private RoleType roleType = RoleType.INDIVIDUAL;

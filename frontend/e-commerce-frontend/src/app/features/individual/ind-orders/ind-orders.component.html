@@ -67,6 +67,31 @@
           </div>
         </div>
 
+        <!-- Shipment Tracking -->
+        <div class="items-section shipment-section" *ngIf="shipmentsMap[order.id!] as shipment">
+          <h4>Shipment Tracking</h4>
+          <div class="shipment-track-row">
+            <div class="track-field">
+              <span class="track-label">Tracking #</span>
+              <span class="track-value mono">{{ shipment.trackingNumber }}</span>
+            </div>
+            <div class="track-field">
+              <span class="track-label">Mode</span>
+              <span class="track-value">{{ shipment.mode }}</span>
+            </div>
+            <div class="track-field">
+              <span class="track-label">Est. Delivery</span>
+              <span class="track-value">{{ shipment.estimatedDeliveryDate | date:'mediumDate' }}</span>
+            </div>
+            <div class="track-field">
+              <span class="track-label">Status</span>
+              <span class="status-badge" [ngClass]="getShipmentStatusClass(shipment.status)">
+                {{ shipment.status }}
+              </span>
+            </div>
+          </div>
+        </div>
+
         <div class="actions-section">
           <!-- Only show Cancel if order is Pending or Approved -->
           <button class="action-btn cancel-btn" 

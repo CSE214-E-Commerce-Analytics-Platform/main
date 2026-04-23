@@ -178,6 +178,37 @@
   font-size: 0.9rem;
 }
 
+.shipment-section { border-left: 3px solid var(--ind-accent); }
+
+.shipment-track-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.track-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 120px;
+}
+
+.track-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.track-value {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.track-value.mono { font-family: monospace; font-size: 0.9rem; }
+
 .actions-section {
   display: flex;
   gap: 12px;

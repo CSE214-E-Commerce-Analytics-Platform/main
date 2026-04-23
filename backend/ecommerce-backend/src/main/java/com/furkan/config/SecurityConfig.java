@@ -1,7 +1,10 @@
 package com.furkan.config;
 
+import com.furkan.security.CustomOAuth2UserService;
 import com.furkan.security.JwtAuthFilter;
 import com.furkan.config.AiRateLimitFilter;
+import com.furkan.security.OAuth2AuthenticationFailureHandler;
+import com.furkan.security.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +29,9 @@ public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
     private final CorsConfigurationSource corsConfigurationSource;
     private final AiRateLimitFilter aiRateLimitFilter;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2AuthenticationSuccessHandler oAuth2SuccessHandler;
+    private final OAuth2AuthenticationFailureHandler oAuth2FailureHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -36,6 +42,9 @@ public class SecurityConfig {
 
                         // auth
                         .requestMatchers("/api/auth/**").permitAll()
+
+                        // oauth2
+                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
 
                         // categories
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
@@ -61,7 +70,12 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(info -> info.userService(customOAuth2UserService))
+                        .successHandler(oAuth2SuccessHandler)
+                        .failureHandler(oAuth2FailureHandler)
+                )
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(aiRateLimitFilter, JwtAuthFilter.class)

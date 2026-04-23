@@ -9,6 +9,7 @@ import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-
 import { ResetPasswordComponent } from './features/auth/reset-password/reset-password.component';
 import { VerifyEmailComponent } from './features/auth/verify-email/verify-email.component';
 import { ForbiddenComponent } from './features/auth/forbidden/forbidden.component';
+import { OAuth2CallbackComponent } from './features/auth/oauth2-callback/oauth2-callback.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -17,6 +18,7 @@ export const routes: Routes = [
     { path: 'forgot-password', component: ForgotPasswordComponent },
     { path: 'reset-password', component: ResetPasswordComponent },
     { path: 'verify-email', component: VerifyEmailComponent },
+    { path: 'oauth2/callback', component: OAuth2CallbackComponent },
 
     // ── Individual Paneli ──────────────────────────────────────────────────────
     {
@@ -184,6 +186,11 @@ export const routes: Routes = [
                 path: 'reviews',
                 loadComponent: () => import('./features/corporate/corp-reviews/corp-reviews.component')
                     .then(m => m.CorpReviewsComponent)
+            },
+            {
+                path: 'shipments',
+                loadComponent: () => import('./features/corporate/corp-shipments/corp-shipments.component')
+                    .then(m => m.CorpShipmentsComponent)
             },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]
