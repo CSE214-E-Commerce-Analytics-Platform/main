@@ -252,6 +252,7 @@ public class OrderServiceImpl implements IOrderService {
                 itemDto.setId(oi.getId());
                 itemDto.setQuantity(oi.getQuantity());
                 itemDto.setPrice(oi.getPrice());
+                itemDto.setProductId(oi.getProduct().getId());
                 itemDto.setProductName(oi.getProduct().getName());
 
                 dtoOrder.getItems().add(itemDto);

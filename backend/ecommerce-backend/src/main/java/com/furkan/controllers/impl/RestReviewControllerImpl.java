@@ -61,6 +61,12 @@ public class RestReviewControllerImpl extends RestBaseController implements IRes
         return ok(reviewService.findReviewsByUser(getUserIdByToken(userDetails)));
     }
 
+    @GetMapping("/corporate/{storeId}/my-reviews")
+    @Override
+    public RootEntity<List<DtoReview>> findReviewsByStoreId(@PathVariable Long storeId, @AuthenticationPrincipal UserDetails userDetails) {
+        return ok(reviewService.findReviewByStoreId(storeId, getUserIdByToken(userDetails)));
+    }
+
     @PutMapping("/{reviewId}")
     @Override
     public RootEntity<DtoReview> updateReview(@PathVariable Long reviewId, @Valid @RequestBody DtoReviewRequest request, @AuthenticationPrincipal UserDetails userDetails) {

@@ -1,8 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { extractErrorMessage } from '../../../core/utils/error.util';
+import { environment } from '../../../../environments/environment.development';
 
 @Component({
   selector: 'app-login',
@@ -14,6 +15,7 @@ export class LoginComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -24,7 +26,20 @@ export class LoginComponent implements OnInit {
   showPassword = false;
   loginError: string | null = null;
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    const oauth2Error = this.route.snapshot.queryParamMap.get('oauth2Error');
+    if (oauth2Error) {
+      this.loginError = decodeURIComponent(oauth2Error);
+    }
+  }
+
+  loginWithGoogle(): void {
+    window.location.href = `${environment.serverUrl}/oauth2/authorization/google`;
+  }
+
+  loginWithGitHub(): void {
+    window.location.href = `${environment.serverUrl}/oauth2/authorization/github`;
+  }
 
   onLogin() {
     if (this.loginForm.valid) {

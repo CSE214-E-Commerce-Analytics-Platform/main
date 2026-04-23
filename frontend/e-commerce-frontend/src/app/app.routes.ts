@@ -9,6 +9,7 @@ import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-
 import { ResetPasswordComponent } from './features/auth/reset-password/reset-password.component';
 import { VerifyEmailComponent } from './features/auth/verify-email/verify-email.component';
 import { ForbiddenComponent } from './features/auth/forbidden/forbidden.component';
+import { OAuth2CallbackComponent } from './features/auth/oauth2-callback/oauth2-callback.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -17,6 +18,7 @@ export const routes: Routes = [
     { path: 'forgot-password', component: ForgotPasswordComponent },
     { path: 'reset-password', component: ResetPasswordComponent },
     { path: 'verify-email', component: VerifyEmailComponent },
+    { path: 'oauth2/callback', component: OAuth2CallbackComponent },
 
     // ── Individual Paneli ──────────────────────────────────────────────────────
     {
@@ -55,6 +57,11 @@ export const routes: Routes = [
                 path: 'orders',
                 loadComponent: () => import('./features/individual/ind-orders/ind-orders.component')
                     .then(m => m.IndOrdersComponent)
+            },
+            {
+                path: 'orders/:id',
+                loadComponent: () => import('./features/individual/ind-order-detail/ind-order-detail.component')
+                    .then(m => m.IndOrderDetailComponent)
             },
             {
                 path: 'history',
@@ -185,11 +192,20 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/corporate/corp-reviews/corp-reviews.component')
                     .then(m => m.CorpReviewsComponent)
             },
+            {
+                path: 'shipments',
+                loadComponent: () => import('./features/corporate/corp-shipments/corp-shipments.component')
+                    .then(m => m.CorpShipmentsComponent)
+            },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]
     },
 
     // ── Diğer ─────────────────────────────────────────────────────────────────
+    { 
+        path: 'track/:trackingNumber', 
+        loadComponent: () => import('./features/tracking/tracking.component').then(m => m.TrackingComponent) 
+    },
     { path: 'forbidden', component: ForbiddenComponent },
     { path: '**', redirectTo: 'login' }
 ];

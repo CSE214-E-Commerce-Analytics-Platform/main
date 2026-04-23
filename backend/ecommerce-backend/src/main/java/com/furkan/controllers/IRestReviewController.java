@@ -21,6 +21,8 @@ public interface IRestReviewController {
 
     RootEntity<List<DtoReview>> findMyReviews(UserDetails userDetails);
 
+    RootEntity<List<DtoReview>> findReviewsByStoreId(Long storeId, UserDetails userDetails);
+
     RootEntity<DtoReview> updateReview(Long reviewId, DtoReviewRequest request, UserDetails userDetails);
 
     RootEntity<Void> deleteMyReview(Long reviewId, UserDetails userDetails);

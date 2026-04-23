@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrderService } from '../../../core/services/order.service';
 import { StoreService } from '../../../core/services/store.service';
+import { ShipmentService } from '../../../core/services/shipment.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DtoOrder, OrderStatus } from '../../../shared/models/order';
 import { Store } from '../../../shared/models/store';
@@ -18,6 +19,7 @@ import { of } from 'rxjs';
 export class CorpOrdersComponent implements OnInit {
   private orderService = inject(OrderService);
   private storeService = inject(StoreService);
+  private shipmentService = inject(ShipmentService);
   private toastService = inject(ToastService);
 
   OrderStatus = OrderStatus;
@@ -28,7 +30,14 @@ export class CorpOrdersComponent implements OnInit {
   isLoading = false;
   expandedOrderId: number | null = null;
 
-
+  // Shipment Modal State
+  showShipmentModal = false;
+  isInitializingShipment = false;
+  selectedOrderForShipment: DtoOrder | null = null;
+  shipmentFormData = {
+    warehouse: '',
+    mode: 'Standard'
+  };
 
   ngOnInit(): void {
     this.storeService.getMyStores().subscribe({
@@ -65,6 +74,44 @@ export class CorpOrdersComponent implements OnInit {
   toggleExpand(orderId: number | undefined): void {
     if (!orderId) return;
     this.expandedOrderId = this.expandedOrderId === orderId ? null : orderId;
+  }
+
+  openShipmentModal(order: DtoOrder, event: Event): void {
+    event.stopPropagation();
+    this.selectedOrderForShipment = order;
+    this.shipmentFormData = { warehouse: '', mode: 'Standard' };
+    this.showShipmentModal = true;
+  }
+
+  closeShipmentModal(): void {
+    this.showShipmentModal = false;
+    this.selectedOrderForShipment = null;
+  }
+
+  submitShipment(): void {
+    if (!this.selectedOrderForShipment?.id) return;
+    
+    this.isInitializingShipment = true;
+    const request = {
+      childOrderId: this.selectedOrderForShipment.id,
+      warehouse: this.shipmentFormData.warehouse,
+      mode: this.shipmentFormData.mode
+    };
+
+    this.shipmentService.initialize(request).pipe(
+      catchError(err => {
+        this.toastService.showError('Failed to initialize shipment. ' + (err.error?.exception?.message || ''));
+        this.isInitializingShipment = false;
+        return of(null);
+      })
+    ).subscribe(shipment => {
+      if (shipment) {
+        this.toastService.showSuccess('Shipment initialized successfully.');
+        this.closeShipmentModal();
+        this.loadOrders();
+      }
+      this.isInitializingShipment = false;
+    });
   }
 
   updateStatus(order: DtoOrder, newStatus: OrderStatus): void {

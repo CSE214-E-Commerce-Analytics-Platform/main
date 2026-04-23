@@ -1,8 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OrderService } from '../../../core/services/order.service';
+import { ShipmentService } from '../../../core/services/shipment.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DtoOrder, OrderStatus } from '../../../shared/models/order';
+import { DtoShipment, ShipmentStatus } from '../../../shared/models/shipment';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -14,11 +16,16 @@ import { of } from 'rxjs';
 })
 export class AdminOrdersComponent implements OnInit {
   private orderService = inject(OrderService);
+  private shipmentService = inject(ShipmentService);
   private toastService = inject(ToastService);
 
   orders: DtoOrder[] = [];
   isLoading = true;
   expandedOrderId: number | null = null;
+  
+  shipmentsMap: Record<number, DtoShipment | null> = {};
+  ShipmentStatus = ShipmentStatus;
+  isUpdatingShipment = false;
 
   ngOnInit(): void {
     this.loadAllOrders();
@@ -33,7 +40,14 @@ export class AdminOrdersComponent implements OnInit {
         return of([]);
       })
     ).subscribe(orders => {
-      this.orders = orders;
+      const subOrderIds = new Set<number>();
+      orders.forEach(o => {
+        if (o.subOrders && o.subOrders.length > 0) {
+          o.subOrders.forEach(sub => subOrderIds.add(sub.id!));
+        }
+      });
+      
+      this.orders = orders.filter(o => !subOrderIds.has(o.id!));
       this.isLoading = false;
     });
   }
@@ -41,9 +55,68 @@ export class AdminOrdersComponent implements OnInit {
   toggleExpand(orderId: number | undefined): void {
     if (!orderId) return;
     this.expandedOrderId = this.expandedOrderId === orderId ? null : orderId;
+    if (this.expandedOrderId) {
+      const parentOrder = this.orders.find(o => o.id === orderId);
+      if (parentOrder && parentOrder.subOrders) {
+        parentOrder.subOrders.forEach(sub => {
+          if (sub.id && !(sub.id in this.shipmentsMap)) {
+            this.loadShipmentForOrder(sub.id);
+          }
+        });
+      }
+    }
   }
 
-  getStatusClass(status: OrderStatus): string {
+  loadShipmentForOrder(orderId: number): void {
+    this.shipmentsMap[orderId] = null;
+    this.shipmentService.getByOrderId(orderId).pipe(
+      catchError(() => of(null))
+    ).subscribe(shipment => {
+      this.shipmentsMap[orderId] = shipment;
+    });
+  }
+
+  updateShipmentStatus(orderId: number, shipmentId: number, newStatus: ShipmentStatus): void {
+    this.isUpdatingShipment = true;
+    this.shipmentService.updateStatus(shipmentId, newStatus).pipe(
+      catchError(err => {
+        this.toastService.showError('Failed to update shipment status.');
+        this.isUpdatingShipment = false;
+        return of(null);
+      })
+    ).subscribe(updatedShipment => {
+      if (updatedShipment) {
+        this.toastService.showSuccess('Shipment updated to ' + newStatus);
+        this.shipmentsMap[orderId] = updatedShipment;
+        
+        // Also reload orders if the order status might have cascaded
+        if (newStatus === ShipmentStatus.DELIVERED || newStatus === ShipmentStatus.CANCELLED) {
+            this.loadAllOrders();
+        }
+      }
+      this.isUpdatingShipment = false;
+    });
+  }
+
+  cancelShipment(orderId: number, shipmentId: number): void {
+    this.isUpdatingShipment = true;
+    this.shipmentService.cancel(shipmentId).pipe(
+      catchError(err => {
+        this.toastService.showError('Failed to cancel shipment.');
+        this.isUpdatingShipment = false;
+        return of(null);
+      })
+    ).subscribe(updatedShipment => {
+      if (updatedShipment) {
+        this.toastService.showSuccess('Shipment cancelled successfully.');
+        this.shipmentsMap[orderId] = updatedShipment;
+        this.loadAllOrders();
+      }
+      this.isUpdatingShipment = false;
+    });
+  }
+
+  getStatusClass(status: OrderStatus | ShipmentStatus): string {
     switch (status) {
       case OrderStatus.PENDING:   return 'status-pending';
       case OrderStatus.PAID:  return 'status-approved';
@@ -51,6 +124,10 @@ export class AdminOrdersComponent implements OnInit {
       case OrderStatus.SHIPPED:   return 'status-shipped';
       case OrderStatus.DELIVERED: return 'status-delivered';
       case OrderStatus.CANCELLED: return 'status-cancelled';
+      case ShipmentStatus.LABEL_CREATED: return 'status-approved';
+      case ShipmentStatus.IN_TRANSIT: return 'status-shipped';
+      case ShipmentStatus.OUT_FOR_DELIVERY: return 'status-shipped';
+      case ShipmentStatus.RETURNED: return 'status-cancelled';
       default: return '';
     }
   }
