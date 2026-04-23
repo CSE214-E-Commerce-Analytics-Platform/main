@@ -5,10 +5,12 @@ import { ProductService } from '../../../core/services/product.service';
 import { CartService } from '../../../core/services/cart.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Product } from '../../../shared/models/product';
+import { ReviewWidgetComponent } from '../../../shared/components/review-widget/review-widget.component';
 
 @Component({
     selector: 'app-product-detail',
-    imports: [CommonModule],
+    standalone: true,
+    imports: [CommonModule, ReviewWidgetComponent],
     templateUrl: './product-detail.component.html',
     styleUrl: './product-detail.component.css'
 })

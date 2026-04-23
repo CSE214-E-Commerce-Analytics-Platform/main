@@ -40,6 +40,11 @@ export class ReviewService {
       .pipe(map(res => res.payload as DtoReview[]));
   }
 
+  getCorporateReviews(storeId: number): Observable<DtoReview[]> {
+    return this.http.get<ApiResponse<DtoReview[]>>(`${this.apiUrl}/corporate/${storeId}/my-reviews`)
+      .pipe(map(res => res.payload as DtoReview[]));
+  }
+
   update(reviewId: number, request: DtoReviewRequest): Observable<DtoReview> {
     return this.http.put<ApiResponse<DtoReview>>(`${this.apiUrl}/${reviewId}`, request)
       .pipe(map(res => res.payload as DtoReview));

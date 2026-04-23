@@ -20,8 +20,8 @@ export class CustomerProfileService {
       .pipe(map(res => res.payload as DtoCustomerProfile));
   }
 
-  upgradeMembership(): Observable<DtoCustomerProfile> {
-    return this.http.put<ApiResponse<DtoCustomerProfile>>(`${this.apiUrl}/my-profile/upgrade-membership`, {})
+  upgradeMembership(newType: string): Observable<DtoCustomerProfile> {
+    return this.http.put<ApiResponse<DtoCustomerProfile>>(`${this.apiUrl}/my-profile/upgrade-membership`, { membershipType: newType })
       .pipe(map(res => res.payload as DtoCustomerProfile));
   }
 }

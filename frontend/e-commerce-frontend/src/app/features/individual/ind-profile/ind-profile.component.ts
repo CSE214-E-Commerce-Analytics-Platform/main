@@ -76,9 +76,19 @@ export class IndProfileComponent implements OnInit {
     });
   }
 
-  upgradeMembership(): void {
+  showUpgradeModal = false;
+
+  openUpgradeModal(): void {
+    this.showUpgradeModal = true;
+  }
+
+  closeUpgradeModal(): void {
+    this.showUpgradeModal = false;
+  }
+
+  upgradeMembership(newType: MembershipType): void {
     this.isUpgrading = true;
-    this.profileService.upgradeMembership().pipe(
+    this.profileService.upgradeMembership(newType).pipe(
       catchError(err => {
         this.toastService.showError('Upgrade failed. ' + (err.error?.exception?.message || ''));
         this.isUpgrading = false;
@@ -88,6 +98,7 @@ export class IndProfileComponent implements OnInit {
       if (updated) {
         this.profile = updated;
         this.toastService.showSuccess('Membership upgraded to ' + updated.membershipType + '!');
+        this.closeUpgradeModal();
       }
       this.isUpgrading = false;
     });
@@ -111,5 +122,15 @@ export class IndProfileComponent implements OnInit {
 
   canUpgrade(type: MembershipType | undefined): boolean {
     return type !== MembershipType.VIP;
+  }
+
+  getAvailableUpgrades(): MembershipType[] {
+    const current = this.profile?.membershipType || MembershipType.STANDARD;
+    if (current === MembershipType.STANDARD) {
+      return [MembershipType.PREMIUM, MembershipType.VIP];
+    } else if (current === MembershipType.PREMIUM) {
+      return [MembershipType.VIP];
+    }
+    return [];
   }
 }

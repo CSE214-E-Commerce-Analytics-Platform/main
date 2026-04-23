@@ -1,11 +1,12 @@
+import { BaseDto } from './base-dto';
+
 export enum MembershipType {
   STANDARD = 'STANDARD',
   PREMIUM = 'PREMIUM',
   VIP = 'VIP'
 }
 
-export interface DtoCustomerProfile {
-  id?: number;
+export interface DtoCustomerProfile extends BaseDto {
   userId?: number;
   age?: number;
   city?: string;

@@ -1,84 +1,58 @@
 <div class="reviews-container">
   <div class="reviews-header">
     <div class="header-content">
-      <h2>Product Reviews</h2>
-      <p class="header-sub">See what customers are saying about your products.</p>
+      <h2>Store Reviews</h2>
+      <p class="header-sub">View feedback and ratings from customers who purchased your products.</p>
     </div>
-  </div>
-
-  <!-- Filters -->
-  <div class="filters-bar">
-    <div class="filter-group" *ngIf="stores.length > 0">
-      <label>Store</label>
-      <select [(ngModel)]="selectedStoreId" (change)="onStoreChange()">
+    
+    <div class="store-selector" *ngIf="stores.length > 0">
+      <label for="storeSelect">Active Store:</label>
+      <select id="storeSelect" [(ngModel)]="selectedStoreId" (change)="onStoreChange()">
         <option *ngFor="let store of stores" [value]="store.id">{{ store.name }}</option>
       </select>
     </div>
-
-    <div class="filter-group">
-      <label>Product</label>
-      <select [(ngModel)]="selectedProductId" (change)="onProductChange()" [disabled]="isLoadingProducts">
-        <option [ngValue]="null">{{ isLoadingProducts ? 'Loading...' : 'Select a product' }}</option>
-        <option *ngFor="let product of products" [value]="product.id">{{ product.name }}</option>
-      </select>
-    </div>
   </div>
 
-  <!-- Stats Summary -->
-  <div class="stats-bar" *ngIf="reviews.length > 0">
-    <div class="stat-chip">
-      <span class="stat-value">{{ reviews.length }}</span>
-      <span class="stat-label">Total Reviews</span>
-    </div>
-    <div class="stat-chip">
-      <span class="stat-value">{{ averageRating | number:'1.1-1' }} ★</span>
-      <span class="stat-label">Avg Rating</span>
-    </div>
-    <div class="stat-chip positive">
-      <span class="stat-value">{{ positiveCount }}</span>
-      <span class="stat-label">Positive</span>
-    </div>
-    <div class="stat-chip negative">
-      <span class="stat-value">{{ negativeCount }}</span>
-      <span class="stat-label">Negative</span>
-    </div>
-  </div>
-
-  <!-- Loading -->
-  <div class="loader" *ngIf="isLoadingReviews">
+  <div class="loader" *ngIf="isLoading">
     <div class="spinner"></div>
-    <p>Loading reviews...</p>
+    <p>Loading customer reviews...</p>
   </div>
 
-  <!-- Reviews List -->
-  <div class="reviews-list" *ngIf="!isLoadingReviews && reviews.length > 0">
+  <div class="reviews-grid" *ngIf="!isLoading && reviews.length > 0">
     <div class="review-card" *ngFor="let review of reviews">
-      <div class="review-top">
-        <div class="reviewer">Customer #{{ review.userId }}</div>
-        <span class="sentiment-badge" [ngClass]="getSentimentClass(review.sentiment)">
-          {{ review.sentiment }}
+      
+      <div class="review-header">
+        <div class="product-info">
+          <span class="product-label">Product</span>
+          <h4 class="product-name">{{ review.productName }}</h4>
+        </div>
+        <div class="review-date">{{ review.createdAt | date:'mediumDate' }}</div>
+      </div>
+      
+      <div class="rating-display">
+        <div class="stars">
+          <span class="star" *ngFor="let star of getStarsArray(5)" [class.filled]="star <= review.starRating">★</span>
+        </div>
+        <span class="rating-text">{{ review.starRating }}/5</span>
+      </div>
+
+      <div class="review-comment" *ngIf="review.commentText">
+        <p>"{{ review.commentText }}"</p>
+      </div>
+      
+      <div class="review-footer" *ngIf="review.sentiment">
+        <span class="sentiment-badge" [ngClass]="review.sentiment.toLowerCase()">
+          Sentiment: {{ review.sentiment }}
         </span>
       </div>
-
-      <div class="star-display">
-        <span class="star" *ngFor="let filled of getStars(review.starRating)" [class.filled]="filled">★</span>
-      </div>
-
-      <p class="comment-text" *ngIf="review.commentText">{{ review.commentText }}</p>
-      <p class="comment-text muted" *ngIf="!review.commentText">No comment provided.</p>
+      
     </div>
   </div>
 
-  <!-- Empty States -->
-  <div class="empty-state" *ngIf="!isLoadingReviews && !selectedProductId">
-    <div class="empty-icon">🔍</div>
-    <h3>Select a product</h3>
-    <p>Choose a product above to see its customer reviews.</p>
-  </div>
-
-  <div class="empty-state" *ngIf="!isLoadingReviews && selectedProductId && reviews.length === 0">
+  <div class="empty-state" *ngIf="!isLoading && reviews.length === 0">
     <div class="empty-icon">⭐</div>
-    <h3>No reviews yet</h3>
-    <p>This product hasn't received any reviews.</p>
+    <h3 *ngIf="!selectedStoreId">No store selected</h3>
+    <h3 *ngIf="selectedStoreId">No reviews yet</h3>
+    <p *ngIf="selectedStoreId">When customers review your products, their feedback will appear here.</p>
   </div>
 </div>

@@ -1,11 +1,12 @@
+import { BaseDto } from './base-dto';
+
 export enum Sentiment {
   POSITIVE = 'POSITIVE',
   NEUTRAL = 'NEUTRAL',
   NEGATIVE = 'NEGATIVE'
 }
 
-export interface DtoReview {
-  id?: number;
+export interface DtoReview extends BaseDto {
   productId: number;
   productName?: string;
   userId?: number;

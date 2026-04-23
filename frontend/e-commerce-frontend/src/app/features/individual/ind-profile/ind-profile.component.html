@@ -20,9 +20,9 @@
       </div>
       <button class="upgrade-btn"
               *ngIf="canUpgrade(profile?.membershipType)"
-              (click)="upgradeMembership()"
+              (click)="openUpgradeModal()"
               [disabled]="isUpgrading">
-        {{ isUpgrading ? 'Upgrading...' : 'Upgrade' }}
+        Upgrade
       </button>
       <span class="max-tier" *ngIf="!canUpgrade(profile?.membershipType)">Max Tier</span>
     </div>
@@ -82,5 +82,30 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- Upgrade Modal -->
+<div class="modal-overlay" *ngIf="showUpgradeModal" (click)="closeUpgradeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Upgrade Membership</h3>
+      <button class="close-btn" (click)="closeUpgradeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p>Select your new membership tier below. Upgrading gives you access to better discounts and priority shipping!</p>
+      
+      <div class="tier-options">
+        <div class="tier-card" *ngFor="let tier of getAvailableUpgrades()" [ngClass]="getMembershipClass(tier)">
+          <div class="tier-icon">{{ getMembershipIcon(tier) }}</div>
+          <h4>{{ tier }}</h4>
+          <button class="upgrade-btn" 
+                  (click)="upgradeMembership(tier)"
+                  [disabled]="isUpgrading">
+            {{ isUpgrading ? 'Processing...' : 'Upgrade to ' + tier }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

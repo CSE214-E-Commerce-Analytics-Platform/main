@@ -72,14 +72,8 @@
             <div class="status-controls action-buttons-group">
               <button class="action-btn ship-btn" 
                       [disabled]="order.status === OrderStatus.SHIPPED"
-                      (click)="updateStatus(order, OrderStatus.SHIPPED); $event.stopPropagation()">
-                Mark as Shipped
-              </button>
-
-              <button class="action-btn deliver-btn" 
-                      [disabled]="order.status !== OrderStatus.SHIPPED"
-                      (click)="updateStatus(order, OrderStatus.DELIVERED); $event.stopPropagation()">
-                Mark as Delivered
+                      (click)="openShipmentModal(order, $event)">
+                Initialize Shipment
               </button>
             </div>
             <p class="status-help">Track your fulfillment progress and update the system accordingly.</p>
@@ -105,5 +99,37 @@
     <h3 *ngIf="!selectedStoreId">No store selected</h3>
     <h3 *ngIf="selectedStoreId">No orders yet</h3>
     <p *ngIf="selectedStoreId">When customers purchase your items, their orders will appear here.</p>
+  </div>
+</div>
+
+<!-- Shipment Initialization Modal -->
+<div class="modal-overlay" *ngIf="showShipmentModal" (click)="closeShipmentModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Initialize Shipment</h3>
+      <button class="close-btn" (click)="closeShipmentModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="warehouse">Origin Warehouse *</label>
+        <input type="text" id="warehouse" class="modal-input" [(ngModel)]="shipmentFormData.warehouse" placeholder="e.g. Main Depot">
+      </div>
+      <div class="form-group">
+        <label for="mode">Shipping Mode *</label>
+        <select id="mode" class="modal-input" [(ngModel)]="shipmentFormData.mode">
+          <option value="Standard">Standard Delivery</option>
+          <option value="Express">Express Delivery</option>
+          <option value="Same Day">Same Day Delivery</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeShipmentModal()">Cancel</button>
+      <button class="btn btn-primary" 
+              (click)="submitShipment()" 
+              [disabled]="!shipmentFormData.warehouse || !shipmentFormData.mode || isInitializingShipment">
+        {{ isInitializingShipment ? 'Processing...' : 'Confirm Shipment' }}
+      </button>
+    </div>
   </div>
 </div>

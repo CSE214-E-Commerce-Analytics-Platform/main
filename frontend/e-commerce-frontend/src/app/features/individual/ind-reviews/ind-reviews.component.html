@@ -15,7 +15,13 @@
       <!-- View Mode -->
       <ng-container *ngIf="editingReviewId !== review.id">
         <div class="review-top">
-          <div class="review-product">Product #{{ review.productId }}</div>
+          <div class="review-product-info" *ngIf="productsMap[review.productId] as product">
+            <img [src]="getImageUrl(product.imageUrl)" alt="{{ product.name }}" class="product-thumb" />
+            <span class="product-name">{{ product.name }}</span>
+          </div>
+          <div class="review-product-info" *ngIf="!productsMap[review.productId]">
+             <span class="product-name">Product #{{ review.productId }}</span>
+          </div>
           <span class="sentiment-badge" [ngClass]="getSentimentClass(review.sentiment)">
             {{ review.sentiment }}
           </span>
