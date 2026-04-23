@@ -215,7 +215,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: #080c10;
+  background: var(--content-bg);
   transition: background 0.35s ease;
 }
 
@@ -277,9 +277,9 @@
 
 /* AI bubble */
 .message.ai .msg-bubble {
-  background: #1a2236;
+  background: var(--card-bg);
   color: var(--text-primary);
-  border: 1px solid #1e293b;
+  border: 1px solid var(--card-border);
   border-bottom-left-radius: 4px;
   box-shadow: var(--card-shadow);
 }
@@ -362,8 +362,8 @@
   align-items: flex-end;
   gap: 8px;
   padding: 12px 14px;
-  border-top: 1px solid rgba(255,255,255,0.06);
-  background: #111118;
+  border-top: 1px solid var(--card-border);
+  background: var(--card-bg);
   flex-shrink: 0;
   transition: background 0.35s ease, border-color 0.35s ease;
 }
@@ -371,7 +371,7 @@
 .chat-input textarea {
   flex: 1;
   padding: 10px 14px;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--input-border);
   border-radius: 14px;
   font-size: 0.875rem;
   font-family: 'DM Sans', sans-serif;
@@ -381,7 +381,7 @@
   overflow-y: hidden;
   max-height: 110px;
   line-height: 1.45;
-  background: rgba(255,255,255,0.04);
+  background: var(--input-bg);
   color: var(--text-primary);
 }
 
@@ -424,7 +424,7 @@
 }
 
 .send-btn:disabled {
-  background: rgba(255,255,255,0.06);
+  background: var(--btn-ghost-bg);
   color: var(--text-muted);
   cursor: not-allowed;
   box-shadow: none;

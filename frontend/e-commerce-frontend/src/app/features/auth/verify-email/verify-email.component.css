@@ -7,18 +7,18 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: #0a0a0f;
+  background: var(--app-bg);
   font-family: 'DM Sans', sans-serif;
   padding: 24px;
 }
 
 .login-card {
-  background: rgba(255,255,255,0.04);
+  background: var(--card-bg);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid var(--card-border);
   padding: 40px;
   border-radius: 20px;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  box-shadow: var(--card-shadow);
   width: 100%;
   max-width: 420px;
   position: relative;
