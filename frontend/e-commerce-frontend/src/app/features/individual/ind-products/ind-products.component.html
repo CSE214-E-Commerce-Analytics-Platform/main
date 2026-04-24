@@ -25,7 +25,8 @@
     <div *ngIf="!isLoading && !errorMessage && products.length > 0" class="product-grid">
         <div class="product-card" *ngFor="let product of products" [routerLink]="['/individual/products', product.id]" style="cursor: pointer;">
             <div class="product-image" [style.backgroundImage]="'url(' + getImageUrl(product.imageUrl) + ')'">
-                <div class="badge" *ngIf="product.stockQuantity < 10 && product.stockQuantity > 0">Low Stock</div>
+                <div class="badge critical" *ngIf="product.stockQuantity > 0 && product.stockQuantity <= 5">🔥 Only {{ product.stockQuantity }} left!</div>
+                <div class="badge low" *ngIf="product.stockQuantity > 5 && product.stockQuantity <= 10">Low Stock</div>
                 <div class="badge out-of-stock" *ngIf="product.stockQuantity === 0">Out of Stock</div>
             </div>
             

@@ -6,6 +6,8 @@ import { ToastService } from '../../../core/services/toast.service';
 import { FormsModule } from '@angular/forms';
 import { OrderService } from '../../../core/services/order.service';
 import { PaymentService } from '../../../core/services/payment.service';
+import { AddressService } from '../../../core/services/address.service';
+import { DtoAddress } from '../../../shared/models/address';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { environment } from '../../../../environments/environment.development';
@@ -23,15 +25,19 @@ export class IndCartComponent implements OnInit {
   toastService = inject(ToastService);
   orderService = inject(OrderService);
   paymentService = inject(PaymentService);
+  private addressService = inject(AddressService);
 
   showClearModal = false;
   showCheckoutModal = false;
-  shippingAddress = '';
+  
+  // Address selection state
+  addresses: DtoAddress[] = [];
+  selectedAddressId: number | null = null;
+  isLoadingAddresses = false;
+
   isProcessing = false;
 
   ngOnInit(): void {
-    // Current cart state flows from Header via the BehaviorSubject,
-    // but good practice to ensure it's fresh on page load
     this.cartService.refreshMyCart().subscribe();
   }
 
@@ -63,24 +69,54 @@ export class IndCartComponent implements OnInit {
 
   openCheckoutModal() {
     this.showCheckoutModal = true;
+    this.loadAddresses();
+  }
+
+  loadAddresses() {
+    this.isLoadingAddresses = true;
+    this.addressService.findMyAddresses().pipe(
+      catchError(() => {
+        this.toastService.showError('Failed to load addresses.');
+        this.isLoadingAddresses = false;
+        return of([]);
+      })
+    ).subscribe(addrs => {
+      this.addresses = addrs || [];
+      // Auto-select the first address if available
+      if (this.addresses.length > 0) {
+        this.selectedAddressId = this.addresses[0].id!;
+      }
+      this.isLoadingAddresses = false;
+    });
   }
 
   cancelCheckout() {
     this.showCheckoutModal = false;
-    this.shippingAddress = '';
+    this.selectedAddressId = null;
   }
 
   proceedToPayment() {
-    if (!this.shippingAddress.trim()) {
-      this.toastService.showError('Please enter a shipping address.');
+    if (this.addresses.length === 0) {
+      this.toastService.showError('You must add an address before proceeding.');
       return;
     }
+
+    if (!this.selectedAddressId) {
+      this.toastService.showError('Please select a shipping address.');
+      return;
+    }
+
+    const selectedAddr = this.addresses.find(a => a.id === this.selectedAddressId);
+    if (!selectedAddr) return;
+
+    // Combine address parts into a single string for the order
+    const shippingAddressString = `${selectedAddr.fullAddress}, ${selectedAddr.district}/${selectedAddr.city} ${selectedAddr.zipCode}`;
 
     this.isProcessing = true;
 
     // 1. Create the order
     this.orderService.create({
-      shippingAddress: this.shippingAddress,
+      shippingAddress: shippingAddressString,
       shippingCost: 0 // Optional logic for shipping cost
     }).pipe(
       catchError(err => {

@@ -24,6 +24,7 @@ export class ProductDetailComponent implements OnInit {
     product: Product | null = null;
     isLoading = true;
     errorMessage = '';
+    quantity = 1;
 
     ngOnInit(): void {
         const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -41,13 +42,28 @@ export class ProductDetailComponent implements OnInit {
         }
     }
 
+    incrementQty(): void {
+        this.quantity++;
+    }
+
+    decrementQty(): void {
+        if (this.quantity > 1) this.quantity--;
+    }
+
     addToCart(productId: number | undefined) {
         if (!productId) return;
-        this.cartService.addItemToCart({ productId, quantity: 1 }).subscribe({
+        this.cartService.addItemToCart({ productId, quantity: this.quantity }).subscribe({
             next: () => {
-                this.toastService.showSuccess(`🛒 Product successfully added to cart!`);
+                this.toastService.showSuccess(`🛒 ${this.quantity}x ${this.product?.name} added to cart!`);
             }
         });
+    }
+
+    getImageUrl(url: string | null | undefined): string {
+        if (!url) return 'assets/placeholder-product.png';
+        if (url.startsWith('http://') || url.startsWith('https://')) return url;
+        if (url.startsWith('assets/images/')) return url;
+        return `assets/images/${url}`;
     }
 
     goBack(): void {

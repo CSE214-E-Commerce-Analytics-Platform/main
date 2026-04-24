@@ -1,11 +1,11 @@
 /* ================================================================
-   CORPORATE LAYOUT — Premium SaaS Dark
+   CORPORATE LAYOUT — Theme-aware
    ================================================================ */
 
 .corporate-layout {
   display: flex;
   height: 100vh;
-  background: #0a0a0f;
+  background: var(--content-bg);
   overflow: hidden;
   font-family: 'DM Sans', sans-serif;
 }
@@ -44,11 +44,11 @@
 
 .brand-icon {
   width: 34px; height: 34px;
-  background: rgba(245,158,11,0.12);
-  border: 1px solid rgba(245,158,11,0.22);
+  background: var(--corp-accent-hover);
+  border: 1px solid var(--corp-accent-active);
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1rem; color: #fde68a; flex-shrink: 0;
+  font-size: 1rem; color: var(--corp-accent); flex-shrink: 0;
 }
 
 .brand-text { display: flex; flex-direction: column; min-width: 0; }
@@ -84,10 +84,10 @@
 .sidebar-nav a:hover { background: var(--corp-accent-hover); color: var(--corp-nav-hover); }
 
 .sidebar-nav a.active {
-  background: rgba(245,158,11,0.12);
-  color: #fde68a;
+  background: var(--corp-accent-hover);
+  color: var(--corp-accent);
   font-weight: 600;
-  border-left-color: #f59e0b;
+  border-left-color: var(--corp-accent);
 }
 
 /* ── Footer ─────────────────────────────────────────────── */
@@ -96,7 +96,7 @@
 .logout-btn {
   width: 100%; height: 40px; padding: 0 12px;
   background: transparent;
-  border: 1px solid transparent; color: #475569;
+  border: 1px solid transparent; color: var(--text-muted);
   border-radius: 8px; cursor: pointer;
   display: flex; align-items: center; gap: 10px;
   font-size: 0.85rem; font-weight: 500;
@@ -114,15 +114,15 @@
 .main-content {
   flex: 1; display: flex; flex-direction: column;
   overflow-y: auto; min-width: 0;
-  background: #0a0a0f;
+  background: var(--content-bg);
 }
 
 /* ── Top Header ─────────────────────────────────────────── */
 .top-header {
-  background: rgba(10,10,15,0.85);
+  background: var(--header-bg);
   padding: 0 32px; height: 56px;
   display: flex; align-items: center; gap: 14px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid var(--border-color);
   position: sticky; top: 0; z-index: 50;
   flex-shrink: 0; backdrop-filter: blur(16px);
 }
@@ -131,25 +131,25 @@
   display: none;
   flex-direction: column; justify-content: center; gap: 4px;
   width: 34px; height: 34px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--btn-ghost-bg);
+  border: 1px solid var(--btn-ghost-border);
   border-radius: 8px; cursor: pointer; padding: 8px;
   flex-shrink: 0; transition: all 0.2s;
 }
-.hamburger-btn span { display: block; height: 2px; background: #475569; border-radius: 2px; }
-.hamburger-btn:hover { background: rgba(245,158,11,0.1); }
-.hamburger-btn:hover span { background: #fde68a; }
+.hamburger-btn span { display: block; height: 2px; background: var(--text-muted); border-radius: 2px; }
+.hamburger-btn:hover { background: var(--corp-accent-hover); }
+.hamburger-btn:hover span { background: var(--corp-accent); }
 
 .header-title { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; }
 
 .header-accent-bar {
   display: block; width: 3px; height: 18px;
-  background: #f59e0b;
+  background: var(--corp-accent);
   border-radius: 2px; flex-shrink: 0;
 }
 
 .top-header h3 {
-  margin: 0; font-size: 0.9rem; font-weight: 600; color: #f8fafc;
+  margin: 0; font-size: 0.9rem; font-weight: 600; color: var(--text-primary);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
@@ -157,9 +157,9 @@
 
 .user-chip {
   padding: 4px 12px;
-  background: rgba(245,158,11,0.1);
-  color: #fde68a;
-  border: 1px solid rgba(245,158,11,0.2);
+  background: var(--corp-accent-hover);
+  color: var(--corp-accent);
+  border: 1px solid var(--corp-accent-active);
   border-radius: 999px;
   font-size: 0.75rem; font-weight: 600;
   white-space: nowrap; max-width: 140px; overflow: hidden; text-overflow: ellipsis;
@@ -167,21 +167,21 @@
 
 .theme-toggle-btn {
   width: 34px; height: 34px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--btn-ghost-bg);
+  border: 1px solid var(--btn-ghost-border);
   border-radius: 8px; cursor: pointer; font-size: 1rem;
   display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s; color: #475569;
+  transition: all 0.2s; color: var(--text-muted);
 }
 .theme-toggle-btn:hover {
-  background: rgba(245,158,11,0.1);
-  border-color: rgba(245,158,11,0.3);
-  color: #fde68a;
+  background: var(--corp-accent-hover);
+  border-color: var(--corp-accent-active);
+  color: var(--corp-accent);
 }
 
 /* ── Content Area ─────────────────────────────────────────── */
 .content {
-  padding: 28px 32px; flex: 1; background: #0a0a0f;
+  padding: 28px 32px; flex: 1; background: var(--content-bg);
   animation: fadeSlideUp 0.4s cubic-bezier(0.4,0,0.2,1);
 }
 
