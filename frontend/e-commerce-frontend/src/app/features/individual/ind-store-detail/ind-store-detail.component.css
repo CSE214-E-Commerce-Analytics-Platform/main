@@ -150,7 +150,6 @@
     position: absolute;
     top: 1rem;
     right: 1rem;
-    background: #f59e0b;
     color: white;
     font-size: 0.75rem;
     font-weight: 600;
@@ -158,8 +157,22 @@
     border-radius: 9999px;
 }
 
-.badge.out-of-stock {
+.badge.low {
+    background: #f59e0b;
+}
+
+.badge.critical {
     background: #ef4444;
+    animation: pulse-critical 1.5s ease-in-out infinite;
+}
+
+.badge.out-of-stock {
+    background: #6b7280;
+}
+
+@keyframes pulse-critical {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); }
+    50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
 }
 
 .product-details {

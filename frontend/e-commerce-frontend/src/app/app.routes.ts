@@ -84,6 +84,11 @@ export const routes: Routes = [
                     .then(m => m.IndProfileComponent)
             },
             {
+                path: 'addresses',
+                loadComponent: () => import('./features/individual/ind-addresses/ind-addresses.component')
+                    .then(m => m.IndAddressesComponent)
+            },
+            {
                 path: 'become-corporate',
                 loadComponent: () => import('./features/individual/ind-corporate-apply/ind-corporate-apply.component')
                     .then(m => m.IndCorporateApplyComponent)
