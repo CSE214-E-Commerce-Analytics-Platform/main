@@ -21,6 +21,114 @@ html, body {
 /* ── Design Tokens ──────────────────────────────────────── */
 :root {
   /* Core backgrounds */
+  --app-bg:          #f8fafc;
+  --surface-bg:      rgba(0,0,0,0.02);
+  --sidebar-bg:      #ffffff;
+  --topbar-bg:       rgba(255,255,255,0.85);
+
+  /* Card / panel */
+  --card-bg:         #ffffff;
+  --card-bg-solid:   #f1f5f9;
+  --card-border:     rgba(0,0,0,0.08);
+  --card-shadow:     0 1px 3px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.05);
+  --card-shadow-hover: 0 4px 6px rgba(99,102,241,0.1), 0 10px 24px rgba(99,102,241,0.1);
+
+  /* Text */
+  --text-primary:    #0f172a;
+  --text-secondary:  #475569;
+  --text-muted:      #94a3b8;
+
+  /* Borders */
+  --border-color:    rgba(0,0,0,0.08);
+  --border-subtle:   rgba(0,0,0,0.04);
+
+  /* Inputs */
+  --input-bg:        #ffffff;
+  --input-border:    rgba(0,0,0,0.15);
+  --input-focus-border: #6366f1;
+  --input-focus-shadow:  0 0 0 3px rgba(99,102,241,0.15);
+
+  /* Header */
+  --header-bg:       rgba(255,255,255,0.85);
+  --header-border:   rgba(0,0,0,0.06);
+  --header-shadow:   0 1px 2px rgba(0,0,0,0.05);
+  --header-height:   56px;
+
+  /* Sidebar */
+  --sidebar-width:   220px;
+  --sidebar-border:  1px solid rgba(0,0,0,0.06);
+
+  /* Modal */
+  --modal-overlay:   rgba(0,0,0,0.4);
+  --modal-bg:        #ffffff;
+  --modal-border:    rgba(0,0,0,0.1);
+
+  /* Content area */
+  --content-bg:      #f8fafc;
+  --content-padding: 28px 32px;
+
+  /* Buttons */
+  --btn-ghost-bg:    rgba(0,0,0,0.04);
+  --btn-ghost-border: rgba(0,0,0,0.1);
+  --btn-ghost-color: #0f172a;
+
+  /* Accent */
+  --accent:          #4f46e5;
+  --accent-hover:    rgba(79,70,229,0.1);
+  --accent-active:   rgba(79,70,229,0.15);
+  --accent-glow:     0 0 0 3px rgba(79,70,229,0.2);
+
+  /* Semantic */
+  --color-success:  #059669;
+  --color-warning:  #d97706;
+  --color-error:    #dc2626;
+  --color-info:     #4f46e5;
+
+  /* Panel accent aliases (all panels share same accent) */
+  --admin-accent:    #4f46e5;
+  --admin-accent-hover: rgba(79,70,229,0.1);
+  --admin-accent-active: rgba(79,70,229,0.15);
+  --admin-nav-color: #4f46e5;
+  --admin-nav-hover: #3730a3;
+
+  --corp-accent:     #d97706;
+  --corp-accent-hover: rgba(217,119,6,0.1);
+  --corp-accent-active: rgba(217,119,6,0.15);
+  --corp-nav-color:  #d97706;
+  --corp-nav-hover:  #b45309;
+
+  --ind-accent:      #4f46e5;
+  --ind-accent-hover: rgba(79,70,229,0.1);
+  --ind-accent-active: rgba(79,70,229,0.15);
+  --ind-nav-color:   #4f46e5;
+  --ind-nav-hover:   #3730a3;
+  --ind-header-accent: #4f46e5;
+
+  /* Typography */
+  --font-heading: 'Plus Jakarta Sans', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+
+  /* Radius */
+  --radius-card:   14px;
+  --radius-btn:    10px;
+  --radius-input:  10px;
+  --radius-badge:  999px;
+  --radius-chip:   6px;
+
+  /* Transitions */
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Legacy compat */
+  --admin-sidebar-bg: #ffffff;
+  --admin-content-bg: #f8fafc;
+  --corp-sidebar-bg:  #ffffff;
+  --corp-content-bg:  #f8fafc;
+  --ind-sidebar-bg:   #ffffff;
+  --ind-content-bg:   #f8fafc;
+}
+
+[data-theme="dark"] {
+  /* Core backgrounds */
   --app-bg:          #0a0a0f;
   --surface-bg:      rgba(255,255,255,0.04);
   --sidebar-bg:      #07070a;
@@ -52,11 +160,6 @@ html, body {
   --header-bg:       rgba(10,10,15,0.85);
   --header-border:   rgba(255,255,255,0.06);
   --header-shadow:   none;
-  --header-height:   56px;
-
-  /* Sidebar */
-  --sidebar-width:   220px;
-  --sidebar-border:  1px solid rgba(255,255,255,0.06);
 
   /* Modal */
   --modal-overlay:   rgba(0,0,0,0.7);
@@ -65,7 +168,6 @@ html, body {
 
   /* Content area */
   --content-bg:      #0a0a0f;
-  --content-padding: 28px 32px;
 
   /* Buttons */
   --btn-ghost-bg:    rgba(255,255,255,0.06);
@@ -103,20 +205,6 @@ html, body {
   --ind-nav-color:   #a5b4fc;
   --ind-nav-hover:   #c7d2fe;
   --ind-header-accent: #6366f1;
-
-  /* Typography */
-  --font-heading: 'Plus Jakarta Sans', sans-serif;
-  --font-body:    'DM Sans', sans-serif;
-
-  /* Radius */
-  --radius-card:   14px;
-  --radius-btn:    10px;
-  --radius-input:  10px;
-  --radius-badge:  999px;
-  --radius-chip:   6px;
-
-  /* Transitions */
-  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Legacy compat */
   --admin-sidebar-bg: #07070a;

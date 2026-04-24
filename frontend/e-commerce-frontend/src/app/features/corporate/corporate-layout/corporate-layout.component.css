@@ -1,11 +1,11 @@
 /* ================================================================
-   CORPORATE LAYOUT — Theme-aware (uses CSS vars for both modes)
+   CORPORATE LAYOUT — Theme-aware
    ================================================================ */
 
 .corporate-layout {
   display: flex;
   height: 100vh;
-  background: var(--app-bg);
+  background: var(--content-bg);
   overflow: hidden;
   font-family: 'DM Sans', sans-serif;
 }
@@ -14,8 +14,8 @@
 .sidebar {
   width: 220px;
   flex-shrink: 0;
-  background: var(--sidebar-bg);
-  border-right: var(--sidebar-border);
+  background: var(--corp-sidebar-bg);
+  border-right: 1px solid var(--border-color);
   display: flex; flex-direction: column;
   position: relative; z-index: 100;
   transition: width 0.3s cubic-bezier(0.4,0,0.2,1), transform 0.3s cubic-bezier(0.4,0,0.2,1);
@@ -27,13 +27,13 @@
   position: absolute; top: 12px; right: 12px;
   background: var(--btn-ghost-bg);
   border: 1px solid var(--btn-ghost-border);
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: 1rem; width: 30px; height: 30px;
   border-radius: 8px; cursor: pointer; z-index: 10;
   transition: all 0.2s;
   align-items: center; justify-content: center;
 }
-.sidebar-close-btn:hover { background: var(--accent-hover); color: var(--text-primary); }
+.sidebar-close-btn:hover { background: var(--corp-accent-hover); color: var(--corp-accent); }
 
 /* ── Brand ─────────────────────────────────────────────── */
 .sidebar-header {
@@ -45,10 +45,10 @@
 .brand-icon {
   width: 34px; height: 34px;
   background: var(--corp-accent-hover);
-  border: 1px solid var(--corp-accent);
+  border: 1px solid var(--corp-accent-active);
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1rem; color: var(--corp-nav-color); flex-shrink: 0;
+  font-size: 1rem; color: var(--corp-accent); flex-shrink: 0;
 }
 
 .brand-text { display: flex; flex-direction: column; min-width: 0; }
@@ -59,7 +59,7 @@
   letter-spacing: 0.01em; white-space: nowrap;
 }
 
-.brand-sub { font-size: 0.68rem; color: var(--text-muted); white-space: nowrap; }
+.brand-sub { font-size: 0.68rem; color: var(--text-secondary); white-space: nowrap; }
 
 /* ── Nav ─────────────────────────────────────────────────── */
 .sidebar-nav {
@@ -70,7 +70,7 @@
 
 .sidebar-nav a {
   height: 40px; padding: 0 12px;
-  color: var(--text-muted); text-decoration: none;
+  color: var(--text-secondary); text-decoration: none;
   display: flex; align-items: center; gap: 10px;
   transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
   font-size: 0.85rem; font-weight: 500;
@@ -81,11 +81,11 @@
 .nav-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; display: block; }
 .nav-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 
-.sidebar-nav a:hover { background: var(--accent-hover); color: var(--text-secondary); }
+.sidebar-nav a:hover { background: var(--corp-accent-hover); color: var(--corp-nav-hover); }
 
 .sidebar-nav a.active {
-  background: var(--corp-accent-active);
-  color: var(--corp-nav-color);
+  background: var(--corp-accent-hover);
+  color: var(--corp-accent);
   font-weight: 600;
   border-left-color: var(--corp-accent);
 }
@@ -114,12 +114,12 @@
 .main-content {
   flex: 1; display: flex; flex-direction: column;
   overflow-y: auto; min-width: 0;
-  background: var(--app-bg);
+  background: var(--content-bg);
 }
 
 /* ── Top Header ─────────────────────────────────────────── */
 .top-header {
-  background: var(--topbar-bg);
+  background: var(--header-bg);
   padding: 0 32px; height: 56px;
   display: flex; align-items: center; gap: 14px;
   border-bottom: 1px solid var(--border-color);
@@ -138,7 +138,7 @@
 }
 .hamburger-btn span { display: block; height: 2px; background: var(--text-muted); border-radius: 2px; }
 .hamburger-btn:hover { background: var(--corp-accent-hover); }
-.hamburger-btn:hover span { background: var(--corp-nav-color); }
+.hamburger-btn:hover span { background: var(--corp-accent); }
 
 .header-title { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; }
 
@@ -158,8 +158,8 @@
 .user-chip {
   padding: 4px 12px;
   background: var(--corp-accent-hover);
-  color: var(--corp-nav-color);
-  border: 1px solid var(--corp-accent);
+  color: var(--corp-accent);
+  border: 1px solid var(--corp-accent-active);
   border-radius: 999px;
   font-size: 0.75rem; font-weight: 600;
   white-space: nowrap; max-width: 140px; overflow: hidden; text-overflow: ellipsis;
@@ -175,8 +175,8 @@
 }
 .theme-toggle-btn:hover {
   background: var(--corp-accent-hover);
-  border-color: var(--corp-accent);
-  color: var(--corp-nav-color);
+  border-color: var(--corp-accent-active);
+  color: var(--corp-accent);
 }
 
 /* ── Content Area ─────────────────────────────────────────── */

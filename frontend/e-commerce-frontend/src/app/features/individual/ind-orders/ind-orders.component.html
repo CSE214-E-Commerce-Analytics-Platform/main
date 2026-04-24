@@ -10,10 +10,9 @@
   </div>
 
   <div class="orders-list" *ngIf="!isLoading && orders.length > 0">
-    <div class="order-card" *ngFor="let order of orders" [class.expanded]="expandedOrderId === order.id">
+    <div class="order-card" *ngFor="let order of orders">
       
-      <!-- Order Summary (Always Visible) -->
-      <div class="order-summary" (click)="toggleExpand(order.id)">
+      <div class="order-summary">
         <div class="order-info-group">
           <span class="order-label">Order #</span>
           <span class="order-value">{{ order.id }}</span>
@@ -36,83 +35,27 @@
           <span class="order-value highlight">{{ order.grandTotal | currency:'TRY':'₺' }}</span>
         </div>
 
-        <div class="expand-icon">
-          <span *ngIf="expandedOrderId !== order.id">▼</span>
-          <span *ngIf="expandedOrderId === order.id">▲</span>
-        </div>
-      </div>
-
-      <!-- Order Details (Expanded) -->
-      <div class="order-details" *ngIf="expandedOrderId === order.id">
-        <div class="details-divider"></div>
-        
-        <div class="items-section" *ngIf="order.items && order.items.length > 0">
-          <h4>Items</h4>
-          <div class="item-line" *ngFor="let item of order.items">
-            <div class="item-name">{{ item.quantity }}x {{ item.productName }}</div>
-            <div class="item-price">{{ item.price | currency:'TRY':'₺' }}</div>
-          </div>
-        </div>
-
-        <div class="items-section suborders" *ngIf="order.subOrders && order.subOrders.length > 0">
-          <h4>Packages (From different sellers)</h4>
-          <div class="suborder-line" *ngFor="let sub of order.subOrders">
-            <div class="sub-store">{{ sub.storeName }}</div>
-            <div class="sub-status" [ngClass]="getStatusClass(sub.status)">{{ sub.status }}</div>
-            <div class="sub-items">
-              <span *ngFor="let subItem of sub.items; let i = index">
-                {{ subItem.quantity }}x {{ subItem.productName }}{{ i < sub.items.length - 1 ? ', ' : '' }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Shipment Tracking -->
-        <div class="items-section shipment-section" *ngIf="shipmentsMap[order.id!] as shipment">
-          <h4>Shipment Tracking</h4>
-          <div class="shipment-track-row">
-            <div class="track-field">
-              <span class="track-label">Tracking #</span>
-              <span class="track-value mono">{{ shipment.trackingNumber }}</span>
-            </div>
-            <div class="track-field">
-              <span class="track-label">Mode</span>
-              <span class="track-value">{{ shipment.mode }}</span>
-            </div>
-            <div class="track-field">
-              <span class="track-label">Est. Delivery</span>
-              <span class="track-value">{{ shipment.estimatedDeliveryDate | date:'mediumDate' }}</span>
-            </div>
-            <div class="track-field">
-              <span class="track-label">Status</span>
-              <span class="status-badge" [ngClass]="getShipmentStatusClass(shipment.status)">
-                {{ shipment.status }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div class="actions-section">
-          <!-- Only show Cancel if order is Pending or Approved -->
+        <div class="order-actions-group">
+          <a [routerLink]="['/individual/orders', order.id]" class="view-details-btn">View Details</a>
+          
           <button class="action-btn cancel-btn" 
                   *ngIf="isCancellable(order)" 
-                  (click)="cancelOrder(order.id); $event.stopPropagation()"
+                  (click)="cancelOrder(order.id)"
                   [disabled]="cancellingId === order.id">
-            <span *ngIf="cancellingId !== order.id">Cancel Order</span>
-            <span *ngIf="cancellingId === order.id">Cancelling...</span>
+            <span *ngIf="cancellingId !== order.id">Cancel</span>
+            <span *ngIf="cancellingId === order.id">...</span>
           </button>
           
-          <!-- Only show Pay Now if order is Pending -->
           <button class="action-btn pay-btn" 
                   *ngIf="isPending(order)" 
-                  (click)="payNow(order.id); $event.stopPropagation()"
+                  (click)="payNow(order.id)"
                   [disabled]="payingId === order.id">
             <span *ngIf="payingId !== order.id">💳 Pay Now</span>
-            <span *ngIf="payingId === order.id">Processing...</span>
+            <span *ngIf="payingId === order.id">...</span>
           </button>
         </div>
-        
       </div>
+
     </div>
   </div>
 

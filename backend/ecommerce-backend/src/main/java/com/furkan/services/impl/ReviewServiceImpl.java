@@ -4,16 +4,14 @@ import com.furkan.dto.request.DtoReviewRequest;
 import com.furkan.dto.response.DtoReview;
 import com.furkan.entities.Product;
 import com.furkan.entities.Review;
+import com.furkan.entities.Store;
 import com.furkan.entities.User;
 import com.furkan.enums.OrderStatus;
 import com.furkan.enums.Sentiment;
 import com.furkan.exception.BaseException;
 import com.furkan.exception.ErrorMessage;
 import com.furkan.exception.MessageType;
-import com.furkan.repositories.OrderRepository;
-import com.furkan.repositories.ProductRepository;
-import com.furkan.repositories.ReviewRepository;
-import com.furkan.repositories.UserRepository;
+import com.furkan.repositories.*;
 import com.furkan.services.IReviewService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -95,6 +93,21 @@ public class ReviewServiceImpl implements IReviewService {
     @Override
     public List<DtoReview> findReviewsByUser(Long userId) {
         return reviewRepository.findByUserIdOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(this::dtoConverter)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DtoReview> findReviewByStoreId(Long storeId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.USER_NOT_FOUND, userId.toString())));
+
+        if (!user.getStore().getId().equals(storeId)) {
+            throw new BaseException(new ErrorMessage(MessageType.UNAUTHORIZED, "You can not access other corporate persons reviews."));
+        }
+
+        return reviewRepository.findReviewByStoreId(storeId)
                 .stream()
                 .map(this::dtoConverter)
                 .collect(Collectors.toList());

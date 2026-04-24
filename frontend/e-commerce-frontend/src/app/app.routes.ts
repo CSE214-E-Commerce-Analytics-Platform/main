@@ -59,6 +59,11 @@ export const routes: Routes = [
                     .then(m => m.IndOrdersComponent)
             },
             {
+                path: 'orders/:id',
+                loadComponent: () => import('./features/individual/ind-order-detail/ind-order-detail.component')
+                    .then(m => m.IndOrderDetailComponent)
+            },
+            {
                 path: 'history',
                 loadComponent: () => import('./features/individual/ind-history/ind-history.component')
                     .then(m => m.IndHistoryComponent)
@@ -77,6 +82,11 @@ export const routes: Routes = [
                 path: 'profile',
                 loadComponent: () => import('./features/individual/ind-profile/ind-profile.component')
                     .then(m => m.IndProfileComponent)
+            },
+            {
+                path: 'addresses',
+                loadComponent: () => import('./features/individual/ind-addresses/ind-addresses.component')
+                    .then(m => m.IndAddressesComponent)
             },
             {
                 path: 'become-corporate',
@@ -197,6 +207,10 @@ export const routes: Routes = [
     },
 
     // ── Diğer ─────────────────────────────────────────────────────────────────
+    { 
+        path: 'track/:trackingNumber', 
+        loadComponent: () => import('./features/tracking/tracking.component').then(m => m.TrackingComponent) 
+    },
     { path: 'forbidden', component: ForbiddenComponent },
     { path: '**', redirectTo: 'login' }
 ];

@@ -92,16 +92,36 @@
       <button class="close-modal-btn" (click)="cancelCheckout()">✕</button>
     </div>
     <div class="modal-body body-checkout">
-      <p class="checkout-sub">Please provide your delivery details to proceed to payment.</p>
-      <div class="form-group">
-        <label for="shippingAddress">Shipping Address</label>
-        <textarea id="shippingAddress" [(ngModel)]="shippingAddress" rows="4"
-          placeholder="Enter your full delivery address (street, city, zip code, country)..."></textarea>
+      <p class="checkout-sub">Please select a delivery address to proceed to payment.</p>
+
+      <div class="loader-small" *ngIf="isLoadingAddresses">
+        Loading addresses...
+      </div>
+
+      <div *ngIf="!isLoadingAddresses">
+        <!-- No addresses found -->
+        <div class="no-address-alert" *ngIf="addresses.length === 0">
+          <i class="icon">⚠️</i>
+          <p>You don't have any saved addresses. You must add a shipping address before completing your order.</p>
+          <a routerLink="/individual/addresses" class="goto-addresses-btn" (click)="cancelCheckout()">Add Address Now</a>
+        </div>
+
+        <!-- Address Selection -->
+        <div class="address-list" *ngIf="addresses.length > 0">
+          <label class="address-radio-card" *ngFor="let addr of addresses" [class.selected]="selectedAddressId === addr.id">
+            <input type="radio" name="selectedAddress" [value]="addr.id" [(ngModel)]="selectedAddressId">
+            <div class="addr-details">
+              <span class="addr-title">{{ addr.city }}, {{ addr.district }}</span>
+              <span class="addr-full">{{ addr.fullAddress }}</span>
+              <span class="addr-zip">{{ addr.zipCode }}</span>
+            </div>
+          </label>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="modal-btn outline" (click)="cancelCheckout()">Cancel</button>
-      <button class="modal-btn checkout-confirm" (click)="proceedToPayment()" [disabled]="!shippingAddress.trim() || isProcessing">
+      <button class="modal-btn checkout-confirm" (click)="proceedToPayment()" [disabled]="isProcessing || addresses.length === 0 || !selectedAddressId">
         <span *ngIf="!isProcessing">💳 Proceed to Payment</span>
         <span *ngIf="isProcessing">Processing...</span>
       </button>

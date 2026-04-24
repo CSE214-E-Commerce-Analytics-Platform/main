@@ -14,6 +14,7 @@ export interface DtoOrderRequest {
 
 export interface DtoOrderItem {
   id?: number;
+  productId: number;
   productName: string;
   quantity: number;
   price: number;

@@ -13,7 +13,7 @@
         <option *ngFor="let store of stores" [value]="store.id">{{ store.name }}</option>
       </select>
       <button class="btn-new-product" (click)="openProductModal()" [disabled]="!selectedStoreId">
-        <i class="bi bi-plus-circle-fill"></i> New Product
+        ＋ New Product
       </button>
     </div>
   </div>
@@ -33,50 +33,40 @@
     <p>Loading products...</p>
   </div>
 
-  <!-- Product Table -->
-  <div class="table-card" *ngIf="!isLoading && products.length > 0">
-    <table class="products-table">
-      <thead>
-        <tr>
-          <th>Image</th>
-          <th>SKU</th>
-          <th>Name</th>
-          <th>Category</th>
-          <th>Price</th>
-          <th>Stock</th>
-          <th style="text-align:right">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let product of products">
-          <td>
-            <img [src]="getImageUrl(product.imageUrl)" alt="Product" class="product-img">
-          </td>
-          <td><span class="sku-badge">{{ product.sku }}</span></td>
-          <td><span class="product-name">{{ product.name }}</span></td>
-          <td><span class="cat-badge">{{ product.categoryName }}</span></td>
-          <td>{{ product.unitPrice | currency:'TRY':'₺':'1.2-2' }}</td>
-          <td>
-            <span class="stock-badge"
-              [ngClass]="{
-                'ok':    product.stockQuantity > 10,
-                'low':   product.stockQuantity <= 10 && product.stockQuantity > 0,
-                'empty': product.stockQuantity === 0
-              }">
-              {{ product.stockQuantity }} in stock
-            </span>
-          </td>
-          <td>
-            <button class="btn-edit" title="Edit" (click)="openProductModal(product)">
-              <i class="bi bi-pencil"></i> Edit
-            </button>
-            <button class="btn-delete" title="Delete" (click)="deleteProduct(product.id)">
-              <i class="bi bi-trash"></i>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- Product Cards Grid -->
+  <div class="product-grid" *ngIf="!isLoading && products.length > 0">
+    <div class="product-card" *ngFor="let product of products">
+      <div class="card-image">
+        <img [src]="getImageUrl(product.imageUrl)" [alt]="product.name" />
+        <span class="stock-pill"
+          [ngClass]="{
+            'ok':       product.stockQuantity > 10,
+            'low':      product.stockQuantity > 5 && product.stockQuantity <= 10,
+            'critical': product.stockQuantity > 0 && product.stockQuantity <= 5,
+            'empty':    product.stockQuantity === 0
+          }">
+          <ng-container *ngIf="product.stockQuantity === 0">Out of Stock</ng-container>
+          <ng-container *ngIf="product.stockQuantity > 0 && product.stockQuantity <= 5">🔥 Only {{ product.stockQuantity }} left!</ng-container>
+          <ng-container *ngIf="product.stockQuantity > 5 && product.stockQuantity <= 10">{{ product.stockQuantity }} left</ng-container>
+          <ng-container *ngIf="product.stockQuantity > 10">In Stock</ng-container>
+        </span>
+      </div>
+      <div class="card-body">
+        <div class="card-top">
+          <span class="cat-badge">{{ product.categoryName || 'Uncategorized' }}</span>
+          <span class="sku-badge">{{ product.sku }}</span>
+        </div>
+        <h3 class="card-title">{{ product.name }}</h3>
+        <p class="card-desc">{{ product.description }}</p>
+        <div class="card-footer">
+          <span class="card-price">{{ product.unitPrice | currency:'TRY':'₺':'1.2-2' }}</span>
+          <div class="card-actions">
+            <button class="btn-icon edit" title="Edit" (click)="openProductModal(product)">✏️</button>
+            <button class="btn-icon delete" title="Delete" (click)="deleteProduct(product.id)">🗑️</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -138,7 +128,7 @@
         <div class="modal-footer">
           <button type="button" class="btn-cancel" (click)="closeProductModal()">Cancel</button>
           <button type="submit" class="btn-save" [disabled]="productForm.invalid">
-            <i class="bi bi-save me-1"></i> {{ editingProductId ? 'Update' : 'Save Product' }}
+            {{ editingProductId ? 'Update' : 'Save Product' }}
           </button>
         </div>
 

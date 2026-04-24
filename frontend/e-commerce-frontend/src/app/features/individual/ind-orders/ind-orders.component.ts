@@ -1,28 +1,26 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { OrderService } from '../../../core/services/order.service';
 import { PaymentService } from '../../../core/services/payment.service';
-import { ShipmentService } from '../../../core/services/shipment.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DtoOrder, OrderStatus } from '../../../shared/models/order';
-import { DtoShipment, ShipmentStatus } from '../../../shared/models/shipment';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { environment } from '../../../../environments/environment.development';
-import { ActivatedRoute } from '@angular/router';
 
 declare var Stripe: any;
 
 @Component({
   selector: 'app-ind-orders',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, RouterLink],
   templateUrl: './ind-orders.component.html',
   styleUrl: './ind-orders.component.css'
 })
 export class IndOrdersComponent implements OnInit {
   private orderService = inject(OrderService);
   private paymentService = inject(PaymentService);
-  private shipmentService = inject(ShipmentService);
   private toastService = inject(ToastService);
   private route = inject(ActivatedRoute);
 
@@ -30,10 +28,6 @@ export class IndOrdersComponent implements OnInit {
   isLoading = true;
   cancellingId: number | null = null;
   payingId: number | null = null;
-
-  expandedOrderId: number | null = null;
-  shipmentsMap: Record<number, DtoShipment | null> = {};
-  ShipmentStatus = ShipmentStatus;
 
   ngOnInit(): void {
     this.loadOrders();
@@ -59,36 +53,6 @@ export class IndOrdersComponent implements OnInit {
       this.orders = orders;
       this.isLoading = false;
     });
-  }
-
-  toggleExpand(orderId: number | undefined): void {
-    if (!orderId) return;
-    this.expandedOrderId = this.expandedOrderId === orderId ? null : orderId;
-    if (this.expandedOrderId && !(orderId in this.shipmentsMap)) {
-      this.loadShipmentForOrder(orderId);
-    }
-  }
-
-  loadShipmentForOrder(orderId: number): void {
-    this.shipmentsMap[orderId] = null;
-    this.shipmentService.getByOrderId(orderId).pipe(
-      catchError(() => of(null))
-    ).subscribe(shipment => {
-      this.shipmentsMap[orderId] = shipment;
-    });
-  }
-
-  getShipmentStatusClass(status: ShipmentStatus): string {
-    switch (status) {
-      case ShipmentStatus.PENDING:          return 'status-pending';
-      case ShipmentStatus.LABEL_CREATED:    return 'status-approved';
-      case ShipmentStatus.IN_TRANSIT:       return 'status-shipped';
-      case ShipmentStatus.OUT_FOR_DELIVERY: return 'status-shipped';
-      case ShipmentStatus.DELIVERED:        return 'status-delivered';
-      case ShipmentStatus.RETURNED:
-      case ShipmentStatus.CANCELLED:        return 'status-cancelled';
-      default:                               return '';
-    }
   }
 
   cancelOrder(orderId: number | undefined): void {
@@ -145,7 +109,7 @@ export class IndOrdersComponent implements OnInit {
   getStatusClass(status: OrderStatus): string {
     switch (status) {
       case OrderStatus.PENDING: return 'status-pending';
-      case OrderStatus.PAID: return 'status-approved'; // Keeping same style for now
+      case OrderStatus.PAID: return 'status-approved';
       case OrderStatus.PARTIALLY_SHIPPED: return 'status-shipped';
       case OrderStatus.SHIPPED: return 'status-shipped';
       case OrderStatus.DELIVERED: return 'status-delivered';

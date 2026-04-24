@@ -32,6 +32,9 @@ public enum MessageType {
     PROFILE_NOT_FOUND("1013", "User profile not found. Please update your profile information."),
     CAN_NOT_DOWN_GRADE("1014", "You can not downgrade your package"),
 
+    // Address
+    ADDRESS_NOT_FOUND("1015", "Address not found for this user!"),
+
     // Category
     CATEGORY_NOT_FOUND("2001", "Selected category not found."),
     PARENT_NOT_FOUND("2006", "No selected parent category was found!"),

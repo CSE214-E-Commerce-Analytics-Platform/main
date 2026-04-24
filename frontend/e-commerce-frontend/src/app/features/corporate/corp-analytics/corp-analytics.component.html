@@ -1,1 +1,114 @@
-<p>corp-analytics works!</p>
+<div class="analytics-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h2>Store Analytics</h2>
+      <p class="header-sub">Revenue, sales, and product performance insights.</p>
+    </div>
+    <div class="store-selector" *ngIf="stores.length > 1">
+      <label>Store:</label>
+      <select [ngModel]="selectedStoreId" (ngModelChange)="onStoreChange($event)">
+        <option *ngFor="let store of stores" [value]="store.id">{{ store.name }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="loader" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading analytics...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <span class="stat-icon">💰</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalRevenue | currency:'TRY':'₺':'1.0-0' }}</span>
+          <span class="stat-label">Total Revenue</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">📦</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalOrders }}</span>
+          <span class="stat-label">Orders</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">📊</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ avgOrderValue | currency:'TRY':'₺':'1.0-0' }}</span>
+          <span class="stat-label">Avg. Order</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">🛍️</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalProducts }}</span>
+          <span class="stat-label">Products</span>
+        </div>
+      </div>
+      <div class="stat-card warning" *ngIf="lowStockCount > 0">
+        <span class="stat-icon">⚠️</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ lowStockCount }}</span>
+          <span class="stat-label">Low Stock</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-row" *ngIf="totalOrders > 0">
+      <div class="chart-card wide">
+        <h3 class="chart-title">Monthly Revenue Trend</h3>
+        <div class="chart-wrapper">
+          <canvas #revenueChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="charts-row" *ngIf="totalOrders > 0">
+      <div class="chart-card">
+        <h3 class="chart-title">Top Selling Products</h3>
+        <div class="chart-wrapper">
+          <canvas #topProductsChart></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3 class="chart-title">Order Status</h3>
+        <div class="chart-wrapper doughnut">
+          <canvas #orderStatusChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Products Table -->
+    <div class="table-card" *ngIf="topProducts.length > 0">
+      <h3 class="chart-title">Product Performance</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Product</th>
+            <th>Units Sold</th>
+            <th>Revenue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of topProducts; let i = index">
+            <td class="rank">{{ i + 1 }}</td>
+            <td class="product-name">{{ p.name }}</td>
+            <td>{{ p.sold }}</td>
+            <td class="amount">{{ p.revenue | currency:'TRY':'₺':'1.2-2' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="empty-state" *ngIf="totalOrders === 0">
+      <div class="empty-icon">📈</div>
+      <h3>No Data Yet</h3>
+      <p>Once you receive orders, your analytics will appear here.</p>
+    </div>
+  </ng-container>
+</div>

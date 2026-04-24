@@ -1,11 +1,11 @@
 /* ================================================================
-   ADMIN LAYOUT — Theme-aware (uses CSS vars for both modes)
+   ADMIN LAYOUT — Premium SaaS Dark
    ================================================================ */
 
 .admin-layout {
   display: flex;
   height: 100vh;
-  background: var(--app-bg);
+  background: var(--content-bg);
   overflow: hidden;
   font-family: 'DM Sans', sans-serif;
 }
@@ -14,8 +14,8 @@
 .sidebar {
   width: 220px;
   flex-shrink: 0;
-  background: var(--sidebar-bg);
-  border-right: var(--sidebar-border);
+  background: var(--admin-sidebar-bg);
+  border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -30,7 +30,7 @@
   top: 12px; right: 12px;
   background: var(--btn-ghost-bg);
   border: 1px solid var(--btn-ghost-border);
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: 1rem;
   width: 30px; height: 30px;
   border-radius: 8px;
@@ -40,7 +40,7 @@
   align-items: center;
   justify-content: center;
 }
-.sidebar-close-btn:hover { background: var(--accent-hover); color: var(--text-primary); }
+.sidebar-close-btn:hover { background: var(--admin-accent-hover); color: var(--admin-accent); }
 
 /* ── Brand Header ─────────────────────────────────────────── */
 .sidebar-header {
@@ -54,11 +54,11 @@
 .brand-icon {
   width: 34px; height: 34px;
   background: var(--admin-accent-hover);
-  border: 1px solid var(--admin-accent);
+  border: 1px solid var(--admin-accent-active);
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
   font-size: 1rem;
-  color: var(--admin-nav-color);
+  color: var(--admin-accent);
   flex-shrink: 0;
 }
 
@@ -72,7 +72,7 @@
   white-space: nowrap;
 }
 
-.brand-sub { font-size: 0.68rem; color: var(--text-muted); white-space: nowrap; }
+.brand-sub { font-size: 0.68rem; color: var(--text-secondary); white-space: nowrap; }
 
 /* ── Navigation ─────────────────────────────────────────── */
 .sidebar-nav {
@@ -86,7 +86,7 @@
 .sidebar-nav a {
   height: 40px;
   padding: 0 12px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   text-decoration: none;
   display: flex; align-items: center; gap: 10px;
   transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
@@ -103,13 +103,13 @@
 .nav-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 
 .sidebar-nav a:hover {
-  background: var(--accent-hover);
-  color: var(--text-secondary);
+  background: var(--admin-accent-hover);
+  color: var(--admin-nav-hover);
 }
 
 .sidebar-nav a.active {
-  background: var(--admin-accent-active);
-  color: var(--admin-nav-color);
+  background: var(--admin-accent-hover);
+  color: var(--admin-accent);
   font-weight: 600;
   border-left-color: var(--admin-accent);
 }
@@ -145,12 +145,12 @@
 .main-content {
   flex: 1; display: flex; flex-direction: column;
   overflow-y: auto; min-width: 0;
-  background: var(--app-bg);
+  background: var(--content-bg);
 }
 
 /* ── Top Header ─────────────────────────────────────────── */
 .top-header {
-  background: var(--topbar-bg);
+  background: var(--header-bg);
   padding: 0 32px;
   height: 56px;
   display: flex; align-items: center; gap: 14px;
@@ -171,7 +171,7 @@
 }
 .hamburger-btn span { display: block; height: 2px; background: var(--text-muted); border-radius: 2px; }
 .hamburger-btn:hover { background: var(--admin-accent-hover); }
-.hamburger-btn:hover span { background: var(--admin-nav-color); }
+.hamburger-btn:hover span { background: var(--admin-accent); }
 
 .header-title { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; }
 
@@ -200,8 +200,8 @@
 }
 .theme-toggle-btn:hover {
   background: var(--admin-accent-hover);
-  border-color: var(--admin-accent);
-  color: var(--admin-nav-color);
+  border-color: var(--admin-accent-active);
+  color: var(--admin-accent);
 }
 
 /* ── Content Area ─────────────────────────────────────────── */

@@ -2,8 +2,10 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReviewService } from '../../../core/services/review.service';
+import { ProductService } from '../../../core/services/product.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DtoReview, DtoReviewRequest, Sentiment } from '../../../shared/models/review';
+import { Product } from '../../../shared/models/product';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -15,11 +17,13 @@ import { of } from 'rxjs';
 })
 export class IndReviewsComponent implements OnInit {
   private reviewService = inject(ReviewService);
+  private productService = inject(ProductService);
   private toastService = inject(ToastService);
 
   Sentiment = Sentiment;
 
   reviews: DtoReview[] = [];
+  productsMap: Record<number, Product> = {};
   isLoading = true;
   editingReviewId: number | null = null;
   editForm: DtoReviewRequest = { productId: 0, starRating: 0 };
@@ -40,6 +44,14 @@ export class IndReviewsComponent implements OnInit {
       })
     ).subscribe(reviews => {
       this.reviews = reviews || [];
+      const uniqueProductIds = [...new Set(this.reviews.map(r => r.productId))];
+      uniqueProductIds.forEach(pid => {
+        if (!this.productsMap[pid]) {
+          this.productService.getProductById(pid).subscribe(prod => {
+            this.productsMap[pid] = prod;
+          });
+        }
+      });
       this.isLoading = false;
     });
   }
@@ -101,5 +113,12 @@ export class IndReviewsComponent implements OnInit {
       case Sentiment.NEGATIVE: return 'sentiment-negative';
       default: return '';
     }
+  }
+
+  getImageUrl(url: string | null | undefined): string {
+    if (!url) return 'assets/placeholder-product.png';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    if (url.startsWith('assets/images/')) return url;
+    return `assets/images/${url}`;
   }
 }

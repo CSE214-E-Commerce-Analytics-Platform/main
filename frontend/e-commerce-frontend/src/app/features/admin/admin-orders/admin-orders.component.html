@@ -73,6 +73,7 @@
                         <th>Sub-Order ID</th>
                         <th>Items</th>
                         <th>Status</th>
+                        <th>Shipment & Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -86,6 +87,30 @@
                         </td>
                         <td>
                           <span class="status-badge narrow" [ngClass]="getStatusClass(sub.status)">{{ sub.status }}</span>
+                        </td>
+                        <td>
+                          <!-- Shipment Actions for Sub Order -->
+                          <div class="shipment-cell" *ngIf="shipmentsMap[sub.id!] as shipment; else noShipment">
+                            <div class="s-info-mini">
+                              <strong>Trk:</strong> <span class="mono">{{ shipment.trackingNumber }}</span>
+                              <span class="status-badge narrow" [ngClass]="getStatusClass(shipment.status)">{{ shipment.status }}</span>
+                            </div>
+                            
+                            <div class="admin-actions-mini" *ngIf="shipment.status !== ShipmentStatus.DELIVERED && shipment.status !== ShipmentStatus.CANCELLED && shipment.status !== ShipmentStatus.RETURNED">
+                              <button class="btn-mini btn-warning" title="Out for Delivery" (click)="updateShipmentStatus(order.id!, shipment.id!, ShipmentStatus.OUT_FOR_DELIVERY)" [disabled]="isUpdatingShipment">
+                                🚚 Out for Delivery
+                              </button>
+                              <button class="btn-mini btn-success" title="Delivered" (click)="updateShipmentStatus(order.id!, shipment.id!, ShipmentStatus.DELIVERED)" [disabled]="isUpdatingShipment">
+                                ✅ Delivered
+                              </button>
+                              <button class="btn-mini btn-danger" title="Cancel" (click)="cancelShipment(order.id!, shipment.id!)" [disabled]="isUpdatingShipment">
+                                ❌ Cancel
+                              </button>
+                            </div>
+                          </div>
+                          <ng-template #noShipment>
+                            <span class="text-muted" style="font-size: 0.8rem;">No shipment initialized yet.</span>
+                          </ng-template>
                         </td>
                       </tr>
                     </tbody>

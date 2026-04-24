@@ -17,6 +17,8 @@ public interface IReviewService {
 
     List<DtoReview> findReviewsByUser(Long userId);
 
+    List<DtoReview> findReviewByStoreId(Long storeId, Long userId);
+
     DtoReview updateReview(Long reviewId, DtoReviewRequest request, Long userId);
 
     void deleteReview(Long reviewId);

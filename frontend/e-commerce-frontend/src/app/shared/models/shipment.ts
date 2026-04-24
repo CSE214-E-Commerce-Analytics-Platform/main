@@ -1,3 +1,5 @@
+import { BaseDto } from './base-dto';
+
 export enum ShipmentStatus {
   PENDING = 'PENDING',
   LABEL_CREATED = 'LABEL_CREATED',
@@ -8,8 +10,7 @@ export enum ShipmentStatus {
   CANCELLED = 'CANCELLED'
 }
 
-export interface DtoShipment {
-  id?: number;
+export interface DtoShipment extends BaseDto {
   orderId: number;
   trackingNumber: string;
   warehouse: string;
