@@ -7,11 +7,6 @@
       <p>Add, edit and manage your store's product catalogue.</p>
     </div>
     <div class="prod-header-right">
-      <select class="store-select" [ngModel]="selectedStoreId"
-        (ngModelChange)="onStoreChange($event)" [disabled]="stores.length === 0">
-        <option [ngValue]="null" disabled>Select Store...</option>
-        <option *ngFor="let store of stores" [value]="store.id">{{ store.name }}</option>
-      </select>
       <button class="btn-new-product" (click)="openProductModal()" [disabled]="!selectedStoreId">
         ＋ New Product
       </button>
@@ -19,9 +14,6 @@
   </div>
 
   <!-- Alerts -->
-  <div *ngIf="stores.length === 0" class="alert-warn">
-    ⚠️ You do not have a store yet. Create one from the Dashboard first.
-  </div>
 
   <div *ngIf="!isLoading && selectedStoreId && products.length === 0" class="alert-info">
     ℹ️ No products in this store yet. Click <strong>New Product</strong> to add one.
@@ -67,6 +59,13 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-controls" *ngIf="totalPages >= 0 && !isLoading">
+      <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber === 0">← Previous</button>
+      <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
+      <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber >= totalPages - 1">Next →</button>
   </div>
 
 </div>

@@ -4,6 +4,7 @@ import { Observable, map } from 'rxjs';
 import { Product, ProductRequest } from '../../shared/models/product';
 import { ApiResponse } from '../../shared/models/api-response';
 import { environment } from '../../../environments/environment.development';
+import { RestPageableEntity, RestPageableRequest, buildPageParams } from '../../shared/models/pageable';
 
 @Injectable({
     providedIn: 'root'
@@ -14,9 +15,10 @@ export class ProductService {
 
     constructor(private http: HttpClient) { }
 
-    getProducts(): Observable<Product[]> {
-        return this.http.get<ApiResponse<Product[]>>(this.apiUrl).pipe(
-            map(res => res.payload as Product[])
+    getProducts(request?: RestPageableRequest): Observable<RestPageableEntity<Product>> {
+        const params = buildPageParams(request);
+        return this.http.get<ApiResponse<RestPageableEntity<Product>>>(this.apiUrl, { params }).pipe(
+            map(res => res.payload as RestPageableEntity<Product>)
         );
     }
 
@@ -26,9 +28,10 @@ export class ProductService {
         );
     }
 
-    getProductsByStoreId(storeId: number): Observable<Product[]> {
-        return this.http.get<ApiResponse<Product[]>>(`${this.apiUrl}/store/${storeId}`).pipe(
-            map(res => res.payload as Product[])
+    getProductsByStoreId(storeId: number, request?: RestPageableRequest): Observable<RestPageableEntity<Product>> {
+        const params = buildPageParams(request);
+        return this.http.get<ApiResponse<RestPageableEntity<Product>>>(`${this.apiUrl}/store/${storeId}`, { params }).pipe(
+            map(res => res.payload as RestPageableEntity<Product>)
         );
     }
 

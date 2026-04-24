@@ -4,6 +4,7 @@ import { Observable, map } from 'rxjs';
 import { Store, StoreRequest } from '../../shared/models/store';
 import { ApiResponse } from '../../shared/models/api-response';
 import { environment } from '../../../environments/environment.development';
+import { RestPageableEntity, RestPageableRequest, buildPageParams } from '../../shared/models/pageable';
 
 @Injectable({
     providedIn: 'root'
@@ -20,9 +21,10 @@ export class StoreService {
         );
     }
 
-    getMyStores(): Observable<Store[]> {
-        return this.http.get<ApiResponse<Store[]>>(`${this.apiUrl}/my-stores`).pipe(
-            map(res => res.payload as Store[])
+    getMyStores(request?: RestPageableRequest): Observable<RestPageableEntity<Store>> {
+        const params = buildPageParams(request);
+        return this.http.get<ApiResponse<RestPageableEntity<Store>>>(`${this.apiUrl}/my-stores`, { params }).pipe(
+            map(res => res.payload as RestPageableEntity<Store>)
         );
     }
 
@@ -32,9 +34,10 @@ export class StoreService {
         );
     }
 
-    getAllStores(): Observable<Store[]> {
-        return this.http.get<ApiResponse<Store[]>>(this.apiUrl).pipe(
-            map(res => res.payload as Store[])
+    getAllStores(request?: RestPageableRequest): Observable<RestPageableEntity<Store>> {
+        const params = buildPageParams(request);
+        return this.http.get<ApiResponse<RestPageableEntity<Store>>>(this.apiUrl, { params }).pipe(
+            map(res => res.payload as RestPageableEntity<Store>)
         );
     }
 

@@ -4,17 +4,14 @@ import com.furkan.controllers.IRestUserController;
 import com.furkan.controllers.RestBaseController;
 import com.furkan.dto.request.DtoUserRequest;
 import com.furkan.dto.response.DtoUser;
-import com.furkan.entities.User;
 import com.furkan.enums.RoleType;
 import com.furkan.services.IUserService;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import com.furkan.utils.RootEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -33,8 +30,8 @@ public class RestUserControllerImpl extends RestBaseController implements IRestU
     @GetMapping()
     @PreAuthorize("hasRole('ADMIN')")
     @Override
-    public RootEntity<List<DtoUser>> findAllUsers() {
-        return ok(userService.findAllUsers());
+    public RootEntity<RestPageableEntity<DtoUser>> findAllUsers(@ModelAttribute RestPageableRequest request) {
+        return ok(userService.findAllUsers(request));
     }
 
     @GetMapping("/email/{email}")
@@ -47,8 +44,8 @@ public class RestUserControllerImpl extends RestBaseController implements IRestU
     @GetMapping("/all-by-role")
     @PreAuthorize("hasRole('ADMIN')")
     @Override
-    public RootEntity<List<DtoUser>> findAllUsersByRole(@RequestParam RoleType role) {
-        return ok(userService.findAllUsersByRole(role));
+    public RootEntity<RestPageableEntity<DtoUser>> findAllUsersByRole(@RequestParam RoleType role, @ModelAttribute RestPageableRequest request) {
+        return ok(userService.findAllUsersByRole(role, request));
     }
 
     @PutMapping("/{id}")

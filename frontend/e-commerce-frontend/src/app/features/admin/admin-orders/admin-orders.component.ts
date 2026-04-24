@@ -27,30 +27,40 @@ export class AdminOrdersComponent implements OnInit {
   ShipmentStatus = ShipmentStatus;
   isUpdatingShipment = false;
 
+  // Pagination
+  pageNumber = 0;
+  pageSize = 20;
+  totalPages = 0;
+
   ngOnInit(): void {
     this.loadAllOrders();
   }
 
   loadAllOrders(): void {
     this.isLoading = true;
-    this.orderService.getAllOrders().pipe(
+    this.orderService.getAllOrders({ pageNumber: this.pageNumber, pageSize: this.pageSize }).pipe(
       catchError(() => {
         this.toastService.showError('Failed to load global orders.');
         this.isLoading = false;
-        return of([]);
+        return of(null);
       })
-    ).subscribe(orders => {
+    ).subscribe(res => {
+      const allOrders = res?.content || [];
       const subOrderIds = new Set<number>();
-      orders.forEach(o => {
+      allOrders.forEach(o => {
         if (o.subOrders && o.subOrders.length > 0) {
           o.subOrders.forEach(sub => subOrderIds.add(sub.id!));
         }
       });
       
-      this.orders = orders.filter(o => !subOrderIds.has(o.id!));
+      this.orders = allOrders.filter(o => !subOrderIds.has(o.id!));
+      this.totalPages = Math.ceil((res?.totalElement || 0) / this.pageSize);
       this.isLoading = false;
     });
   }
+
+  prevPage(): void { if (this.pageNumber > 0) { this.pageNumber--; this.loadAllOrders(); } }
+  nextPage(): void { if (this.pageNumber < this.totalPages - 1) { this.pageNumber++; this.loadAllOrders(); } }
 
   toggleExpand(orderId: number | undefined): void {
     if (!orderId) return;

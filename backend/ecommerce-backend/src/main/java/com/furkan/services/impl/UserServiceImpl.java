@@ -9,9 +9,14 @@ import com.furkan.exception.ErrorMessage;
 import com.furkan.exception.MessageType;
 import com.furkan.repositories.UserRepository;
 import com.furkan.services.IUserService;
+import com.furkan.utils.PagerUtil;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,10 +46,21 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public List<DtoUser> findAllUsers() {
-        return userRepository.findAll().stream()
+    public RestPageableEntity<DtoUser> findAllUsers(RestPageableRequest request) {
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
+        }
+
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<User> userPage = userRepository.findAll(pageable);
+
+        List<DtoUser> dtoList = userPage.getContent().stream()
                 .map(this::dtoTransformation)
                 .toList();
+
+        return PagerUtil.toPageableResponse(userPage, dtoList);
     }
 
     @Override
@@ -55,10 +71,21 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public List<DtoUser> findAllUsersByRole(RoleType role) {
-        return userRepository.findAllByRoleType(role).stream()
+    public RestPageableEntity<DtoUser> findAllUsersByRole(RoleType role, RestPageableRequest request) {
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
+        }
+
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<User> userPage = userRepository.findAllByRoleType(role, pageable);
+
+        List<DtoUser> dtoList = userPage.getContent().stream()
                 .map(this::dtoTransformation)
                 .toList();
+
+        return PagerUtil.toPageableResponse(userPage, dtoList);
     }
 
     @Override

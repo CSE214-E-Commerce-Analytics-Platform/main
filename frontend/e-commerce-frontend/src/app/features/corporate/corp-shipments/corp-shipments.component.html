@@ -5,12 +5,6 @@
       <p class="header-sub">Create and track shipments for your store orders.</p>
     </div>
     <div class="header-actions">
-      <div class="store-selector" *ngIf="stores.length > 0">
-        <label>Store:</label>
-        <select [(ngModel)]="selectedStoreId" (change)="onStoreChange()">
-          <option *ngFor="let store of stores" [value]="store.id">{{ store.name }}</option>
-        </select>
-      </div>
       <button class="new-shipment-btn" (click)="showInitForm = !showInitForm">
         {{ showInitForm ? '✕ Close' : '+ New Shipment' }}
       </button>
@@ -140,6 +134,13 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-controls" *ngIf="totalPages >= 0 && !isLoadingShipments">
+      <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber === 0">← Previous</button>
+      <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
+      <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber >= totalPages - 1">Next →</button>
   </div>
 
   <!-- Empty State -->

@@ -11,12 +11,16 @@ import com.furkan.exception.MessageType;
 import com.furkan.repositories.StoreRepository;
 import com.furkan.repositories.UserRepository;
 import com.furkan.services.IStoreService;
+import com.furkan.utils.PagerUtil;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -72,10 +76,21 @@ public class StoreServiceImpl implements IStoreService {
     }
 
     @Override
-    public List<DtoStore> findAllStores() {
-        return storeRepository.findAll().stream()
+    public RestPageableEntity<DtoStore> findAllStores(RestPageableRequest request) {
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
+        }
+
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<Store> storePage = storeRepository.findAll(pageable);
+
+        List<DtoStore> dtoList = storePage.getContent().stream()
                 .map(this::dtoTransformation)
                 .toList();
+
+        return PagerUtil.toPageableResponse(storePage, dtoList);
     }
 
     @Override
@@ -94,16 +109,21 @@ public class StoreServiceImpl implements IStoreService {
     }
 
     @Override
-    public List<DtoStore> findMyStores(Long authenticatedUserId) {
-        List<Store> myStores = storeRepository.findAllByOwnerId(authenticatedUserId);
-
-        if (myStores.isEmpty()) {
-            return new ArrayList<>();
+    public RestPageableEntity<DtoStore> findMyStores(Long authenticatedUserId, RestPageableRequest request) {
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
         }
 
-        return myStores.stream()
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<Store> storePage = storeRepository.findAllByOwnerId(authenticatedUserId, pageable);
+
+        List<DtoStore> dtoList = storePage.getContent().stream()
                 .map(this::dtoTransformation)
                 .toList();
+
+        return PagerUtil.toPageableResponse(storePage, dtoList);
     }
 
     @Override

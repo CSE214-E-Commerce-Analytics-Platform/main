@@ -8,6 +8,8 @@ import com.furkan.dto.response.DtoCorporateUpdate;
 import com.furkan.entities.User;
 import com.furkan.enums.CorporateUpdateRequestStatus;
 import com.furkan.services.ICorporateUpdateRequestService;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import com.furkan.utils.RootEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -63,7 +65,7 @@ public class RestCorporateUpdateRequestControllerImpl extends RestBaseController
     @GetMapping("/all-by-status")
     @PreAuthorize("hasRole('ADMIN')")
     @Override
-    public RootEntity<List<DtoCorporateUpdate>> findRequestsByStatus(@RequestParam CorporateUpdateRequestStatus status) {
-        return ok(service.findRequestsByStatus(status));
+    public RootEntity<RestPageableEntity<DtoCorporateUpdate>> findRequestsByStatus(@RequestParam CorporateUpdateRequestStatus status, @ModelAttribute RestPageableRequest request) {
+        return ok(service.findRequestsByStatus(status, request));
     }
 }

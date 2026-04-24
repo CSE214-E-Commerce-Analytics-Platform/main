@@ -3,10 +3,10 @@ package com.furkan.controllers;
 import com.furkan.dto.request.DtoShipmentRequest;
 import com.furkan.dto.response.DtoShipment;
 import com.furkan.enums.ShipmentStatus;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import com.furkan.utils.RootEntity;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.List;
 
 public interface IRestShipmentController {
 
@@ -18,9 +18,9 @@ public interface IRestShipmentController {
 
     RootEntity<DtoShipment> cancelShipment(Long shipmentId);
 
-    RootEntity<List<DtoShipment>> findAllShipments();
+    RootEntity<RestPageableEntity<DtoShipment>> findAllShipments(RestPageableRequest request);
 
-    RootEntity<List<DtoShipment>> findMyShipments(UserDetails userDetails);
+    RootEntity<RestPageableEntity<DtoShipment>> findMyShipments(UserDetails userDetails, RestPageableRequest request);
 
     RootEntity<DtoShipment> findShipmentById(Long id, UserDetails userDetails);
 

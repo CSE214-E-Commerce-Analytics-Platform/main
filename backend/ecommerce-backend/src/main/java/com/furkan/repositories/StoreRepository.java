@@ -1,6 +1,8 @@
 package com.furkan.repositories;
 
 import com.furkan.entities.Store;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,5 +16,5 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
 
     boolean existsByOwnerId(Long ownerId);
 
-    List<Store> findAllByOwnerId(Long ownerId);
+    Page<Store> findAllByOwnerId(Long ownerId, Pageable pageable);
 }

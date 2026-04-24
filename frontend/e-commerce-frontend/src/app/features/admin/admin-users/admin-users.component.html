@@ -63,4 +63,11 @@
             </div>
         </div>
     </div>
+
+    <!-- Pagination -->
+    <div class="pagination-controls" *ngIf="totalPages >= 0 && !isLoading && !errorMessage">
+        <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber === 0">← Previous</button>
+        <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
+        <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber >= totalPages - 1">Next →</button>
+    </div>
 </div>

@@ -4,6 +4,7 @@ import { Observable, map } from 'rxjs';
 import { Category, CategoryRequest } from '../../shared/models/category';
 import { ApiResponse } from '../../shared/models/api-response';
 import { environment } from '../../../environments/environment.development';
+import { RestPageableEntity, RestPageableRequest, buildPageParams } from '../../shared/models/pageable';
 
 @Injectable({
     providedIn: 'root'
@@ -20,9 +21,10 @@ export class CategoryService {
         );
     }
 
-    getAllCategories(): Observable<Category[]> {
-        return this.http.get<ApiResponse<Category[]>>(this.apiUrl).pipe(
-            map(res => res.payload as Category[])
+    getAllCategories(request?: RestPageableRequest): Observable<RestPageableEntity<Category>> {
+        const params = buildPageParams(request);
+        return this.http.get<ApiResponse<RestPageableEntity<Category>>>(this.apiUrl, { params }).pipe(
+            map(res => res.payload as RestPageableEntity<Category>)
         );
     }
 

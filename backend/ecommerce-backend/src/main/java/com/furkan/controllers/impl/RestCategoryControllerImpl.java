@@ -5,11 +5,11 @@ import com.furkan.controllers.RestBaseController;
 import com.furkan.dto.request.DtoCategoryRequest;
 import com.furkan.dto.response.DtoCategory;
 import com.furkan.services.ICategoryService;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import com.furkan.utils.RootEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/categories")
@@ -32,8 +32,8 @@ public class RestCategoryControllerImpl extends RestBaseController implements IR
 
     @GetMapping()
     @Override
-    public RootEntity<List<DtoCategory>> findAllCategories() {
-        return ok(categoryService.findAllCategories());
+    public RootEntity<RestPageableEntity<DtoCategory>> findAllCategories(@ModelAttribute RestPageableRequest request) {
+        return ok(categoryService.findAllCategories(request));
     }
 
     @PutMapping("/{id}")

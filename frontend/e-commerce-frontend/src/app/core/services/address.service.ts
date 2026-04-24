@@ -4,6 +4,7 @@ import { Observable, map } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response';
 import { DtoAddress, DtoAddressRequest } from '../../shared/models/address';
 import { environment } from '../../../environments/environment.development';
+import { RestPageableEntity, RestPageableRequest, buildPageParams } from '../../shared/models/pageable';
 
 @Injectable({
   providedIn: 'root'
@@ -17,9 +18,10 @@ export class AddressService {
       .pipe(map(res => res.payload as DtoAddress));
   }
 
-  findMyAddresses(): Observable<DtoAddress[]> {
-    return this.http.get<ApiResponse<DtoAddress[]>>(`${this.apiUrl}/my-addresses`)
-      .pipe(map(res => res.payload as DtoAddress[]));
+  findMyAddresses(request?: RestPageableRequest): Observable<RestPageableEntity<DtoAddress>> {
+    const params = buildPageParams(request);
+    return this.http.get<ApiResponse<RestPageableEntity<DtoAddress>>>(`${this.apiUrl}/my-addresses`, { params })
+      .pipe(map(res => res.payload as RestPageableEntity<DtoAddress>));
   }
 
   updateAddress(addressId: number, request: DtoAddressRequest): Observable<DtoAddress> {

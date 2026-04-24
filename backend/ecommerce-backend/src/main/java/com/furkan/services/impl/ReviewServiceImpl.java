@@ -4,7 +4,6 @@ import com.furkan.dto.request.DtoReviewRequest;
 import com.furkan.dto.response.DtoReview;
 import com.furkan.entities.Product;
 import com.furkan.entities.Review;
-import com.furkan.entities.Store;
 import com.furkan.entities.User;
 import com.furkan.enums.OrderStatus;
 import com.furkan.enums.Sentiment;
@@ -13,14 +12,18 @@ import com.furkan.exception.ErrorMessage;
 import com.furkan.exception.MessageType;
 import com.furkan.repositories.*;
 import com.furkan.services.IReviewService;
+import com.furkan.utils.PagerUtil;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -68,19 +71,39 @@ public class ReviewServiceImpl implements IReviewService {
     }
 
     @Override
-    public List<DtoReview> findProductReviews(Long productId) {
-        return reviewRepository.findByProductIdOrderByCreatedAtDesc(productId)
-                .stream()
+    public RestPageableEntity<DtoReview> findProductReviews(Long productId, RestPageableRequest request) {
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
+        }
+
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<Review> reviewPage = reviewRepository.findByProductIdOrderByCreatedAtDesc(productId, pageable);
+
+        List<DtoReview> dtoList = reviewPage.getContent().stream()
                 .map(this::dtoConverter)
-                .collect(Collectors.toList());
+                .toList();
+
+        return PagerUtil.toPageableResponse(reviewPage, dtoList);
     }
 
     @Override
-    public List<DtoReview> findAllReviews() {
-        return reviewRepository.findAll()
-                .stream()
+    public RestPageableEntity<DtoReview> findAllReviews(RestPageableRequest request) {
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
+        }
+
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<Review> reviewPage = reviewRepository.findAll(pageable);
+
+        List<DtoReview> dtoList = reviewPage.getContent().stream()
                 .map(this::dtoConverter)
-                .collect(Collectors.toList());
+                .toList();
+
+        return PagerUtil.toPageableResponse(reviewPage, dtoList);
     }
 
     @Override
@@ -91,15 +114,25 @@ public class ReviewServiceImpl implements IReviewService {
     }
 
     @Override
-    public List<DtoReview> findReviewsByUser(Long userId) {
-        return reviewRepository.findByUserIdOrderByCreatedAtDesc(userId)
-                .stream()
+    public RestPageableEntity<DtoReview> findReviewsByUser(Long userId, RestPageableRequest request) {
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
+        }
+
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<Review> reviewPage = reviewRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
+
+        List<DtoReview> dtoList = reviewPage.getContent().stream()
                 .map(this::dtoConverter)
-                .collect(Collectors.toList());
+                .toList();
+
+        return PagerUtil.toPageableResponse(reviewPage, dtoList);
     }
 
     @Override
-    public List<DtoReview> findReviewByStoreId(Long storeId, Long userId) {
+    public RestPageableEntity<DtoReview> findReviewByStoreId(Long storeId, Long userId, RestPageableRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.USER_NOT_FOUND, userId.toString())));
 
@@ -107,10 +140,20 @@ public class ReviewServiceImpl implements IReviewService {
             throw new BaseException(new ErrorMessage(MessageType.UNAUTHORIZED, "You can not access other corporate persons reviews."));
         }
 
-        return reviewRepository.findReviewByStoreId(storeId)
-                .stream()
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
+        }
+
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<Review> reviewPage = reviewRepository.findReviewByStoreId(storeId, pageable);
+
+        List<DtoReview> dtoList = reviewPage.getContent().stream()
                 .map(this::dtoConverter)
-                .collect(Collectors.toList());
+                .toList();
+
+        return PagerUtil.toPageableResponse(reviewPage, dtoList);
     }
 
     @Override

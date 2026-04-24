@@ -66,16 +66,16 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
   loadAll(): void {
     this.isLoading = true;
     forkJoin({
-      orders: this.orderService.getAllOrders().pipe(catchError(() => of([]))),
-      users: this.userService.findAllUsers().pipe(catchError(() => of([]))),
-      stores: this.storeService.getAllStores().pipe(catchError(() => of([]))),
-      apps: this.corpAppService.findRequestsByStatus('PENDING').pipe(catchError(() => of([])))
+      orders: this.orderService.getAllOrders({ pageNumber: 0, pageSize: 100 }).pipe(catchError(() => of(null))),
+      users: this.userService.findAllUsers({ pageNumber: 0, pageSize: 100 }).pipe(catchError(() => of(null))),
+      stores: this.storeService.getAllStores({ pageNumber: 0, pageSize: 100 }).pipe(catchError(() => of(null))),
+      apps: this.corpAppService.findRequestsByStatus('PENDING', { pageNumber: 0, pageSize: 100 }).pipe(catchError(() => of(null)))
     }).subscribe(({ orders, users, stores, apps }) => {
-      this.allOrders = orders || [];
-      this.allStores = stores || [];
-      this.totalUsers = (users || []).length;
+      this.allOrders = orders?.content || [];
+      this.allStores = stores?.content || [];
+      this.totalUsers = (users?.content || []).length;
       this.activeStores = this.allStores.filter((s: any) => s.status === 'APPROVED').length;
-      this.pendingApplications = (apps || []).length;
+      this.pendingApplications = (apps?.content || []).length;
 
       // Only parent orders
       const parentOrders = this.allOrders.filter(o => !o.storeId || o.subOrders?.length > 0);

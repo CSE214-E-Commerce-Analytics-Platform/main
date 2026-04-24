@@ -2,8 +2,8 @@ package com.furkan.services;
 
 import com.furkan.dto.request.DtoProductRequest;
 import com.furkan.dto.response.DtoProduct;
-
-import java.util.List;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 
 public interface IProductService {
 
@@ -11,13 +11,13 @@ public interface IProductService {
 
     DtoProduct findProductById(Long id);
 
-    List<DtoProduct> findAllProducts();
+    RestPageableEntity<DtoProduct> findAllProducts(RestPageableRequest request);
 
     DtoProduct updateProductById(Long id, DtoProductRequest input, Long authenticatedUserId);
 
     void deleteProductById(Long id, Long authenticatedUserId);
 
-    List<DtoProduct> findAllByStoreId(Long storeId);
+    RestPageableEntity<DtoProduct> findAllByStoreId(Long storeId, RestPageableRequest request);
 
     void reduceStock(Long productId, int quantity);
 

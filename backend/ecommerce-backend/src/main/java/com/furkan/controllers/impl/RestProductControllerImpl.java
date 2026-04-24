@@ -6,6 +6,8 @@ import com.furkan.dto.request.DtoProductRequest;
 import com.furkan.dto.response.DtoProduct;
 import com.furkan.entities.User;
 import com.furkan.services.IProductService;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import com.furkan.utils.RootEntity;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +15,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -39,8 +39,8 @@ public class RestProductControllerImpl extends RestBaseController implements IRe
 
     @GetMapping()
     @Override
-    public RootEntity<List<DtoProduct>> findAllProducts() {
-        return ok(productService.findAllProducts());
+    public RootEntity<RestPageableEntity<DtoProduct>> findAllProducts(@ModelAttribute RestPageableRequest request) {
+        return ok(productService.findAllProducts(request));
     }
 
     @PutMapping("/{id}")
@@ -62,7 +62,7 @@ public class RestProductControllerImpl extends RestBaseController implements IRe
 
     @GetMapping("/store/{storeId}")
     @Override
-    public RootEntity<List<DtoProduct>> findAllByStoreId(@PathVariable Long storeId) {
-        return ok(productService.findAllByStoreId(storeId));
+    public RootEntity<RestPageableEntity<DtoProduct>> findAllByStoreId(@PathVariable Long storeId, @ModelAttribute RestPageableRequest request) {
+        return ok(productService.findAllByStoreId(storeId, request));
     }
 }

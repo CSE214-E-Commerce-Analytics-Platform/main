@@ -3,7 +3,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { ApiResponse } from '../../shared/models/api-response';
-import { DtoAuditLog, RestPageableEntity, RestPageableRequest } from '../../shared/models/audit-log';
+import { DtoAuditLog } from '../../shared/models/audit-log';
+import { RestPageableEntity, RestPageableRequest } from '../../shared/models/pageable';
 
 @Injectable({
     providedIn: 'root'

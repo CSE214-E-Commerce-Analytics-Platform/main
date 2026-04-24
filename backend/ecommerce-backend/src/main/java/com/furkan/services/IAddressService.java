@@ -2,13 +2,13 @@ package com.furkan.services;
 
 import com.furkan.dto.request.DtoAddressRequest;
 import com.furkan.dto.response.DtoAddress;
-
-import java.util.List;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 
 public interface IAddressService {
     DtoAddress createAddress(Long userId, DtoAddressRequest request);
 
-    List<DtoAddress> findMyAddresses(Long userId);
+    RestPageableEntity<DtoAddress> findMyAddresses(Long userId, RestPageableRequest request);
 
     DtoAddress updateAddress(Long addressId, Long userId, DtoAddressRequest request);
 

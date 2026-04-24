@@ -4,8 +4,9 @@ import com.furkan.dto.request.DtoCorporateCreateRequest;
 import com.furkan.dto.request.DtoCorporateUpdateReviewRequest;
 import com.furkan.dto.response.DtoCorporateUpdate;
 import com.furkan.enums.CorporateUpdateRequestStatus;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 
-import java.util.List;
 
 public interface ICorporateUpdateRequestService {
 
@@ -19,5 +20,5 @@ public interface ICorporateUpdateRequestService {
 
     DtoCorporateUpdate reviewRequest(Long id, DtoCorporateUpdateReviewRequest reviewDto);
 
-    List<DtoCorporateUpdate> findRequestsByStatus(CorporateUpdateRequestStatus status);
+    RestPageableEntity<DtoCorporateUpdate> findRequestsByStatus(CorporateUpdateRequestStatus status, RestPageableRequest request);
 }

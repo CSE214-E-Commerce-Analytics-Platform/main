@@ -29,6 +29,11 @@ export class IndStoreDetailComponent implements OnInit {
   isLoading = true;
   errorMessage = '';
 
+  // Pagination
+  pageNumber = 0;
+  pageSize = 12;
+  totalPages = 0;
+
   ngOnInit(): void {
     this.userRole = this.authService.getRole();
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -64,9 +69,10 @@ export class IndStoreDetailComponent implements OnInit {
   fetchProducts(): void {
     if (!this.storeId) return;
 
-    this.productService.getProductsByStoreId(this.storeId).subscribe({
+    this.productService.getProductsByStoreId(this.storeId, { pageNumber: this.pageNumber, pageSize: this.pageSize }).subscribe({
         next: (data) => {
-            this.products = data;
+            this.products = data?.content || [];
+            this.totalPages = Math.ceil((data?.totalElement || 0) / this.pageSize);
             this.isLoading = false;
         },
         error: (err) => {
@@ -75,6 +81,20 @@ export class IndStoreDetailComponent implements OnInit {
             this.isLoading = false;
         }
     });
+  }
+
+  prevPage(): void {
+    if (this.pageNumber > 0) {
+      this.pageNumber--;
+      this.fetchProducts();
+    }
+  }
+
+  nextPage(): void {
+    if (this.pageNumber < this.totalPages - 1) {
+      this.pageNumber++;
+      this.fetchProducts();
+    }
   }
 
   addToCart(product: Product): void {

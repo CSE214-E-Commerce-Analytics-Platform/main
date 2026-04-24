@@ -4,6 +4,7 @@ import { Observable, map } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response';
 import { DtoOrder, DtoOrderRequest, OrderStatus } from '../../shared/models/order';
 import { environment } from '../../../environments/environment.development';
+import { RestPageableEntity, RestPageableRequest, buildPageParams } from '../../shared/models/pageable';
 
 @Injectable({
   providedIn: 'root'
@@ -17,9 +18,10 @@ export class OrderService {
       .pipe(map(res => res.payload as DtoOrder));
   }
 
-  getMyOrders(): Observable<DtoOrder[]> {
-    return this.http.get<ApiResponse<DtoOrder[]>>(`${this.apiUrl}/my-orders`)
-      .pipe(map(res => res.payload as DtoOrder[]));
+  getMyOrders(request?: RestPageableRequest): Observable<RestPageableEntity<DtoOrder>> {
+    const params = buildPageParams(request);
+    return this.http.get<ApiResponse<RestPageableEntity<DtoOrder>>>(`${this.apiUrl}/my-orders`, { params })
+      .pipe(map(res => res.payload as RestPageableEntity<DtoOrder>));
   }
 
   cancel(orderId: number): Observable<void> {
@@ -27,9 +29,10 @@ export class OrderService {
       .pipe(map(res => res.payload as void));
   }
 
-  getStoreOrders(storeId: number): Observable<DtoOrder[]> {
-    return this.http.get<ApiResponse<DtoOrder[]>>(`${this.apiUrl}/store/${storeId}`)
-      .pipe(map(res => res.payload as DtoOrder[]));
+  getStoreOrders(storeId: number, request?: RestPageableRequest): Observable<RestPageableEntity<DtoOrder>> {
+    const params = buildPageParams(request);
+    return this.http.get<ApiResponse<RestPageableEntity<DtoOrder>>>(`${this.apiUrl}/store/${storeId}`, { params })
+      .pipe(map(res => res.payload as RestPageableEntity<DtoOrder>));
   }
 
   updateSubOrderStatus(subOrderId: number, status: OrderStatus, storeId: number): Observable<DtoOrder> {
@@ -37,9 +40,10 @@ export class OrderService {
       .pipe(map(res => res.payload as DtoOrder));
   }
 
-  getAllOrders(): Observable<DtoOrder[]> {
-    return this.http.get<ApiResponse<DtoOrder[]>>(`${this.apiUrl}/admin/all`)
-      .pipe(map(res => res.payload as DtoOrder[]));
+  getAllOrders(request?: RestPageableRequest): Observable<RestPageableEntity<DtoOrder>> {
+    const params = buildPageParams(request);
+    return this.http.get<ApiResponse<RestPageableEntity<DtoOrder>>>(`${this.apiUrl}/admin/all`, { params })
+      .pipe(map(res => res.payload as RestPageableEntity<DtoOrder>));
   }
 
   getById(orderId: number): Observable<DtoOrder> {

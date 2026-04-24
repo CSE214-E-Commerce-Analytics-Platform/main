@@ -23,6 +23,11 @@ export class AdminUsersComponent implements OnInit {
 
   selectedRole: RoleFilter = 'ALL';
 
+  // Pagination
+  pageNumber = 0;
+  pageSize = 20;
+  totalPages = 0;
+
   constructor(
     private userService: UserService,
     private authService: AuthService
@@ -37,13 +42,15 @@ export class AdminUsersComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
+    const paginationReq = { pageNumber: this.pageNumber, pageSize: this.pageSize };
     const req$ = this.selectedRole === 'ALL'
-      ? this.userService.findAllUsers()
-      : this.userService.findAllUsersByRole(this.selectedRole);
+      ? this.userService.findAllUsers(paginationReq)
+      : this.userService.findAllUsersByRole(this.selectedRole, paginationReq);
 
     req$.subscribe({
-      next: (data) => {
-        this.users = data || [];
+      next: (res) => {
+        this.users = res?.content || [];
+        this.totalPages = Math.ceil((res?.totalElement || 0) / this.pageSize);
         this.isLoading = false;
       },
       error: (err) => {
@@ -56,8 +63,12 @@ export class AdminUsersComponent implements OnInit {
 
   setRoleFilter(role: RoleFilter): void {
     this.selectedRole = role;
+    this.pageNumber = 0;
     this.loadUsers();
   }
+
+  prevPage(): void { if (this.pageNumber > 0) { this.pageNumber--; this.loadUsers(); } }
+  nextPage(): void { if (this.pageNumber < this.totalPages - 1) { this.pageNumber++; this.loadUsers(); } }
 
   toggleUserStatus(user: User): void {
     const currentState = user.active !== undefined ? user.active : user.isActive;

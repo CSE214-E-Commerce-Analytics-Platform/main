@@ -38,15 +38,16 @@ export class IndHistoryComponent implements OnInit {
 
   loadOrders(): void {
     this.isLoading = true;
-    this.orderService.getMyOrders().pipe(
+    this.orderService.getMyOrders({ pageNumber: 0, pageSize: 100 }).pipe(
       catchError(() => {
         this.toastService.showError('Failed to load order history.');
         this.isLoading = false;
-        return of([]);
+        return of(null);
       })
-    ).subscribe(orders => {
+    ).subscribe(res => {
+      const orders = res?.content || [];
       // Only keep completed lifecycle orders (DELIVERED or CANCELLED)
-      this.allOrders = (orders || []).filter(o =>
+      this.allOrders = orders.filter(o =>
         o.status === OrderStatus.DELIVERED || o.status === OrderStatus.CANCELLED
       );
       this.computeStats();

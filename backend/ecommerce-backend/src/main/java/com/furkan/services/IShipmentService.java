@@ -3,8 +3,8 @@ package com.furkan.services;
 import com.furkan.dto.request.DtoShipmentRequest;
 import com.furkan.dto.response.DtoShipment;
 import com.furkan.enums.ShipmentStatus;
-
-import java.util.List;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 
 public interface IShipmentService {
 
@@ -16,9 +16,9 @@ public interface IShipmentService {
 
     DtoShipment cancelShipment(Long shipmentId);
 
-    List<DtoShipment> findAllShipments();
+    RestPageableEntity<DtoShipment> findAllShipments(RestPageableRequest request);
 
-    List<DtoShipment> findMyShipments(Long userId);
+    RestPageableEntity<DtoShipment> findMyShipments(Long userId, RestPageableRequest request);
 
     DtoShipment findShipmentById(Long id, Long userId);
 

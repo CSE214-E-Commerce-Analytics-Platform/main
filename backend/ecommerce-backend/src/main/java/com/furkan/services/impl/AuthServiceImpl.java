@@ -148,6 +148,7 @@ public class AuthServiceImpl implements IAuthService {
         User user = verificationToken.getUser();
         user.setActive(true);
         userRepository.save(user);
+        emailService.sendWelcomeEmail(user.getEmail());
 
         verificationTokenService.markAsUsed(verificationToken);
     }
