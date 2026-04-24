@@ -25,6 +25,11 @@ export class IndProductsComponent implements OnInit {
   isLoading = true;
   errorMessage = '';
 
+  // Pagination
+  pageNumber = 0;
+  pageSize = 12; // Adjusted to 12 for better grid display
+  totalPages = 0;
+
   // Filter & Sort State
   searchTerm = '';
   selectedCategory = 'ALL';
@@ -37,9 +42,10 @@ export class IndProductsComponent implements OnInit {
 
   fetchProducts(): void {
     this.isLoading = true;
-    this.productService.getProducts().subscribe({
-      next: (data) => {
-        this.products = data;
+    this.productService.getProducts({ pageNumber: this.pageNumber, pageSize: this.pageSize }).subscribe({
+      next: (res) => {
+        this.products = res?.content || [];
+        this.totalPages = Math.ceil((res?.totalElement || 0) / this.pageSize);
         this.extractCategories();
         this.applyFilters();
         this.isLoading = false;
@@ -50,6 +56,20 @@ export class IndProductsComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  prevPage(): void {
+    if (this.pageNumber > 0) {
+      this.pageNumber--;
+      this.fetchProducts();
+    }
+  }
+
+  nextPage(): void {
+    if (this.pageNumber < this.totalPages - 1) {
+      this.pageNumber++;
+      this.fetchProducts();
+    }
   }
 
   extractCategories(): void {

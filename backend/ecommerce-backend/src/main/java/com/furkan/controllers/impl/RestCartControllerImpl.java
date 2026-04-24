@@ -6,14 +6,14 @@ import com.furkan.dto.request.DtoCartItemRequest;
 import com.furkan.dto.response.DtoCart;
 import com.furkan.entities.User;
 import com.furkan.services.ICartService;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import com.furkan.utils.RootEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/carts")
@@ -56,8 +56,8 @@ public class RestCartControllerImpl extends RestBaseController implements IRestC
     @GetMapping("/admin/all")
     @PreAuthorize("hasRole('ADMIN')")
     @Override
-    public RootEntity<List<DtoCart>> findAllCarts() {
-        return ok(cartService.findAllCarts());
+    public RootEntity<RestPageableEntity<DtoCart>> findAllCarts(@ModelAttribute RestPageableRequest request) {
+        return ok(cartService.findAllCarts(request));
     }
 
     @GetMapping("/admin/user/{userId}")

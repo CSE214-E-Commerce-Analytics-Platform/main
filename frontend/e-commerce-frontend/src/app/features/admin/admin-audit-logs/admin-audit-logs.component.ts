@@ -2,7 +2,8 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminAuditService } from '../../../core/services/admin-audit.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { DtoAuditLog, RestPageableRequest } from '../../../shared/models/audit-log';
+import { DtoAuditLog } from '../../../shared/models/audit-log';
+import { RestPageableRequest } from '../../../shared/models/pageable';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 

@@ -8,9 +8,14 @@ import com.furkan.exception.ErrorMessage;
 import com.furkan.exception.MessageType;
 import com.furkan.repositories.CategoryRepository;
 import com.furkan.services.ICategoryService;
+import com.furkan.utils.PagerUtil;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -53,10 +58,21 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public List<DtoCategory> findAllCategories() {
-        return categoryRepository.findAll().stream()
+    public RestPageableEntity<DtoCategory> findAllCategories(RestPageableRequest request) {
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
+        }
+
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<Category> categoryPage = categoryRepository.findAll(pageable);
+
+        List<DtoCategory> dtoList = categoryPage.getContent().stream()
                 .map(this::dtoTransformation)
                 .toList();
+
+        return PagerUtil.toPageableResponse(categoryPage, dtoList);
     }
 
     @Override

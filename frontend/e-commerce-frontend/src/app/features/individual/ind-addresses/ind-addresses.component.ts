@@ -36,22 +36,42 @@ export class IndAddressesComponent implements OnInit {
   isSubmitting = false;
   deletingId: number | null = null;
 
+  // Pagination
+  pageNumber = 0;
+  pageSize = 10;
+  totalPages = 0;
+
   ngOnInit(): void {
     this.loadAddresses();
   }
 
   loadAddresses(): void {
     this.isLoading = true;
-    this.addressService.findMyAddresses().pipe(
+    this.addressService.findMyAddresses({ pageNumber: this.pageNumber, pageSize: this.pageSize }).pipe(
       catchError(() => {
         this.toastService.showError('Failed to load addresses.');
         this.isLoading = false;
-        return of([]);
+        return of(null);
       })
-    ).subscribe(addrs => {
-      this.addresses = addrs || [];
+    ).subscribe(res => {
+      this.addresses = res?.content || [];
+      this.totalPages = Math.ceil((res?.totalElement || 0) / this.pageSize);
       this.isLoading = false;
     });
+  }
+
+  prevPage(): void {
+    if (this.pageNumber > 0) {
+      this.pageNumber--;
+      this.loadAddresses();
+    }
+  }
+
+  nextPage(): void {
+    if (this.pageNumber < this.totalPages - 1) {
+      this.pageNumber++;
+      this.loadAddresses();
+    }
   }
 
   openAddModal(): void {

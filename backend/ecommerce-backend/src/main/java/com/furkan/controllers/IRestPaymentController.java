@@ -3,6 +3,8 @@ package com.furkan.controllers;
 import com.furkan.dto.request.DtoPaymentRequest;
 import com.furkan.dto.response.DtoPayment;
 import com.furkan.enums.PaymentStatus;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import com.furkan.utils.RootEntity;
 import com.stripe.exception.StripeException;
 
@@ -14,7 +16,7 @@ public interface IRestPaymentController {
 
     RootEntity<DtoPayment> findPaymentByOrderId(Long orderId);
 
-    RootEntity<List<DtoPayment>> findPaymentsByUserId(Long userId);
+    RootEntity<RestPageableEntity<DtoPayment>> findPaymentsByUserId(Long userId, RestPageableRequest request);
 
     RootEntity<Boolean> hasSuccessfulPayment(Long orderId);
 

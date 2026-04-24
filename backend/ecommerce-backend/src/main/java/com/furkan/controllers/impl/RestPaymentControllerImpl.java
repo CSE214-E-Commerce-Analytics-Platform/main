@@ -6,12 +6,12 @@ import com.furkan.dto.request.DtoPaymentRequest;
 import com.furkan.dto.response.DtoPayment;
 import com.furkan.enums.PaymentStatus;
 import com.furkan.services.IPaymentService;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import com.furkan.utils.RootEntity;
 import com.stripe.exception.StripeException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/payments")
@@ -34,8 +34,8 @@ public class RestPaymentControllerImpl extends RestBaseController implements IRe
 
     @GetMapping("/user/{userId}")
     @Override
-    public RootEntity<List<DtoPayment>> findPaymentsByUserId(@PathVariable Long userId) {
-        return ok(paymentService.findPaymentsByUserId(userId));
+    public RootEntity<RestPageableEntity<DtoPayment>> findPaymentsByUserId(@PathVariable Long userId, @ModelAttribute RestPageableRequest request) {
+        return ok(paymentService.findPaymentsByUserId(userId, request));
     }
 
     @GetMapping("/order/{orderId}/is-successful")

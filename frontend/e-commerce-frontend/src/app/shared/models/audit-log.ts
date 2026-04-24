@@ -6,17 +6,3 @@ export interface DtoAuditLog extends BaseDto {
     action: string;
     details: string;
 }
-
-export interface RestPageableRequest {
-    pageNumber: number;
-    pageSize: number;
-    columnName?: string;
-    asc?: boolean;
-}
-
-export interface RestPageableEntity<T> {
-    content: T[];
-    pageNumber: number;
-    pageSize: number;
-    totalElement: number;
-}

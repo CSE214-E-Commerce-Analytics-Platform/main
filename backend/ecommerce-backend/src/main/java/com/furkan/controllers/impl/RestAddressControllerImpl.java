@@ -6,14 +6,14 @@ import com.furkan.dto.request.DtoAddressRequest;
 import com.furkan.dto.response.DtoAddress;
 import com.furkan.entities.User;
 import com.furkan.services.IAddressService;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import com.furkan.utils.RootEntity;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/addresses")
@@ -30,8 +30,8 @@ public class RestAddressControllerImpl extends RestBaseController implements IRe
 
     @GetMapping("/my-addresses")
     @Override
-    public RootEntity<List<DtoAddress>> findMyAddresses(@AuthenticationPrincipal UserDetails userDetails) {
-        return ok(addressService.findMyAddresses(getUserIdFromToken(userDetails)));
+    public RootEntity<RestPageableEntity<DtoAddress>> findMyAddresses(@AuthenticationPrincipal UserDetails userDetails, @ModelAttribute RestPageableRequest request) {
+        return ok(addressService.findMyAddresses(getUserIdFromToken(userDetails), request));
     }
 
     @PutMapping("/{addressId}")

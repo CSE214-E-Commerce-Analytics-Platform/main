@@ -39,9 +39,9 @@ export class AdminCategoriesComponent implements OnInit {
   loadCategories(): void {
     this.isLoading = true;
     this.errorMessage = '';
-    this.categoryService.getAllCategories().subscribe({
-      next: (data) => {
-        this.categories = data || [];
+    this.categoryService.getAllCategories({ pageNumber: 0, pageSize: 100 }).subscribe({
+      next: (res) => {
+        this.categories = res?.content || [];
         this.isLoading = false;
       },
       error: (err) => {

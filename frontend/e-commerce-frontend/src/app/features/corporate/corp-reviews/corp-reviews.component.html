@@ -4,13 +4,6 @@
       <h2>Store Reviews</h2>
       <p class="header-sub">View feedback and ratings from customers who purchased your products.</p>
     </div>
-    
-    <div class="store-selector" *ngIf="stores.length > 0">
-      <label for="storeSelect">Active Store:</label>
-      <select id="storeSelect" [(ngModel)]="selectedStoreId" (change)="onStoreChange()">
-        <option *ngFor="let store of stores" [value]="store.id">{{ store.name }}</option>
-      </select>
-    </div>
   </div>
 
   <div class="loader" *ngIf="isLoading">
@@ -47,6 +40,13 @@
       </div>
       
     </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-controls" *ngIf="totalPages >= 0 && !isLoading">
+      <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber === 0">← Previous</button>
+      <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
+      <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber >= totalPages - 1">Next →</button>
   </div>
 
   <div class="empty-state" *ngIf="!isLoading && reviews.length === 0">

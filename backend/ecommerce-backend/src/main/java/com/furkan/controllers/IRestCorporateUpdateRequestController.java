@@ -4,6 +4,8 @@ import com.furkan.dto.request.DtoCorporateCreateRequest;
 import com.furkan.dto.request.DtoCorporateUpdateReviewRequest;
 import com.furkan.dto.response.DtoCorporateUpdate;
 import com.furkan.enums.CorporateUpdateRequestStatus;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import com.furkan.utils.RootEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -21,5 +23,5 @@ public interface IRestCorporateUpdateRequestController {
 
     RootEntity<DtoCorporateUpdate> reviewRequest(Long id, DtoCorporateUpdateReviewRequest reviewDto);
 
-    RootEntity<List<DtoCorporateUpdate>> findRequestsByStatus(CorporateUpdateRequestStatus status);
+    RootEntity<RestPageableEntity<DtoCorporateUpdate>> findRequestsByStatus(CorporateUpdateRequestStatus status, RestPageableRequest request);
 }

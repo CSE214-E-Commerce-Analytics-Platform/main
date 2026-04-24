@@ -46,10 +46,10 @@ export class IndOrderDetailComponent implements OnInit {
   }
 
   loadMyReviews(): void {
-    this.reviewService.getMyReviews().pipe(
-      catchError(() => of([]))
-    ).subscribe(reviews => {
-      reviews.forEach(r => {
+    this.reviewService.getMyReviews({ pageNumber: 0, pageSize: 100 }).pipe(
+      catchError(() => of(null))
+    ).subscribe(res => {
+      (res?.content || []).forEach(r => {
         if (r.productId) {
           this.reviewedProductIds.add(r.productId);
         }

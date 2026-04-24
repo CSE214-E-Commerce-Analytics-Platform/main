@@ -9,6 +9,7 @@ import {
     CorporateCreateRequest,
     CorporateReviewRequest
 } from '../../shared/models/corporate-application';
+import { RestPageableEntity, RestPageableRequest, buildPageParams } from '../../shared/models/pageable';
 
 @Injectable({
     providedIn: 'root'
@@ -56,10 +57,11 @@ export class CorporateApplicationService {
     }
 
     /** Admin: Get all requests by status */
-    findRequestsByStatus(status: CorporateApplicationStatus): Observable<CorporateApplication[]> {
-        const params = new HttpParams().set('status', status);
-        return this.http.get<ApiResponse<CorporateApplication[]>>(`${this.apiUrl}/all-by-status`, { params }).pipe(
-            map(res => res.payload as CorporateApplication[])
+    findRequestsByStatus(status: CorporateApplicationStatus, request?: RestPageableRequest): Observable<RestPageableEntity<CorporateApplication>> {
+        let params = buildPageParams(request);
+        params = params.set('status', status);
+        return this.http.get<ApiResponse<RestPageableEntity<CorporateApplication>>>(`${this.apiUrl}/all-by-status`, { params }).pipe(
+            map(res => res.payload as RestPageableEntity<CorporateApplication>)
         );
     }
 }

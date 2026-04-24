@@ -3,9 +3,9 @@ package com.furkan.services;
 import com.furkan.dto.request.DtoPaymentRequest;
 import com.furkan.dto.response.DtoPayment;
 import com.furkan.enums.PaymentStatus;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import com.stripe.exception.StripeException;
-
-import java.util.List;
 
 public interface IPaymentService {
 
@@ -13,7 +13,7 @@ public interface IPaymentService {
 
     DtoPayment findPaymentByOrderId(Long orderId);
 
-    List<DtoPayment> findPaymentsByUserId(Long userId);
+    RestPageableEntity<DtoPayment> findPaymentsByUserId(Long userId, RestPageableRequest request);
 
     boolean hasSuccessfulPayment(Long orderId);
 

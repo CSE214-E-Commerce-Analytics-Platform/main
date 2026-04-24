@@ -39,7 +39,7 @@ public class AnalyticsServiceImpl implements IAnalyticsService {
             throw new BaseException(new ErrorMessage(MessageType.UNAUTHORIZED, "You can only view analytics for your own store."));
         }
 
-        List<Order> storeOrders = orderRepository.findByStoreIdOrderByOrderDateDesc(storeId).stream()
+        List<Order> storeOrders = orderRepository.findAllByStoreId(storeId).stream()
                 .filter(o -> o.getStatus() != OrderStatus.CANCELLED)
                 .toList();
 

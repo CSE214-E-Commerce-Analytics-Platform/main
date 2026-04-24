@@ -45,10 +45,10 @@ export class ReviewWidgetComponent implements OnInit {
     this.reviewService.getByProductId(this.productId).pipe(
       catchError(() => {
         this.isLoading = false;
-        return of([]);
+        return of(null);
       })
     ).subscribe(data => {
-      this.reviews = data;
+      this.reviews = data?.content || [];
       this.isLoading = false;
     });
   }

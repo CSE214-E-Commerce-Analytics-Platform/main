@@ -10,8 +10,13 @@ import com.furkan.exception.MessageType;
 import com.furkan.repositories.AddressRepository;
 import com.furkan.repositories.UserRepository;
 import com.furkan.services.IAddressService;
+import com.furkan.utils.PagerUtil;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,11 +43,21 @@ public class AddressServiceImpl implements IAddressService {
     }
 
     @Override
-    public List<DtoAddress> findMyAddresses(Long userId) {
-        return addressRepository.findByUserId(userId)
-                .stream()
+    public RestPageableEntity<DtoAddress> findMyAddresses(Long userId,RestPageableRequest request) {
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
+        }
+
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<Address> addressPage = addressRepository.findByUserId(userId, pageable);
+
+        List<DtoAddress> dtoList = addressPage.getContent().stream()
                 .map(this::dtoConverter)
-                .collect(Collectors.toList());
+                .toList();
+
+        return PagerUtil.toPageableResponse(addressPage, dtoList);
     }
 
     @Override

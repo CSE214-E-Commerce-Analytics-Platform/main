@@ -68,7 +68,7 @@ export class CorpAnalyticsComponent implements OnInit, AfterViewInit, OnDestroy 
   private viewReady = false;
 
   ngOnInit(): void {
-    this.loadStores();
+    this.loadStore();
   }
 
   ngAfterViewInit(): void {
@@ -79,32 +79,27 @@ export class CorpAnalyticsComponent implements OnInit, AfterViewInit, OnDestroy 
     this.charts.forEach(c => c.destroy());
   }
 
-  loadStores(): void {
-    this.storeService.getMyStores().pipe(
-      catchError(() => { this.toastService.showError('Failed to load stores.'); return of([]); })
-    ).subscribe(stores => {
-      this.stores = stores || [];
-      if (this.stores.length > 0) {
-        this.selectedStoreId = this.stores[0].id;
+  loadStore(): void {
+    this.storeService.getMyStores({ pageNumber: 0, pageSize: 10 }).pipe(
+      catchError(() => { this.toastService.showError('Failed to load store.'); return of(null); })
+    ).subscribe(res => {
+      const stores = res?.content || [];
+      if (stores.length > 0) {
+        this.selectedStoreId = stores[0].id;
         this.loadStoreData(this.selectedStoreId);
       }
     });
   }
 
-  onStoreChange(storeId: any): void {
-    this.selectedStoreId = +storeId;
-    this.loadStoreData(this.selectedStoreId);
-  }
-
   loadStoreData(storeId: number): void {
     this.isLoading = true;
     forkJoin({
-      orders: this.orderService.getStoreOrders(storeId).pipe(catchError(() => of([]))),
-      products: this.productService.getProductsByStoreId(storeId).pipe(catchError(() => of([]))),
+      orders: this.orderService.getStoreOrders(storeId, { pageNumber: 0, pageSize: 100 }).pipe(catchError(() => of(null))),
+      products: this.productService.getProductsByStoreId(storeId, { pageNumber: 0, pageSize: 100 }).pipe(catchError(() => of(null))),
       analytics: this.analyticsService.getCustomerAnalytics(storeId).pipe(catchError(() => of(null)))
     }).subscribe(({ orders, products, analytics }) => {
-      this.rawOrders = orders || [];
-      this.rawProducts = products || [];
+      this.rawOrders = orders?.content || [];
+      this.rawProducts = products?.content || [];
       this.customerAnalytics = analytics;
       
       // Default to last 30 days if no date selected

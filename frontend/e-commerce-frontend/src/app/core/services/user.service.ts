@@ -4,6 +4,7 @@ import { Observable, map } from 'rxjs';
 import { User, UserRequest } from '../../shared/models/user';
 import { ApiResponse } from '../../shared/models/api-response';
 import { environment } from '../../../environments/environment.development';
+import { RestPageableEntity, RestPageableRequest, buildPageParams } from '../../shared/models/pageable';
 
 @Injectable({
     providedIn: 'root'
@@ -14,17 +15,18 @@ export class UserService {
 
     constructor(private http: HttpClient) { }
 
-    findAllUsers(): Observable<User[]> {
-        return this.http.get<ApiResponse<User[]>>(this.apiUrl).pipe(
-            map(res => res.payload as User[])
+    findAllUsers(request?: RestPageableRequest): Observable<RestPageableEntity<User>> {
+        const params = buildPageParams(request);
+        return this.http.get<ApiResponse<RestPageableEntity<User>>>(this.apiUrl, { params }).pipe(
+            map(res => res.payload as RestPageableEntity<User>)
         );
     }
 
-    findAllUsersByRole(role: string): Observable<User[]> {
-        return this.http.get<ApiResponse<User[]>>(`${this.apiUrl}/all-by-role`, {
-            params: { role }
-        }).pipe(
-            map(res => res.payload as User[])
+    findAllUsersByRole(role: string, request?: RestPageableRequest): Observable<RestPageableEntity<User>> {
+        let params = buildPageParams(request);
+        params = params.set('role', role);
+        return this.http.get<ApiResponse<RestPageableEntity<User>>>(`${this.apiUrl}/all-by-role`, { params }).pipe(
+            map(res => res.payload as RestPageableEntity<User>)
         );
     }
 

@@ -3,8 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { DtoCart, DtoCartItemRequest } from '../../shared/models/cart';
 import { ApiResponse } from '../../shared/models/api-response';
-
 import { environment } from '../../../environments/environment.development';
+import { RestPageableEntity, RestPageableRequest, buildPageParams } from '../../shared/models/pageable';
 
 @Injectable({
   providedIn: 'root'
@@ -78,8 +78,9 @@ export class CartService {
 
   // --- Admin Endpoints ---
 
-  findAllCarts(): Observable<ApiResponse<DtoCart[]>> {
-    return this.http.get<ApiResponse<DtoCart[]>>(`${this.apiUrl}/admin/all`);
+  findAllCarts(request?: RestPageableRequest): Observable<ApiResponse<RestPageableEntity<DtoCart>>> {
+    const params = buildPageParams(request);
+    return this.http.get<ApiResponse<RestPageableEntity<DtoCart>>>(`${this.apiUrl}/admin/all`, { params });
   }
 
   findCartByUserId(userId: number): Observable<ApiResponse<DtoCart>> {

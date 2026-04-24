@@ -3,8 +3,8 @@ package com.furkan.services;
 import com.furkan.dto.request.DtoStoreRequest;
 import com.furkan.dto.response.DtoStore;
 import com.furkan.entities.User;
-
-import java.util.List;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 
 public interface IStoreService {
 
@@ -12,13 +12,13 @@ public interface IStoreService {
 
     DtoStore findStoreById(Long id);
 
-    List<DtoStore> findAllStores();
+    RestPageableEntity<DtoStore> findAllStores(RestPageableRequest request);
 
     DtoStore updateStoreById(Long id, DtoStoreRequest input, Long authenticatedUserId);
 
     void deleteStoreById(Long id, Long authenticatedUserId);
 
-    List<DtoStore> findMyStores(Long authenticatedUserId);
+    RestPageableEntity<DtoStore> findMyStores(Long authenticatedUserId, RestPageableRequest request);
 
     DtoStore createStoreForCorporateUpgradeRole(User user, DtoStoreRequest input);
 }

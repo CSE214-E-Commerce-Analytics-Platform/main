@@ -74,14 +74,14 @@ export class IndCartComponent implements OnInit {
 
   loadAddresses() {
     this.isLoadingAddresses = true;
-    this.addressService.findMyAddresses().pipe(
+    this.addressService.findMyAddresses({ pageNumber: 0, pageSize: 100 }).pipe(
       catchError(() => {
         this.toastService.showError('Failed to load addresses.');
         this.isLoadingAddresses = false;
-        return of([]);
+        return of(null);
       })
-    ).subscribe(addrs => {
-      this.addresses = addrs || [];
+    ).subscribe(res => {
+      this.addresses = res?.content || [];
       // Auto-select the first address if available
       if (this.addresses.length > 0) {
         this.selectedAddressId = this.addresses[0].id!;
