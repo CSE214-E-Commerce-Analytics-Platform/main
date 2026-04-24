@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ProductService } from '../../../core/services/product.service';
 import { Product } from '../../../shared/models/product';
@@ -10,7 +11,7 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
   selector: 'app-ind-products',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './ind-products.component.html',
   styleUrl: './ind-products.component.css'
 })
@@ -20,8 +21,15 @@ export class IndProductsComponent implements OnInit {
   private toastService = inject(ToastService);
 
   products: Product[] = [];
+  filteredProducts: Product[] = [];
   isLoading = true;
   errorMessage = '';
+
+  // Filter & Sort State
+  searchTerm = '';
+  selectedCategory = 'ALL';
+  sortOption = 'DEFAULT';
+  categories: string[] = [];
 
   ngOnInit(): void {
     this.fetchProducts();
@@ -32,6 +40,8 @@ export class IndProductsComponent implements OnInit {
     this.productService.getProducts().subscribe({
       next: (data) => {
         this.products = data;
+        this.extractCategories();
+        this.applyFilters();
         this.isLoading = false;
       },
       error: (err) => {
@@ -40,6 +50,47 @@ export class IndProductsComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  extractCategories(): void {
+    const cats = new Set(this.products.map(p => p.categoryName).filter(c => !!c));
+    this.categories = Array.from(cats) as string[];
+  }
+
+  applyFilters(): void {
+    let result = [...this.products];
+
+    // Search
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      result = result.filter(p => 
+        p.name.toLowerCase().includes(term) || 
+        (p.description && p.description.toLowerCase().includes(term))
+      );
+    }
+
+    // Category
+    if (this.selectedCategory !== 'ALL') {
+      result = result.filter(p => p.categoryName === this.selectedCategory);
+    }
+
+    // Sort
+    switch (this.sortOption) {
+      case 'PRICE_ASC':
+        result.sort((a, b) => a.unitPrice - b.unitPrice);
+        break;
+      case 'PRICE_DESC':
+        result.sort((a, b) => b.unitPrice - a.unitPrice);
+        break;
+      case 'NAME_ASC':
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'NAME_DESC':
+        result.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+    }
+
+    this.filteredProducts = result;
   }
 
   addToCart(product: Product): void {

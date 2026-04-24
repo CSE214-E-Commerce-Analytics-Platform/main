@@ -16,4 +16,5 @@ public class DtoShipment extends BaseDto {
     private String mode;
     private ShipmentStatus status;
     private LocalDateTime estimatedDeliveryDate;
+    private String deliveryAddress;
 }

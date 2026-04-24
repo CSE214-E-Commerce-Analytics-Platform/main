@@ -1,5 +1,6 @@
 package com.furkan.services;
 
+import com.furkan.dto.request.DtoOrderRequest;
 import com.furkan.dto.response.DtoOrder;
 import com.furkan.entities.Order;
 import com.furkan.entities.OrderItem;
@@ -10,7 +11,7 @@ import java.util.List;
 public interface IOrderService {
 
     //  --- INDV ---
-    DtoOrder createOrder(Long userId);
+    DtoOrder createOrder(Long userId, DtoOrderRequest request);
 
     List<DtoOrder> findMyOrders(Long userId);
 

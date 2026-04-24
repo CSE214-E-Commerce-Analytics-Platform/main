@@ -99,4 +99,28 @@ export class IndHistoryComponent implements OnInit {
       default: return '•';
     }
   }
+
+  exportToCSV(): void {
+    if (this.filteredOrders.length === 0) {
+        this.toastService.showError('No records to export.');
+        return;
+    }
+
+    const headers = ['Order ID', 'Date', 'Status', 'Total', 'Store Name'];
+    const rows = this.filteredOrders.map(o => {
+        const date = new Date(o.orderDate).toLocaleDateString();
+        return `${o.id},"${date}","${o.status}",${o.grandTotal},"${o.storeName || ''}"`;
+    });
+
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + headers.join(',') + "\n" + rows.join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'purchase_history.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    this.toastService.showSuccess('Exported history to CSV successfully.');
+  }
 }

@@ -146,6 +146,11 @@ export const routes: Routes = [
                     .then(m => m.AdminSettingsComponent)
             },
             {
+                path: 'audit-logs',
+                loadComponent: () => import('./features/admin/admin-audit-logs/admin-audit-logs.component')
+                    .then(m => m.AdminAuditLogsComponent)
+            },
+            {
                 path: 'corporate-requests',
                 loadComponent: () => import('./features/admin/admin-corporate-requests/admin-corporate-requests.component')
                     .then(m => m.AdminCorporateRequestsComponent)

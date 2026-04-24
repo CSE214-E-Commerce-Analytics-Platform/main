@@ -2,11 +2,13 @@ package com.furkan.controllers.impl;
 
 import com.furkan.controllers.IRestOrderController;
 import com.furkan.controllers.RestBaseController;
+import com.furkan.dto.request.DtoOrderRequest;
 import com.furkan.dto.response.DtoOrder;
 import com.furkan.entities.User;
 import com.furkan.enums.OrderStatus;
 import com.furkan.services.IOrderService;
 import com.furkan.utils.RootEntity;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,8 +27,8 @@ public class RestOrderControllerImpl extends RestBaseController implements IRest
     @PostMapping("/create")
     @PreAuthorize("hasRole('INDIVIDUAL')")
     @Override
-    public RootEntity<DtoOrder> createOrder(@AuthenticationPrincipal UserDetails userDetails) {
-        return ok(orderService.createOrder(getUserIdByToken(userDetails)));
+    public RootEntity<DtoOrder> createOrder(@AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody DtoOrderRequest request) {
+        return ok(orderService.createOrder(getUserIdByToken(userDetails), request));
     }
 
     @GetMapping("/my-orders")

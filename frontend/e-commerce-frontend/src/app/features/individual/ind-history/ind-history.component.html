@@ -40,6 +40,7 @@
       <button [class.active]="statusFilter === 'ALL'" (click)="statusFilter = 'ALL'; applyFilters()">All</button>
       <button [class.active]="statusFilter === 'DELIVERED'" (click)="statusFilter = 'DELIVERED'; applyFilters()">Delivered</button>
       <button [class.active]="statusFilter === 'CANCELLED'" (click)="statusFilter = 'CANCELLED'; applyFilters()">Cancelled</button>
+      <button class="export-btn" (click)="exportToCSV()" style="margin-left: 1rem; background: #22c55e; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600;"><i class="icon">📥</i> Export CSV</button>
     </div>
   </div>
 

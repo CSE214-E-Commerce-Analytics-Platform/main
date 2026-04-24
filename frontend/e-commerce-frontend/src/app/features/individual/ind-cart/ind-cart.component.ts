@@ -109,15 +109,11 @@ export class IndCartComponent implements OnInit {
     const selectedAddr = this.addresses.find(a => a.id === this.selectedAddressId);
     if (!selectedAddr) return;
 
-    // Combine address parts into a single string for the order
-    const shippingAddressString = `${selectedAddr.fullAddress}, ${selectedAddr.district}/${selectedAddr.city} ${selectedAddr.zipCode}`;
-
     this.isProcessing = true;
 
     // 1. Create the order
     this.orderService.create({
-      shippingAddress: shippingAddressString,
-      shippingCost: 0 // Optional logic for shipping cost
+      addressId: this.selectedAddressId
     }).pipe(
       catchError(err => {
         this.toastService.showError('Failed to create order. ' + (err.error?.exception?.message || ''));
