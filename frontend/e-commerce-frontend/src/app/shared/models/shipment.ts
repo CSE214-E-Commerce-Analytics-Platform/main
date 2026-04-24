@@ -17,6 +17,7 @@ export interface DtoShipment extends BaseDto {
   mode: string;
   status: ShipmentStatus;
   estimatedDeliveryDate: string;
+  deliveryAddress: string;
 }
 
 export interface DtoShipmentRequest {

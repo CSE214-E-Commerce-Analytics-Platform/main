@@ -189,6 +189,9 @@ public class ShipmentServiceImpl implements IShipmentService {
         DtoShipment dto = new DtoShipment();
         org.springframework.beans.BeanUtils.copyProperties(shipment, dto);
         dto.setOrderId(shipment.getOrder().getId());
+        if (shipment.getOrder() != null) {
+            dto.setDeliveryAddress(shipment.getOrder().getAddress().getFullAddress());
+        }
         return dto;
     }
 

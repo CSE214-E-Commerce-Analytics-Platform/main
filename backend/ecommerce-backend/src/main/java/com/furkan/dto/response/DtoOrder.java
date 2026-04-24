@@ -20,4 +20,5 @@ public class DtoOrder extends BaseDto {
     private String storeName;
     private List<DtoOrderItem> items;
     private List<DtoOrder> subOrders;
+    private String fullAddress;
 }

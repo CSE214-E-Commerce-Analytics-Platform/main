@@ -1,5 +1,6 @@
 package com.furkan.controllers;
 
+import com.furkan.dto.request.DtoOrderRequest;
 import com.furkan.dto.response.DtoOrder;
 import com.furkan.enums.OrderStatus;
 import com.furkan.utils.RootEntity;
@@ -10,7 +11,7 @@ import java.util.List;
 public interface IRestOrderController {
 
     //  --- INDV ---
-    RootEntity<DtoOrder> createOrder(UserDetails userDetails);
+    RootEntity<DtoOrder> createOrder(UserDetails userDetails, DtoOrderRequest request);
 
     RootEntity<List<DtoOrder>> findMyOrders(UserDetails userDetails);
 

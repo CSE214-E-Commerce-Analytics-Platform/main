@@ -52,6 +52,10 @@
           <span class="label">Est. Delivery:</span>
           <span class="text fw-bold">{{ shipment.estimatedDeliveryDate | date:'mediumDate' }}</span>
         </div>
+        <div class="detail-item full-width" *ngIf="shipment.deliveryAddress" style="grid-column: 1 / -1;">
+          <span class="label">Delivery Address:</span>
+          <span class="text">{{ shipment.deliveryAddress }}</span>
+        </div>
       </div>
 
       <!-- Vertical Stepper -->

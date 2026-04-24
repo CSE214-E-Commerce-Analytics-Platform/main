@@ -102,6 +102,10 @@
             <span class="detail-label">Est. Delivery</span>
             <span class="detail-value">{{ shipment.estimatedDeliveryDate | date:'mediumDate' }}</span>
           </div>
+          <div class="detail-row" style="grid-column: 1 / -1;" *ngIf="shipment.deliveryAddress">
+            <span class="detail-label">Delivery Address</span>
+            <span class="detail-value">{{ shipment.deliveryAddress }}</span>
+          </div>
         </div>
 
         <!-- Status Update Buttons -->
