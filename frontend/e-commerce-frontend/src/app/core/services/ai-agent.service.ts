@@ -3,6 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 
+export interface AiResponse {
+    answer:          string;
+    sqlQuery:        string | null;
+    intent:          string | null;
+    guardrailReason: string | null;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -78,36 +85,35 @@ export class AiAgentService {
      * Sends a validated query to the AI agent backend based on the user's role.
      * JSON body olarak gönderilir (@RequestBody AskAiRequest'e denk gelir).
      */
-    askQuestion(question: string, role: string): Observable<string> {
-
-        // 1. Role göre uygun endpoint suffix'ini belirle
+    askQuestion(question: string, role: string): Observable<AiResponse> {
         let endpointSuffix = '';
-        if (role === 'INDIVIDUAL') {
-            endpointSuffix = '/individual';
-        } else if (role === 'CORPORATE') {
-            endpointSuffix = '/corporate';
-        } else if (role === 'ADMIN') {
-            endpointSuffix = '/admin';
-        } else {
-            throw new Error('Geçersiz veya eksik kullanıcı rolü.');
-        }
+        if (role === 'INDIVIDUAL')     endpointSuffix = '/individual';
+        else if (role === 'CORPORATE') endpointSuffix = '/corporate';
+        else if (role === 'ADMIN')     endpointSuffix = '/admin';
+        else throw new Error('Geçersiz veya eksik kullanıcı rolü.');
 
-        const url = `${this.baseAiUrl}${endpointSuffix}`;
+        const url  = `${this.baseAiUrl}${endpointSuffix}`;
+        const body = { question };
 
-        // 2. HttpParams yerine JSON Body oluştur (Backend'deki AskAiRequest ile eşleşir)
-        const body = { question: question };
-
-        // 3. POST isteğini JSON gövdesiyle at
-        return this.http.post(url, body, {
-            responseType: 'text'
-        }).pipe(
+        return this.http.post(url, body, { responseType: 'text' }).pipe(
             map((raw: string) => {
                 try {
+                    // Spring Boot may wrap as { payload, sqlQuery, intent, guardrailReason }
                     const parsed = JSON.parse(raw);
-                    const payload: string = parsed.payload ?? raw;
-                    return this.sanitizeResponse(payload);
+                    const answer = this.sanitizeResponse(
+                        parsed.payload ?? parsed.answer ?? raw
+                    );
+                    return {
+                        answer,
+                        sqlQuery:        parsed.sqlQuery        ?? parsed.sql_query        ?? null,
+                        intent:          parsed.intent          ?? null,
+                        guardrailReason: parsed.guardrailReason ?? parsed.guardrail_reason ?? null,
+                    } as AiResponse;
                 } catch {
-                    return this.sanitizeResponse(raw);
+                    return {
+                        answer: this.sanitizeResponse(raw),
+                        sqlQuery: null, intent: null, guardrailReason: null
+                    } as AiResponse;
                 }
             })
         );
