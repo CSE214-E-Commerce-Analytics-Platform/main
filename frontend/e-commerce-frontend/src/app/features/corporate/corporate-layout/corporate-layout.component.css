@@ -216,3 +216,5 @@
   .top-header { padding: 0 16px; }
   .user-chip { display: none; }
 }
+
+.nav-badge-new { margin-left: auto; font-size: 0.65rem; font-weight: 700; background: linear-gradient(135deg,#6366f1,#4f46e5); color: white; padding: 2px 7px; border-radius: 10px; flex-shrink: 0; }

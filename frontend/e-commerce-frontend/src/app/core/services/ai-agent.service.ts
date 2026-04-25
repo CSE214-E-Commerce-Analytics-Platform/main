@@ -3,6 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 
+export interface AiResponse {
+    answer:          string;
+    sqlQuery:        string | null;
+    intent:          string | null;
+    guardrailReason: string | null;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -78,36 +85,35 @@ export class AiAgentService {
      * Sends a validated query to the AI agent backend based on the user's role.
      * JSON body olarak gönderilir (@RequestBody AskAiRequest'e denk gelir).
      */
-    askQuestion(question: string, role: string): Observable<string> {
-
-        // 1. Role göre uygun endpoint suffix'ini belirle
+    askQuestion(question: string, role: string): Observable<AiResponse> {
         let endpointSuffix = '';
-        if (role === 'INDIVIDUAL') {
-            endpointSuffix = '/individual';
-        } else if (role === 'CORPORATE') {
-            endpointSuffix = '/corporate';
-        } else if (role === 'ADMIN') {
-            endpointSuffix = '/admin';
-        } else {
-            throw new Error('Geçersiz veya eksik kullanıcı rolü.');
-        }
+        if (role === 'INDIVIDUAL')     endpointSuffix = '/individual';
+        else if (role === 'CORPORATE') endpointSuffix = '/corporate';
+        else if (role === 'ADMIN')     endpointSuffix = '/admin';
+        else throw new Error('Geçersiz veya eksik kullanıcı rolü.');
 
-        const url = `${this.baseAiUrl}${endpointSuffix}`;
+        const url  = `${this.baseAiUrl}${endpointSuffix}`;
+        const body = { question };
 
-        // 2. HttpParams yerine JSON Body oluştur (Backend'deki AskAiRequest ile eşleşir)
-        const body = { question: question };
-
-        // 3. POST isteğini JSON gövdesiyle at
-        return this.http.post(url, body, {
-            responseType: 'text'
-        }).pipe(
+        return this.http.post(url, body, { responseType: 'text' }).pipe(
             map((raw: string) => {
                 try {
+                    // Spring Boot may wrap as { payload, sqlQuery, intent, guardrailReason }
                     const parsed = JSON.parse(raw);
-                    const payload: string = parsed.payload ?? raw;
-                    return this.sanitizeResponse(payload);
+                    const answer = this.sanitizeResponse(
+                        parsed.payload ?? parsed.answer ?? raw
+                    );
+                    return {
+                        answer,
+                        sqlQuery:        parsed.sqlQuery        ?? parsed.sql_query        ?? null,
+                        intent:          parsed.intent          ?? null,
+                        guardrailReason: parsed.guardrailReason ?? parsed.guardrail_reason ?? null,
+                    } as AiResponse;
                 } catch {
-                    return this.sanitizeResponse(raw);
+                    return {
+                        answer: this.sanitizeResponse(raw),
+                        sqlQuery: null, intent: null, guardrailReason: null
+                    } as AiResponse;
                 }
             })
         );
@@ -130,19 +136,31 @@ export class AiAgentService {
      * Converts basic markdown syntax to HTML:
      */
     formatMarkdown(text: string): string {
-        // Escape HTML special characters first
-        let html = text
+        // ── Step 1: Extract markdown images BEFORE any escaping ──────────────
+        // Placeholder map so URLs (which contain & chars) survive HTML escaping
+        const images: { placeholder: string; alt: string; url: string }[] = [];
+        const withPlaceholders = text.replace(
+            /!\[([^\]]*)\]\((https?:\/\/[^)]+)\)/g,
+            (_match, alt, url) => {
+                const placeholder = `__IMG_${images.length}__`;
+                images.push({ placeholder, alt, url });
+                return placeholder;
+            }
+        );
+
+        // ── Step 2: HTML-escape the rest ──────────────────────────────────────
+        let html = withPlaceholders
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;');
 
-        // Convert **bold** to <strong>
+        // ── Step 3: Inline markdown ───────────────────────────────────────────
+        // **bold**
         html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-
-        // Convert remaining *italic* to <em>
+        // *italic*
         html = html.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
 
-        // Process line-by-line for bullet lists
+        // ── Step 4: Line-by-line rendering ────────────────────────────────────
         const lines = html.split('\n');
         const result: string[] = [];
         let inList = false;
@@ -150,17 +168,11 @@ export class AiAgentService {
         for (const line of lines) {
             const trimmed = line.trim();
             if (trimmed.startsWith('• ') || trimmed.startsWith('- ') || /^\*\s/.test(trimmed)) {
-                if (!inList) {
-                    result.push('<ul>');
-                    inList = true;
-                }
+                if (!inList) { result.push('<ul>'); inList = true; }
                 const content = trimmed.replace(/^[•\-\*]\s+/, '');
                 result.push(`<li>${content}</li>`);
             } else {
-                if (inList) {
-                    result.push('</ul>');
-                    inList = false;
-                }
+                if (inList) { result.push('</ul>'); inList = false; }
                 if (trimmed === '') {
                     result.push('<br>');
                 } else {
@@ -168,11 +180,19 @@ export class AiAgentService {
                 }
             }
         }
+        if (inList) result.push('</ul>');
 
-        if (inList) {
-            result.push('</ul>');
+        let output = result.join('');
+
+        // ── Step 5: Restore image placeholders as <img> tags ─────────────────
+        for (const img of images) {
+            output = output.replace(
+                // placeholder may be wrapped in <p>...</p> by the line processor
+                new RegExp(`(?:<p>)?${img.placeholder}(?:</p>)?`),
+                `<img src="${img.url}" alt="${img.alt}" style="width:100%;max-width:340px;height:auto;border-radius:8px;margin-top:8px;display:block;" loading="lazy">`
+            );
         }
 
-        return result.join('');
+        return output;
     }
 }

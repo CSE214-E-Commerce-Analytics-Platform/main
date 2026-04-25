@@ -1,3 +1,4 @@
+import re
 from langgraph.graph import StateGraph, END
 from state import AgentState
 from agents.guardrails_agent import guardrails_agent
@@ -9,45 +10,87 @@ from tools.db_executor import execute_query
 
 BLOCKED_SIGNALS = {"SCOPE_VIOLATION", "INJECTION_DETECTED", "UNFIXABLE", "MISSING_DATA_TABLE"}
 
+# ── Blocked-signal canned messages (bilingual) ────────────────────────────────
+_BLOCKED_MESSAGES = {
+    "en": {
+        "MISSING_DATA_TABLE": "There is currently no data available for that information.",
+        "SCOPE_VIOLATION":   "You do not have permission to view this data.",
+        "INJECTION_DETECTED": "Your request was blocked for security reasons.",
+        "UNFIXABLE":         "This query could not be processed. Please try rephrasing your question.",
+    },
+    "tr": {
+        "MISSING_DATA_TABLE": "Bu bilgi için platformda henüz veri bulunmamaktadır.",
+        "SCOPE_VIOLATION":   "Bu verileri görüntüleme yetkiniz bulunmamaktadır.",
+        "INJECTION_DETECTED": "İsteğiniz güvenlik nedeniyle engellendi.",
+        "UNFIXABLE":         "Bu sorgu işlenemedi. Lütfen soruyu farklı bir şekilde sormayı deneyin.",
+    },
+}
+
+
+def _categorize_error(error_str: str) -> str:
+    """Classify a raw DB error string into an actionable bucket for error_agent."""
+    msg = error_str.lower()
+    if "column" in msg and "does not exist" in msg:
+        return "column_missing"
+    if ("relation" in msg or "table" in msg) and "does not exist" in msg:
+        return "table_missing"
+    if "syntax error" in msg:
+        return "syntax_error"
+    if "ambiguous" in msg:
+        return "ambiguous_column"
+    if "permission denied" in msg:
+        return "permission"
+    if "division by zero" in msg:
+        return "division_by_zero"
+    return "other"
+
 def execute_sql_node(state: AgentState) -> AgentState:
-    sql = state.get("sql_query", "").strip().upper()
+    raw_sql    = state.get("sql_query", "") or ""
+    signal     = raw_sql.strip().upper()
+    language   = state.get("language") or "en"
+    lang_msgs  = _BLOCKED_MESSAGES.get(language, _BLOCKED_MESSAGES["en"])
 
-    print("\n" + "-"*50)
-    print(f"[SQL AGENT] Veritabanına Gönderilecek SQL:")
-    print(f"{state.get('sql_query')}")
-    print("-"*50 + "\n")
+    print(f"\n{'─'*52}")
+    print(f"[ExecuteSQL] sql_preview={raw_sql[:120]!r}")
+    print(f"{'─'*52}\n")
 
-    # Short-circuit: blocked signal from SQL/error agent — do not hit the DB
-    if sql == "MISSING_DATA_TABLE":
-        state["query_result"] = None
-        state["final_answer"] = "There is currently no table on the platform containing this information."
-        return state
-    elif sql == "SCOPE_VIOLATION":
-        state["query_result"] = None
-        state["final_answer"] = "[AUTHORIZATION ERROR] SQL Agent: You do not have permission to view this data, or it does not belong to you."
-        return state
-    elif sql == "INJECTION_DETECTED":
-        state["query_result"] = None
-        state["final_answer"] = "[SECURITY] SQL Agent: Malicious command detected."
-        return state
-    elif sql == "UNFIXABLE":
-        state["query_result"] = None
-        state["final_answer"] = "[SYSTEM] SQL Agent: Your query cannot be processed at this time."
-        return state
+    # ── Short-circuit: blocked signal — never hits the DB ────────────────────
+    if signal in BLOCKED_SIGNALS:
+        message = lang_msgs.get(signal, lang_msgs["UNFIXABLE"])
+        print(f"[ExecuteSQL] Blocked signal: {signal!r}")
+        return {
+            **state,
+            "query_result": None,
+            "error": None,
+            "sql_error_type": signal,
+            "final_answer": message,
+        }
 
+    # ── Execute ───────────────────────────────────────────────────────────────
     result = execute_query(
-        state["sql_query"],
+        raw_sql,
         state["user_role"],
         state["user_id"],
-        state.get("store_id")
+        state.get("store_id"),
     )
+
     if result.startswith("DB_ERROR") or result.startswith("ERROR"):
-        state["error"] = result
-        state["query_result"] = None
-    else:
-        state["query_result"] = result
-        state["error"] = None
-    return state
+        error_type = _categorize_error(result)
+        print(f"[ExecuteSQL] DB error type={error_type!r} | {result[:120]!r}")
+        return {
+            **state,
+            "query_result": None,
+            "error": result,
+            "sql_error_type": error_type,
+        }
+
+    print(f"[ExecuteSQL] Success — result_len={len(result)}")
+    return {
+        **state,
+        "query_result": result,
+        "error": None,
+        "sql_error_type": None,
+    }
 
 # --- Karar fonksiyonları ---
 
@@ -60,13 +103,21 @@ def should_continue(state: AgentState) -> str:
     return "sql"
 
 def check_error(state: AgentState) -> str:
-    # If a blocked signal already set final_answer, go straight to end
+    # Blocked signal or greeting already set final_answer — skip to end
     if state.get("final_answer"):
         return "end"
     if state.get("error"):
-        if state.get("iteration_count", 0) >= 3:
-            # Max retries hit — return a friendly fallback instead of None
-            state["final_answer"] = "This query cannot be processed at the moment, please try a different question."
+        iteration  = state.get("iteration_count", 0)
+        error_type = state.get("sql_error_type", "other")
+        if iteration >= 3 or error_type in ("permission", "rbac_violation"):
+            # Max retries hit or unrecoverable error type — friendly fallback
+            language  = state.get("language") or "en"
+            if language == "tr":
+                fallback = "Bu sorgu şu an işlenemiyor. Lütfen soruyu farklı bir şekilde sormayı deneyin."
+            else:
+                fallback = "This query cannot be processed at the moment. Please try rephrasing your question."
+            # Mutate-in-place is fine here — this is the terminal branch
+            state["final_answer"] = fallback
             return "end"
         return "error"
     return "analysis"

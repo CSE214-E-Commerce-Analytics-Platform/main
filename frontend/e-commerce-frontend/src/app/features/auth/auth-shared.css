@@ -7,7 +7,7 @@
   display: flex;
   min-height: 100vh;
   font-family: 'DM Sans', sans-serif;
-  background: #0a0a0f;
+  background: var(--app-bg);
 }
 
 /* ── Left Panel (Brand) ── */
@@ -20,7 +20,7 @@
   padding: 60px 56px;
   position: relative;
   overflow: hidden;
-  background: #07070a;
+  background: var(--sidebar-bg);
 }
 
 /* Animated mesh gradient */
@@ -84,7 +84,7 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1rem;
   font-weight: 700;
-  color: #f8fafc;
+  color: var(--text-primary);
   letter-spacing: 0.02em;
 }
 
@@ -92,7 +92,7 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 2.4rem;
   font-weight: 800;
-  color: #f8fafc;
+  color: var(--text-primary);
   line-height: 1.15;
   letter-spacing: -0.03em;
   margin: 0 0 16px 0;
@@ -123,8 +123,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--surface-bg);
+  border: 1px solid var(--card-border);
   border-radius: 10px;
   padding: 10px 16px;
   font-size: 0.85rem;
@@ -147,7 +147,7 @@
   flex-direction: column;
   justify-content: center;
   padding: 48px 40px;
-  background: #0a0a0f;
+  background: var(--app-bg);
   position: relative;
   overflow: hidden;
 }
@@ -170,7 +170,7 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.75rem;
   font-weight: 800;
-  color: #f8fafc;
+  color: var(--text-primary);
   margin: 0 0 8px 0;
   letter-spacing: -0.02em;
 }
@@ -191,7 +191,7 @@
 .form-field label {
   margin-bottom: 6px;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -201,12 +201,12 @@
 .form-field select {
   height: 42px;
   padding: 0 14px;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--input-border);
   border-radius: 10px;
   font-size: 0.9rem;
   font-family: 'DM Sans', sans-serif;
-  background: rgba(255,255,255,0.04);
-  color: #f8fafc;
+  background: var(--surface-bg);
+  color: var(--text-primary);
   transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
   width: 100%;
   box-sizing: border-box;
@@ -248,7 +248,7 @@
   display: flex;
   align-items: center;
 }
-.eye-icon:hover { color: #a5b4fc; }
+.eye-icon:hover { color: var(--ind-nav-color); }
 
 /* ── Error / Success Banners ── */
 .error-text {
@@ -364,7 +364,7 @@
 }
 
 .link {
-  color: #818cf8;
+  color: var(--ind-nav-color);
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s;
@@ -410,9 +410,9 @@
   font-family: 'DM Sans', sans-serif;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.04);
-  color: #f8fafc;
+  border: 1px solid var(--input-border);
+  background: var(--surface-bg);
+  color: var(--text-primary);
 }
 
 .social-btn:hover {

@@ -1,0 +1,32 @@
+# ─── Self check input rail ──────────────────────────────────────────────────
+# NeMo calls the LLM to decide if input should be blocked before routing it.
+
+define flow self check input
+  $allowed = execute self_check_input
+  if not $allowed
+    bot refuse to respond
+    stop
+
+# ─── Bot messages ────────────────────────────────────────────────────────────
+
+define bot refuse to respond
+  "[SECURITY] This request has been blocked. I can only assist with e-commerce analytics data."
+
+# ─── Greeting ────────────────────────────────────────────────────────────────
+
+define user express greeting
+  "hello"
+  "hi"
+  "hey"
+  "good morning"
+  "good afternoon"
+  "thanks"
+  "thank you"
+  "how are you"
+
+define bot greet user
+  "Hello! I'm here to help you analyze your e-commerce data. Ask me anything about your products, orders, revenue, customers, or shipments!"
+
+define flow greeting
+  user express greeting
+  bot greet user

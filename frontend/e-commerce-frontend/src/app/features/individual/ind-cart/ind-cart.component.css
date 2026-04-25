@@ -25,12 +25,13 @@
 }
 
 .item-count {
-  background: var(--ind-accent-hover);
-  color: var(--ind-accent);
+  background: rgba(99,102,241,0.1);
+  color: var(--ind-nav-color);
+  border: 1px solid rgba(99,102,241,0.2);
   padding: 4px 12px;
   border-radius: 999px;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .cart-content {
@@ -153,9 +154,10 @@
 
 .total-line-price {
   margin: 0;
-  font-weight: 700;
+  font-weight: 800;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.1rem;
-  color: var(--ind-accent);
+  color: var(--ind-nav-color);
   min-width: 80px;
   text-align: right;
 }
@@ -229,20 +231,22 @@
 }
 
 .checkout-btn {
-  background: var(--ind-header-accent);
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: white;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 14px;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  font-family: 'DM Sans', sans-serif;
 }
 
 .checkout-btn:hover {
+  filter: brightness(1.1);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--ind-accent-hover);
+  box-shadow: 0 8px 24px rgba(99,102,241,0.5);
 }
 
 .clear-btn {
@@ -268,11 +272,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: 60px 24px;
   background: var(--card-bg);
-  border: 1px dashed var(--border-color);
-  border-radius: 16px;
+  border: 2px dashed var(--accent);
+  border-radius: var(--radius-card);
   text-align: center;
+  animation: pulse-border 3s ease-in-out infinite;
 }
 
 .empty-icon {
@@ -293,17 +298,19 @@
 }
 
 .continue-shopping {
-  background: var(--ind-accent);
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: white;
   text-decoration: none;
-  padding: 12px 24px;
+  padding: 10px 24px;
   border-radius: 999px;
   font-weight: 600;
-  transition: background 0.2s;
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
 }
 
 .continue-shopping:hover {
-  background: #0891b2;
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(99,102,241,0.45);
 }
 
 /* ── Clear Cart Modal ── */
@@ -455,7 +462,7 @@
 }
 
 .modal-btn.checkout-confirm {
-  background: var(--ind-header-accent);
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
   border: none;
   color: white;
 }

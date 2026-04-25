@@ -14,7 +14,11 @@ def ask(question: str, role: str, user_id: int, store_id: int = None):
         "final_answer": None,
         "visualization_code": None,
         "is_in_scope": None,
-        "iteration_count": 0
+        "iteration_count": 0,
+        "intent": None,
+        "language": None,
+        "guardrail_reason": None,
+        "sql_error_type": None,
     }
     
     result = graph.invoke(state)
