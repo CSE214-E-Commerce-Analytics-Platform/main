@@ -27,7 +27,7 @@ def get_connection():
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
         sslmode="require" # supabase için
-        #sslmode=os.getenv("DB_SSLMODE", "prefer") # localde db için
+        #sslmode=os.getenv("DB_SSLMODE", "prefer") # localde db için 
     )
 
 def sanitize_result(rows: list[dict]) -> list[dict]:
