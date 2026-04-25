@@ -2,6 +2,7 @@ package com.furkan.repositories;
 
 import com.furkan.entities.RefreshToken;
 import com.furkan.entities.User;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,6 +16,7 @@ import java.util.Optional;
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
 
     @Query("UPDATE RefreshToken r SET r.revokedAt = :now WHERE r.user = :user AND r.revokedAt IS NULL")
+    @Transactional
     @Modifying
     void revokeAllByUser(@Param("user") User user, @Param("now")LocalDateTime now);
 

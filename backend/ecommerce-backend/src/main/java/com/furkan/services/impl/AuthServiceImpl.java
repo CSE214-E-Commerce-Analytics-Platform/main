@@ -6,6 +6,7 @@ import com.furkan.dto.request.DtoRegisterRequest;
 import com.furkan.dto.request.DtoResetPasswordRequest;
 import com.furkan.dto.response.DtoAuthResponse;
 import com.furkan.entities.*;
+import com.furkan.enums.AuthProvider;
 import com.furkan.enums.MembershipType;
 import com.furkan.enums.RoleType;
 import com.furkan.enums.TokenType;
@@ -84,7 +85,7 @@ public class AuthServiceImpl implements IAuthService {
         user.setEmail(request.getEmail());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setRoleType(RoleType.INDIVIDUAL); // default
-        user.setGender(request.getGender());
+        user.setProvider(AuthProvider.LOCAL);
         user.setActive(false);
         User savedUser = userRepository.save(user);
 
@@ -93,6 +94,18 @@ public class AuthServiceImpl implements IAuthService {
         initializedProfile.setMembershipType(MembershipType.STANDARD);
         initializedProfile.setCreatedAt(LocalDateTime.now());
         initializedProfile.setUpdatedAt(LocalDateTime.now());
+        if (request.getAge() > 0 && request.getAge() < 150) {
+            initializedProfile.setAge(request.getAge());
+        }
+        if (request.getCity() != null && !request.getCity().isEmpty()) {
+            initializedProfile.setCity(request.getCity());
+        }
+        if (request.getState() != null && !request.getState().isEmpty()) {
+            initializedProfile.setState(request.getState());
+        }
+        if (request.getCountry() != null && !request.getCountry().isEmpty()) {
+            initializedProfile.setCountry(request.getCountry());
+        }
         customerProfileRepository.save(initializedProfile);
 
         Cart cart = new Cart();

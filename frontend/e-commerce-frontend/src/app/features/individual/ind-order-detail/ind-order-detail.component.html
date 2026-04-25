@@ -64,6 +64,9 @@
           <h4>Items in this package</h4>
           <div class="item-row" *ngFor="let item of sub.items">
             <div class="item-details">
+              <div class="item-product-img">
+                <img [src]="getImageUrl(productImagesMap[item.productId])" [alt]="item.productName">
+              </div>
               <span class="qty">{{ item.quantity }}x</span>
               <span class="name">{{ item.productName }}</span>
             </div>

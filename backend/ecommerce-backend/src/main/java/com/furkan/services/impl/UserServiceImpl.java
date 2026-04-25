@@ -95,9 +95,6 @@ public class UserServiceImpl implements IUserService {
                 .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.USER_NOT_FOUND, id.toString())));
 
         user.setEmail(input.getEmail());
-        if (input.getGender() != null) {
-            user.setGender(input.getGender());
-        }
         user.setPasswordHash(input.getPassword());
         user.setRoleType(RoleType.valueOf(input.getRoleType().toUpperCase()));
 

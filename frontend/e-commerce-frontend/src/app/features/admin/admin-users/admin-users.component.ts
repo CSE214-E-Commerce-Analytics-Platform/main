@@ -117,4 +117,12 @@ export class AdminUsersComponent implements OnInit {
   isUserActive(user: User): boolean {
     return user.active !== undefined ? !!user.active : !!user.isActive;
   }
+
+  goToPage(pageStr: string): void {
+    const page = parseInt(pageStr, 10);
+    if (!isNaN(page) && page > 0 && page <= this.totalPages) {
+      this.pageNumber = page - 1;
+      this.loadUsers();
+    }
+  }
 }
