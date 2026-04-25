@@ -1,8 +1,8 @@
-import { Component, inject, ElementRef, ViewChild, HostListener, OnInit } from '@angular/core';
+import { Component, inject, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AiAgentService } from '../../core/services/ai-agent.service';
-import { AuthService } from '../../core/services/auth.service';
+import { AiAgentService } from '../../../core/services/ai-agent.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 type GuardrailType = 'INJECTION' | 'SCOPE' | 'ACCESS' | 'SECURITY';
 
@@ -24,19 +24,18 @@ interface ChatMessage {
 }
 
 @Component({
-    selector: 'app-chatbot',
+    selector: 'app-ai-asistan',
     standalone: true,
     imports: [CommonModule, FormsModule, DecimalPipe],
-    templateUrl: './chatbot.component.html',
-    styleUrl: './chatbot.component.css'
+    templateUrl: './ai-asistan.component.html',
+    styleUrl: './ai-asistan.component.css'
 })
-export class ChatbotComponent implements OnInit {
+export class AiAsistanComponent implements OnInit {
     @ViewChild('messagesContainer') messagesContainer!: ElementRef;
 
     private aiService = inject(AiAgentService);
     private authService = inject(AuthService);
 
-    isOpen = false;
     userInput = '';
     isTyping = false;
     userRole = '';
@@ -44,10 +43,6 @@ export class ChatbotComponent implements OnInit {
     displayName = '';
     messages: ChatMessage[] = [];
     exampleQuestions: string[] = [];
-
-    // Graph expand overlay
-    isGraphExpanded = false;
-    expandedGraphSrc = '';
 
     ngOnInit(): void {
         this.userRole = this.authService.getRole() || 'INDIVIDUAL';
@@ -69,62 +64,31 @@ export class ChatbotComponent implements OnInit {
     private setExampleQuestions(): void {
         if (this.userRole === 'CORPORATE') {
             this.exampleQuestions = [
-                // ORDERS table — store_id scoped
-                'Toplam sipariş sayım kaç?',
-                'Bekleyen siparişlerimin toplam tutarı nedir?',
-                'Tamamlanmış siparişlerimin sayısı',
-                'En yüksek tutarlı 5 siparişim',
-                // PRODUCTS table — store_id scoped
-                'Mağazamdaki toplam ürün sayısı',
-                'Stok miktarı 10\'dan az olan ürünlerim',
-                'En pahalı 5 ürünüm hangileri?',
-                'Kategorilere göre ürün dağılımım',
-                // REVIEWS table — via product → store
-                'Ürünlerime verilen ortalama puan nedir?',
-                'Pozitif yorum alan ürünlerim hangileri?',
-                // SHIPMENTS table — via orders → store
-                'Kargodaki siparişlerimin sayısı',
-                'Depo bazında sevkiyat sayıları'
+                'Geçen aya göre satışlar nasıl değişti?',
+                "Stoku 10'un altına düşen ürünler?",
+                'En değerli 5 müşterim kimler?',
+                'Bekleyen siparişlerin toplam değeri nedir?',
+                'Hangi kategoride iade oranı en yüksek?',
+                'Bu hafta yapılan sevkiyatların durumu?',
+                '1 yıldız alan ürünleri listele',
+                'Aylık gelir trendini grafik olarak göster'
             ];
         } else if (this.userRole === 'INDIVIDUAL') {
             this.exampleQuestions = [
-                // ORDERS table — user_id scoped
-                'Siparişlerimin toplam tutarı nedir?',
+                'Bu ay ne kadar harcadım?',
+                'Son 3 ayın sipariş özeti',
+                'En çok hangi kategoriden alışveriş yaptım?',
                 'Bekleyen siparişlerim var mı?',
-                'Teslim edilen siparişlerimin sayısı',
-                'En pahalı siparişim hangisi?',
-                'İptal edilen siparişlerim',
-                // REVIEWS table — user_id scoped
-                'Kaç ürüne yorum yaptım?',
-                'Verdiğim yorumların ortalama puanı',
-                // SHIPMENTS — via orders → user
-                'Kargoya verilen siparişlerim',
-                // ORDERS date-based
-                'Son 10 siparişim'
+                'İade ettiğim ürünler',
+                'Aylık harcama trendimi grafik olarak göster'
             ];
         } else {
-            // ADMIN — platform-wide, all verified against real DB
             this.exampleQuestions = [
-                // USERS
-                'Toplam kayıtlı kullanıcı sayısı',
-                'Cinsiyete göre kullanıcı dağılımı',
-                // STORES
-                'Aktif mağaza sayısı kaç?',
-                'En yeni 5 mağaza hangisi?',
-                // ORDERS
-                'Platformdaki toplam sipariş sayısı',
-                'Duruma göre sipariş dağılımı',
-                'En yüksek tutarlı 10 sipariş',
-                // PRODUCTS
-                'En çok stoğu olan 5 ürün',
-                'Kategorilere göre ürün sayısı',
-                'En pahalı 10 ürün hangileri?',
-                // REVIEWS
-                'Ortalama ürün puanı nedir?',
-                'Negatif yorum sayısı kaç?',
-                // SHIPMENTS
-                'Kargo moduna göre sevkiyat dağılımı',
-                'Depo bazında toplam sevkiyat sayısı'
+                'Toplam kullanıcı sayısı nedir?',
+                'Bu ay en çok satan ürünler',
+                'Aktif mağaza sayısı',
+                'Bugünkü toplam sipariş',
+                'Aylık gelir özeti'
             ];
         }
     }
@@ -133,14 +97,11 @@ export class ChatbotComponent implements OnInit {
 
     get headerSubtitle(): string {
         if (this.hasMessages) {
-            const storeInfo = this.storeId ? `#${this.storeId} · ` : '';
-            return `${storeInfo}Guardrail Açık`;
+            const storeInfo = this.storeId ? `store_id: #${this.storeId} · ` : '';
+            return `Aktif oturum · ${storeInfo}Guardrail: Açık`;
         }
-        return 'Verinizi doğal dilde sorgulayın';
+        return 'Mağaza verinizi doğal dilde sorgulayın — SQL bilmenize gerek yok';
     }
-
-    toggleChat(): void { this.isOpen = !this.isOpen; }
-    closeChat(): void { this.isOpen = false; }
 
     useExample(q: string): void {
         this.userInput = q;
@@ -182,10 +143,7 @@ export class ChatbotComponent implements OnInit {
         const gr = this.detectGuardrail(answer, userQuestion);
         if (gr) return { ...gr, sqlQuery, timestamp: ts } as ChatMessage;
 
-        // If the response already contains a chart image, skip the custom bar-list
-        // renderer — let formatMarkdown display the image instead.
-        const hasChartImage = answer.includes('![');
-        const barItems = hasChartImage ? [] : this.parseBarItems(answer);
+        const barItems = this.parseBarItems(answer);
         const hasChart = barItems.length >= 2;
 
         return {
@@ -222,23 +180,43 @@ export class ChatbotComponent implements OnInit {
                 content: answer,
                 guardrailTrigger: this.extractScopeTrigger(userQuestion),
                 guardrailSuggestion: this.storeId
-                    ? `Mağazanız (#${this.storeId}) için dönemsel karşılaştırma yapabilirim.`
-                    : 'Kendi verileriniz için sorgulama yapabilirim.'
+                    ? `Mağazanız (#${this.storeId}) için dönemsel karşılaştırma yapabilirim — örn. bu ay vs geçen ay.`
+                    : 'Kendi verileriniz için dönemsel karşılaştırma yapabilirim.'
             };
         }
         return null;
     }
 
     private extractInjectionTrigger(q: string): string {
-        const pats = [/ignore\s+(?:previous|your|all)\s+instructions?/i, /you\s+are\s+now/i, /act\s+as/i, /DAN\s+mode/i, /jailbreak/i, /DROP\s+TABLE/i, /DELETE\s+FROM/i];
-        for (const p of pats) { const m = q.match(p); if (m) return `"${m[0]}"`; }
-        return `"${q.substring(0, 40)}..."`;
+        const pats = [
+            /ignore\s+(?:previous|your|all)\s+instructions?/i,
+            /you\s+are\s+now/i,
+            /act\s+as/i,
+            /DAN\s+mode/i,
+            /jailbreak/i,
+            /DROP\s+TABLE/i,
+            /DELETE\s+FROM/i
+        ];
+        for (const p of pats) {
+            const m = q.match(p);
+            if (m) return `"${m[0]}"`;
+        }
+        return `"${q.substring(0, 45)}..."`;
     }
 
     private extractScopeTrigger(q: string): string {
-        const pats = [/filtre(?:sini)?\s+kaldır/i, /store_id\s+filtre/i, /tüm\s+mağaza/i, /all\s+stores?/i];
-        for (const p of pats) { const m = q.match(p); if (m) return `"${m[0]}"`; }
-        return `"${q.substring(0, 40)}"`;
+        const pats = [
+            /filtre(?:sini)?\s+kaldır/i,
+            /store_id\s+filtre/i,
+            /tüm\s+mağaza/i,
+            /all\s+stores?/i,
+            /without.*filter/i
+        ];
+        for (const p of pats) {
+            const m = q.match(p);
+            if (m) return `"${m[0]}"`;
+        }
+        return `"${q.substring(0, 45)}"`;
     }
 
     private parseBarItems(text: string): BarItem[] {
@@ -290,25 +268,8 @@ export class ChatbotComponent implements OnInit {
     autoResize(event: Event): void {
         const ta = event.target as HTMLTextAreaElement;
         ta.style.height = 'auto';
-        ta.style.height = Math.min(ta.scrollHeight, 100) + 'px';
+        ta.style.height = ta.scrollHeight + 'px';
     }
-
-    // Graph expand
-    @HostListener('click', ['$event'])
-    onClick(event: Event) {
-        const target = event.target as HTMLElement;
-        const expandBtn = target.closest('.expand-btn');
-        if (expandBtn) {
-            const wrapper = expandBtn.closest('.chat-img-wrapper');
-            if (wrapper) {
-                const img = wrapper.querySelector('img.chat-img') as HTMLImageElement;
-                if (img?.src) this.expandGraph(img.src);
-            }
-        }
-    }
-
-    expandGraph(src: string): void { this.expandedGraphSrc = src; this.isGraphExpanded = true; }
-    closeExpandedGraph(): void { this.isGraphExpanded = false; this.expandedGraphSrc = ''; }
 
     private scrollToBottom(): void {
         setTimeout(() => {

@@ -130,19 +130,31 @@ export class AiAgentService {
      * Converts basic markdown syntax to HTML:
      */
     formatMarkdown(text: string): string {
-        // Escape HTML special characters first
-        let html = text
+        // ── Step 1: Extract markdown images BEFORE any escaping ──────────────
+        // Placeholder map so URLs (which contain & chars) survive HTML escaping
+        const images: { placeholder: string; alt: string; url: string }[] = [];
+        const withPlaceholders = text.replace(
+            /!\[([^\]]*)\]\((https?:\/\/[^)]+)\)/g,
+            (_match, alt, url) => {
+                const placeholder = `__IMG_${images.length}__`;
+                images.push({ placeholder, alt, url });
+                return placeholder;
+            }
+        );
+
+        // ── Step 2: HTML-escape the rest ──────────────────────────────────────
+        let html = withPlaceholders
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;');
 
-        // Convert **bold** to <strong>
+        // ── Step 3: Inline markdown ───────────────────────────────────────────
+        // **bold**
         html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-
-        // Convert remaining *italic* to <em>
+        // *italic*
         html = html.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
 
-        // Process line-by-line for bullet lists
+        // ── Step 4: Line-by-line rendering ────────────────────────────────────
         const lines = html.split('\n');
         const result: string[] = [];
         let inList = false;
@@ -150,17 +162,11 @@ export class AiAgentService {
         for (const line of lines) {
             const trimmed = line.trim();
             if (trimmed.startsWith('• ') || trimmed.startsWith('- ') || /^\*\s/.test(trimmed)) {
-                if (!inList) {
-                    result.push('<ul>');
-                    inList = true;
-                }
+                if (!inList) { result.push('<ul>'); inList = true; }
                 const content = trimmed.replace(/^[•\-\*]\s+/, '');
                 result.push(`<li>${content}</li>`);
             } else {
-                if (inList) {
-                    result.push('</ul>');
-                    inList = false;
-                }
+                if (inList) { result.push('</ul>'); inList = false; }
                 if (trimmed === '') {
                     result.push('<br>');
                 } else {
@@ -168,11 +174,19 @@ export class AiAgentService {
                 }
             }
         }
+        if (inList) result.push('</ul>');
 
-        if (inList) {
-            result.push('</ul>');
+        let output = result.join('');
+
+        // ── Step 5: Restore image placeholders as <img> tags ─────────────────
+        for (const img of images) {
+            output = output.replace(
+                // placeholder may be wrapped in <p>...</p> by the line processor
+                new RegExp(`(?:<p>)?${img.placeholder}(?:</p>)?`),
+                `<img src="${img.url}" alt="${img.alt}" style="width:100%;max-width:340px;height:auto;border-radius:8px;margin-top:8px;display:block;" loading="lazy">`
+            );
         }
 
-        return result.join('');
+        return output;
     }
 }

@@ -215,10 +215,110 @@ html, body {
   --ind-content-bg:   #0a0a0f;
 }
 
+/* ================================================================
+   LIGHT THEME — token overrides when [data-theme="light"] on <html>
+   ================================================================ */
+[data-theme="light"] {
+  /* Core backgrounds */
+  --app-bg:          #f8fafc;
+  --surface-bg:      rgba(0,0,0,0.02);
+  --sidebar-bg:      #ffffff;
+  --topbar-bg:       rgba(255,255,255,0.9);
+
+  /* Card / panel */
+  --card-bg:         #ffffff;
+  --card-bg-solid:   #ffffff;
+  --card-border:     #e2e8f0;
+  --card-shadow:     0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+  --card-shadow-hover: 0 4px 20px rgba(99,102,241,0.15), 0 1px 3px rgba(0,0,0,0.08);
+
+  /* Text */
+  --text-primary:    #0f172a;
+  --text-secondary:  #475569;
+  --text-muted:      #94a3b8;
+
+  /* Borders */
+  --border-color:    #e2e8f0;
+  --border-subtle:   #f1f5f9;
+
+  /* Inputs */
+  --input-bg:        #f8fafc;
+  --input-border:    #cbd5e1;
+  --input-focus-border: #6366f1;
+  --input-focus-shadow:  0 0 0 3px rgba(99,102,241,0.15);
+
+  /* Header */
+  --header-bg:       rgba(255,255,255,0.9);
+  --header-border:   #e2e8f0;
+  --header-shadow:   0 1px 3px rgba(0,0,0,0.08);
+
+  /* Sidebar */
+  --sidebar-border:  1px solid #e2e8f0;
+
+  /* Modal */
+  --modal-overlay:   rgba(0,0,0,0.4);
+  --modal-bg:        #ffffff;
+  --modal-border:    #e2e8f0;
+
+  /* Content area */
+  --content-bg:      #f8fafc;
+
+  /* Buttons */
+  --btn-ghost-bg:    #f1f5f9;
+  --btn-ghost-border: #e2e8f0;
+  --btn-ghost-color: #0f172a;
+
+  /* Accent — same indigo, lighter context */
+  --accent:          #6366f1;
+  --accent-hover:    rgba(99,102,241,0.1);
+  --accent-active:   rgba(99,102,241,0.18);
+  --accent-glow:     0 0 0 3px rgba(99,102,241,0.2);
+
+  /* Semantic */
+  --color-success:  #059669;
+  --color-warning:  #d97706;
+  --color-error:    #dc2626;
+  --color-info:     #4f46e5;
+
+  /* Panel accent aliases */
+  --admin-accent:    #4f46e5;
+  --admin-accent-hover: rgba(79,70,229,0.08);
+  --admin-accent-active: rgba(79,70,229,0.14);
+  --admin-nav-color: #4f46e5;
+  --admin-nav-hover: #e0e7ff;
+
+  --corp-accent:     #d97706;
+  --corp-accent-hover: rgba(217,119,6,0.1);
+  --corp-accent-active: rgba(217,119,6,0.16);
+  --corp-nav-color:  #92400e;
+  --corp-nav-hover:  #fef3c7;
+
+  --ind-accent:      #4f46e5;
+  --ind-accent-hover: rgba(79,70,229,0.08);
+  --ind-accent-active: rgba(79,70,229,0.14);
+  --ind-nav-color:   #4f46e5;
+  --ind-nav-hover:   #e0e7ff;
+  --ind-header-accent: #4f46e5;
+
+  /* Legacy compat */
+  --admin-sidebar-bg: #ffffff;
+  --admin-content-bg: #f8fafc;
+  --corp-sidebar-bg:  #ffffff;
+  --corp-content-bg:  #f8fafc;
+  --ind-sidebar-bg:   #ffffff;
+  --ind-content-bg:   #f8fafc;
+}
+
+/* Force html/body background when theme switches */
+[data-theme="light"] body {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
 /* ── Global Scrollbar ───────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: #111118; }
-::-webkit-scrollbar-thumb { background: #2d2d3d; border-radius: 4px; }
+::-webkit-scrollbar-track { background: var(--content-bg); }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
 
 /* ── Global Animations ──────────────────────────────────── */
@@ -271,10 +371,11 @@ h1, h2, h3, h4, h5, h6 {
 .sidebar-overlay.visible { display: block; }
 
 /* ── Legacy dark-mode compat (always dark now) ──────────── */
-[data-theme="dark"] ::-webkit-scrollbar { width: 4px; }
 [data-theme="dark"] ::-webkit-scrollbar-track { background: #111118; }
 [data-theme="dark"] ::-webkit-scrollbar-thumb { background: #2d2d3d; border-radius: 4px; }
-[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+[data-theme="light"] ::-webkit-scrollbar-track { background: #f1f5f9; }
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
 
 /* ── Global Card ────────────────────────────────────────── */
 .card {
@@ -314,8 +415,9 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
 }
 .badge-neutral {
-  background: rgba(255,255,255,0.06);
-  color: #94a3b8;
+  background: var(--btn-ghost-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-badge);
   padding: 3px 10px;
   font-size: 0.72rem;
