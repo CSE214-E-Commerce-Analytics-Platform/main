@@ -465,7 +465,13 @@ export class ChatbotComponent implements OnInit {
     // ── Misc helpers ──────────────────────────────────────────────────────────
 
     formatAiContent(content: string): string {
-        return this.aiService.formatMarkdown(content);
+        let html = this.aiService.formatMarkdown(content);
+        // <img> tag'lerini küçük thumbnail + expand butonuna çevir
+        html = html.replace(
+            /<img\s+src="([^"]+)"[^>]*>/g,
+            '<div class="chat-img-wrapper"><img src="$1" class="chat-img" alt="Graph"><div class="expand-btn" title="Büyüt">⤢</div></div>'
+        );
+        return html;
     }
 
     formatQueryTime(ms: number): string {
@@ -489,7 +495,9 @@ export class ChatbotComponent implements OnInit {
 
     @HostListener('click', ['$event'])
     onClick(event: Event) {
-        const target   = event.target as HTMLElement;
+        const target = event.target as HTMLElement;
+
+        // Expand button click
         const expandBtn = target.closest('.expand-btn');
         if (expandBtn) {
             const wrapper = expandBtn.closest('.chat-img-wrapper');
@@ -497,6 +505,13 @@ export class ChatbotComponent implements OnInit {
                 const img = wrapper.querySelector('img.chat-img') as HTMLImageElement;
                 if (img?.src) this.expandGraph(img.src);
             }
+            return;
+        }
+
+        // Resmin kendisine tıklayınca da expand açılır
+        if (target.classList.contains('chat-img')) {
+            const img = target as HTMLImageElement;
+            if (img.src) this.expandGraph(img.src);
         }
     }
 

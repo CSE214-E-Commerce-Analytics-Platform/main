@@ -278,16 +278,46 @@
 }
 
 /* ── Graph image ── */
-::ng-deep .chat-img-wrapper { position:relative; display:inline-block; margin-top:8px; width:100%; }
-::ng-deep .chat-img { max-width:100%; max-height:220px; object-fit:contain; border-radius:8px; display:block; }
-::ng-deep .expand-btn {
-  position:absolute; top:6px; right:6px;
-  background:rgba(0,0,0,0.65); color:white; border:none;
-  border-radius:5px; width:28px; height:28px; font-size:1.1rem;
-  cursor:pointer; display:flex; align-items:center; justify-content:center;
-  opacity:0; transition:opacity 0.2s;
+::ng-deep .chat-img-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-top: 8px;
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--card-border, #1f2937);
 }
-::ng-deep .chat-img-wrapper:hover .expand-btn { opacity:1; }
+::ng-deep .chat-img {
+  max-width: 100%;
+  max-height: 180px;
+  width: 100%;
+  object-fit: contain;
+  border-radius: 9px;
+  display: block;
+  cursor: zoom-in;
+  transition: opacity 0.2s;
+}
+::ng-deep .chat-img-wrapper:hover .chat-img { opacity: 0.88; }
+::ng-deep .expand-btn {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  background: rgba(99,102,241,0.85);
+  color: white;
+  border: none;
+  border-radius: 7px;
+  width: 30px;
+  height: 30px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+}
+::ng-deep .expand-btn:hover { background: rgba(99,102,241,1); transform: scale(1.1); }
 
 /* ── Graph overlay ── */
 .graph-overlay {
