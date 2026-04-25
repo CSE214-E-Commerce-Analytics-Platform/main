@@ -14,14 +14,19 @@ import com.furkan.exception.MessageType;
 import com.furkan.repositories.OrderRepository;
 import com.furkan.repositories.ShipmentRepository;
 import com.furkan.repositories.UserRepository;
+import com.furkan.services.IEmailService;
 import com.furkan.services.IShipmentService;
+import com.furkan.utils.PagerUtil;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -31,6 +36,7 @@ public class ShipmentServiceImpl implements IShipmentService {
     private final ShipmentRepository shipmentRepository;
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
+    private final IEmailService emailService;
 
     @Override
     @Transactional
@@ -67,6 +73,8 @@ public class ShipmentServiceImpl implements IShipmentService {
 
         updateMasterStatus(childOrder.getParentOrder());
 
+        emailService.sendShipmentCreatedEmail(childOrder.getUser().getEmail(), childOrder.getId().toString(), trackingNumber, "UPS");
+
         return dtoConverter(shipmentRepository.save(shipment));
     }
 
@@ -87,6 +95,7 @@ public class ShipmentServiceImpl implements IShipmentService {
 
             if (allDelivered) {
                 childOrder.setStatus(OrderStatus.DELIVERED);
+                emailService.sendOrderDeliveredEmail(childOrder.getUser().getEmail(), childOrder.getId().toString());
             } else {
                 childOrder.setStatus(OrderStatus.PARTIALLY_DELIVERED);
             }
@@ -137,19 +146,39 @@ public class ShipmentServiceImpl implements IShipmentService {
     }
 
     @Override
-    public List<DtoShipment> findAllShipments() {
-        return shipmentRepository.findAll()
-                .stream()
+    public RestPageableEntity<DtoShipment> findAllShipments(RestPageableRequest request) {
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
+        }
+
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<Shipment> shipmentPage = shipmentRepository.findAll(pageable);
+
+        List<DtoShipment> dtoList = shipmentPage.getContent().stream()
                 .map(this::dtoConverter)
-                .collect(Collectors.toList());
+                .toList();
+
+        return PagerUtil.toPageableResponse(shipmentPage, dtoList);
     }
 
     @Override
-    public List<DtoShipment> findMyShipments(Long userId) {
-        return shipmentRepository.findByUserId(userId)
-                .stream()
+    public RestPageableEntity<DtoShipment> findMyShipments(Long userId, RestPageableRequest request) {
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
+        }
+
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<Shipment> shipmentPage = shipmentRepository.findByUserId(userId, pageable);
+
+        List<DtoShipment> dtoList = shipmentPage.getContent().stream()
                 .map(this::dtoConverter)
-                .collect(Collectors.toList());
+                .toList();
+
+        return PagerUtil.toPageableResponse(shipmentPage, dtoList);
     }
 
     @Override
@@ -189,6 +218,9 @@ public class ShipmentServiceImpl implements IShipmentService {
         DtoShipment dto = new DtoShipment();
         org.springframework.beans.BeanUtils.copyProperties(shipment, dto);
         dto.setOrderId(shipment.getOrder().getId());
+        if (shipment.getOrder() != null) {
+            dto.setDeliveryAddress(shipment.getOrder().getAddress().getFullAddress());
+        }
         return dto;
     }
 

@@ -16,16 +16,22 @@ export class AdminCartsComponent implements OnInit {
   isLoading = true;
   errorMessage = '';
 
+  // Pagination
+  pageNumber = 0;
+  pageSize = 20;
+  totalPages = 0;
+
   ngOnInit(): void {
     this.fetchCarts();
   }
 
   fetchCarts(): void {
     this.isLoading = true;
-    this.cartService.findAllCarts().subscribe({
+    this.cartService.findAllCarts({ pageNumber: this.pageNumber, pageSize: this.pageSize }).subscribe({
       next: (res) => {
         if (res.payload) {
-          this.carts = res.payload;
+          this.carts = res.payload.content || [];
+          this.totalPages = Math.ceil((res.payload.totalElement || 0) / this.pageSize);
         }
         this.isLoading = false;
       },
@@ -36,6 +42,9 @@ export class AdminCartsComponent implements OnInit {
       }
     });
   }
+
+  prevPage(): void { if (this.pageNumber > 0) { this.pageNumber--; this.fetchCarts(); } }
+  nextPage(): void { if (this.pageNumber < this.totalPages - 1) { this.pageNumber++; this.fetchCarts(); } }
 
   deleteCart(cartId: number): void {
     if (confirm(`Are you sure you want to delete cart ID: ${cartId}?`)) {
@@ -48,6 +57,14 @@ export class AdminCartsComponent implements OnInit {
           alert('Failed to delete cart.');
         }
       });
+    }
+  }
+
+  goToPage(pageStr: string): void {
+    const page = parseInt(pageStr, 10);
+    if (!isNaN(page) && page > 0 && page <= this.totalPages) {
+      this.pageNumber = page - 1;
+      this.fetchCarts();
     }
   }
 }

@@ -33,8 +33,6 @@ public class User extends BaseEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private RoleType roleType = RoleType.INDIVIDUAL;
 
-    private String gender;
-
     private boolean isActive = true;
 
     @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

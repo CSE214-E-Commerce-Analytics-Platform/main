@@ -29,6 +29,11 @@ export class IndOrdersComponent implements OnInit {
   cancellingId: number | null = null;
   payingId: number | null = null;
 
+  // Pagination
+  pageNumber = 0;
+  pageSize = 10;
+  totalPages = 0;
+
   ngOnInit(): void {
     this.loadOrders();
 
@@ -43,16 +48,31 @@ export class IndOrdersComponent implements OnInit {
 
   loadOrders(): void {
     this.isLoading = true;
-    this.orderService.getMyOrders().pipe(
+    this.orderService.getMyOrders({ pageNumber: this.pageNumber, pageSize: this.pageSize }).pipe(
       catchError(() => {
         this.toastService.showError('Failed to load orders.');
         this.isLoading = false;
-        return of([]);
+        return of(null);
       })
-    ).subscribe(orders => {
-      this.orders = orders;
+    ).subscribe(res => {
+      this.orders = res?.content || [];
+      this.totalPages = Math.ceil((res?.totalElement || 0) / this.pageSize);
       this.isLoading = false;
     });
+  }
+
+  prevPage(): void {
+    if (this.pageNumber > 0) {
+      this.pageNumber--;
+      this.loadOrders();
+    }
+  }
+
+  nextPage(): void {
+    if (this.pageNumber < this.totalPages - 1) {
+      this.pageNumber++;
+      this.loadOrders();
+    }
   }
 
   cancelOrder(orderId: number | undefined): void {
@@ -127,6 +147,14 @@ export class IndOrdersComponent implements OnInit {
       case OrderStatus.DELIVERED: return '🎉';
       case OrderStatus.CANCELLED: return '❌';
       default: return '•';
+    }
+  }
+
+  goToPage(pageStr: string): void {
+    const page = parseInt(pageStr, 10);
+    if (!isNaN(page) && page > 0 && page <= this.totalPages) {
+      this.pageNumber = page - 1;
+      this.loadOrders();
     }
   }
 }

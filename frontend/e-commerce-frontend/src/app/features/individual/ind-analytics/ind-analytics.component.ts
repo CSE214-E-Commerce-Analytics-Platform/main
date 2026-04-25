@@ -62,14 +62,14 @@ export class IndAnalyticsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   loadOrders(): void {
     this.isLoading = true;
-    this.orderService.getMyOrders().pipe(
+    this.orderService.getMyOrders({ pageNumber: 0, pageSize: 100 }).pipe(
       catchError(() => {
         this.toastService.showError('Failed to load analytics data.');
         this.isLoading = false;
-        return of([]);
+        return of(null);
       })
-    ).subscribe(orders => {
-      this.orders = (orders || []).filter(o => o.status === OrderStatus.DELIVERED);
+    ).subscribe(res => {
+      this.orders = (res?.content || []).filter(o => o.status === OrderStatus.DELIVERED);
       this.computeStats();
       this.computeMonthly();
       this.computeCategories();

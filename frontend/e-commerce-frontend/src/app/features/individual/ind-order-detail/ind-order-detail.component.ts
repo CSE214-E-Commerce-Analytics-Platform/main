@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { OrderService } from '../../../core/services/order.service';
 import { ShipmentService } from '../../../core/services/shipment.service';
 import { ReviewService } from '../../../core/services/review.service';
+import { ProductService } from '../../../core/services/product.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DtoOrder, OrderStatus } from '../../../shared/models/order';
 import { DtoShipment, ShipmentStatus } from '../../../shared/models/shipment';
@@ -24,10 +25,12 @@ export class IndOrderDetailComponent implements OnInit {
   private shipmentService = inject(ShipmentService);
   private reviewService = inject(ReviewService);
   private toastService = inject(ToastService);
+  private productService = inject(ProductService);
 
   order: DtoOrder | null = null;
   isLoading = true;
   shipmentsMap: Record<number, DtoShipment | null> = {};
+  productImagesMap: Record<number, string> = {};
   
   // Review State
   reviewedProductIds = new Set<number>();
@@ -46,10 +49,10 @@ export class IndOrderDetailComponent implements OnInit {
   }
 
   loadMyReviews(): void {
-    this.reviewService.getMyReviews().pipe(
-      catchError(() => of([]))
-    ).subscribe(reviews => {
-      reviews.forEach(r => {
+    this.reviewService.getMyReviews({ pageNumber: 0, pageSize: 100 }).pipe(
+      catchError(() => of(null))
+    ).subscribe(res => {
+      (res?.content || []).forEach(r => {
         if (r.productId) {
           this.reviewedProductIds.add(r.productId);
         }
@@ -67,14 +70,37 @@ export class IndOrderDetailComponent implements OnInit {
       })
     ).subscribe(order => {
       this.order = order;
-      if (order && order.subOrders) {
-        order.subOrders.forEach(sub => {
-          if (sub.id) {
-            this.loadShipmentForSubOrder(sub.id);
+      if (order) {
+        if (order.items) {
+          this.loadProductImages(order.items.map(i => i.productId));
+        }
+        if (order.subOrders) {
+          order.subOrders.forEach(sub => {
+            if (sub.id) {
+              this.loadShipmentForSubOrder(sub.id);
+            }
+            if (sub.items) {
+              this.loadProductImages(sub.items.map(i => i.productId));
+            }
+          });
+        }
+      }
+      this.isLoading = false;
+    });
+  }
+
+  loadProductImages(productIds: number[]): void {
+    const uniqueIds = [...new Set(productIds)];
+    uniqueIds.forEach(id => {
+      if (!this.productImagesMap[id]) {
+        this.productService.getProductById(id).pipe(
+          catchError(() => of(null))
+        ).subscribe(product => {
+          if (product && product.imageUrl) {
+            this.productImagesMap[id] = product.imageUrl;
           }
         });
       }
-      this.isLoading = false;
     });
   }
 
@@ -123,5 +149,12 @@ export class IndOrderDetailComponent implements OnInit {
   closeReviewModal(): void {
     this.showReviewModal = false;
     this.reviewProductId = null;
+  }
+
+  getImageUrl(url: string | null | undefined): string {
+    if (!url) return 'assets/placeholder-image.webp';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    if (url.startsWith('assets/')) return url;
+    return `assets/images/${url}`;
   }
 }

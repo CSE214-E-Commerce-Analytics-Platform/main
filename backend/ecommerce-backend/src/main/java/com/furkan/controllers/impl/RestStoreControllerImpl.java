@@ -5,6 +5,8 @@ import com.furkan.controllers.RestBaseController;
 import com.furkan.dto.request.DtoStoreRequest;
 import com.furkan.dto.response.DtoStore;
 import com.furkan.services.IStoreService;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import com.furkan.utils.RootEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,8 +14,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import com.furkan.entities.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/stores")
@@ -40,8 +40,8 @@ public class RestStoreControllerImpl extends RestBaseController implements IRest
 
     @GetMapping()
     @Override
-    public RootEntity<List<DtoStore>> findAllStores() {
-        return ok(storeService.findAllStores());
+    public RootEntity<RestPageableEntity<DtoStore>> findAllStores(@ModelAttribute RestPageableRequest request) {
+        return ok(storeService.findAllStores(request));
     }
 
     @PutMapping("/{id}")
@@ -66,8 +66,8 @@ public class RestStoreControllerImpl extends RestBaseController implements IRest
     @GetMapping("/my-stores")
     @PreAuthorize("hasRole('CORPORATE')")
     @Override
-    public RootEntity<List<DtoStore>> findMyStores(@AuthenticationPrincipal UserDetails userDetails) {
+    public RootEntity<RestPageableEntity<DtoStore>> findMyStores(@AuthenticationPrincipal UserDetails userDetails, @ModelAttribute RestPageableRequest request) {
         Long userId = ((User) userDetails).getId();
-        return ok(storeService.findMyStores(userId));
+        return ok(storeService.findMyStores(userId, request));
     }
 }

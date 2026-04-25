@@ -98,16 +98,29 @@
         </div>
 
         <div class="form-field">
-          <label for="gender">Gender</label>
-          <select id="gender" formControlName="gender"
-            [class.error-border]="registerForm.get('gender')?.touched && registerForm.get('gender')?.invalid">
-            <option value="" disabled>Select your gender</option>
-            <option value="MALE">Male</option>
-            <option value="FEMALE">Female</option>
-          </select>
-          @if (registerForm.get('gender')?.touched && registerForm.get('gender')?.errors?.['required']) {
-            <span class="error-text">Gender is required.</span>
+          <label for="age">Age (Optional)</label>
+          <input id="age" type="number" formControlName="age" placeholder="Your age (1-150)"
+            [class.error-border]="registerForm.get('age')?.touched && registerForm.get('age')?.invalid">
+          @if (registerForm.get('age')?.touched && registerForm.get('age')?.errors?.['min']) {
+            <span class="error-text">Age must be at least 1.</span>
+          } @else if (registerForm.get('age')?.touched && registerForm.get('age')?.errors?.['max']) {
+            <span class="error-text">Age must be at most 150.</span>
           }
+        </div>
+
+        <div class="form-field">
+          <label for="city">City (Optional)</label>
+          <input id="city" type="text" formControlName="city" placeholder="E.g. New York">
+        </div>
+
+        <div class="form-field">
+          <label for="state">State (Optional)</label>
+          <input id="state" type="text" formControlName="state" placeholder="E.g. NY">
+        </div>
+
+        <div class="form-field">
+          <label for="country">Country (Optional)</label>
+          <input id="country" type="text" formControlName="country" placeholder="E.g. USA">
         </div>
 
         @if (errorMessage) {

@@ -83,5 +83,31 @@
         </div>
       </div>
     </div>
+
+    <!-- Store Comparison -->
+    <div class="table-card">
+      <h3 class="chart-title">Cross-Store Comparison</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Store Name</th>
+            <th>Total Orders</th>
+            <th>Total Revenue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of storePerformance; let i = index">
+            <td class="rank">#{{ i + 1 }}</td>
+            <td class="store-name">{{ s.name }}</td>
+            <td>{{ s.orders }}</td>
+            <td class="amount">{{ s.revenue | currency:'TRY':'₺':'1.2-2' }}</td>
+          </tr>
+          <tr *ngIf="storePerformance.length === 0">
+              <td colspan="4" style="text-align: center; color: #6b7280; padding: 1rem;">No store data available.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ng-container>
 </div>

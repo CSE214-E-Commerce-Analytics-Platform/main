@@ -26,7 +26,6 @@ export class CorpShipmentsComponent implements OnInit {
   ShipmentStatus = ShipmentStatus;
   OrderStatus = OrderStatus;
 
-  stores: Store[] = [];
   selectedStoreId: number | null = null;
   shipments: DtoShipment[] = [];
   paidOrders: DtoOrder[] = [];
@@ -41,16 +40,21 @@ export class CorpShipmentsComponent implements OnInit {
   updatingId: number | null = null;
   cancellingId: number | null = null;
 
+  // Pagination
+  pageNumber = 0;
+  pageSize = 20;
+  totalPages = 0;
+
   ngOnInit(): void {
-    this.loadStores();
+    this.loadStore();
   }
 
-  loadStores(): void {
-    this.storeService.getMyStores().subscribe({
-      next: stores => {
-        this.stores = stores || [];
-        if (this.stores.length > 0 && this.stores[0].id) {
-          this.selectedStoreId = this.stores[0].id;
+  loadStore(): void {
+    this.storeService.getMyStores({ pageNumber: 0, pageSize: 10 }).subscribe({
+      next: res => {
+        const stores = res?.content || [];
+        if (stores.length > 0 && stores[0].id) {
+          this.selectedStoreId = stores[0].id;
           this.loadShipments();
           this.loadPaidOrders();
         }
@@ -58,37 +62,34 @@ export class CorpShipmentsComponent implements OnInit {
     });
   }
 
-  onStoreChange(): void {
-    this.shipments = [];
-    this.paidOrders = [];
-    this.loadShipments();
-    this.loadPaidOrders();
-  }
-
   loadShipments(): void {
     this.isLoadingShipments = true;
-    this.shipmentService.getMyShipments().pipe(
+    this.shipmentService.getMyShipments({ pageNumber: this.pageNumber, pageSize: this.pageSize }).pipe(
       catchError(() => {
         this.toastService.showError('Failed to load shipments.');
         this.isLoadingShipments = false;
-        return of([]);
+        return of(null);
       })
-    ).subscribe(shipments => {
-      this.shipments = shipments || [];
+    ).subscribe(res => {
+      this.shipments = res?.content || [];
+      this.totalPages = Math.ceil((res?.totalElement || 0) / this.pageSize);
       this.isLoadingShipments = false;
     });
   }
 
+  prevPage(): void { if (this.pageNumber > 0) { this.pageNumber--; this.loadShipments(); } }
+  nextPage(): void { if (this.pageNumber < this.totalPages - 1) { this.pageNumber++; this.loadShipments(); } }
+
   loadPaidOrders(): void {
     if (!this.selectedStoreId) return;
     this.isLoadingOrders = true;
-    this.orderService.getStoreOrders(this.selectedStoreId).pipe(
+    this.orderService.getStoreOrders(this.selectedStoreId, { pageNumber: 0, pageSize: 100 }).pipe(
       catchError(() => {
         this.isLoadingOrders = false;
-        return of([]);
+        return of(null);
       })
-    ).subscribe(orders => {
-      this.paidOrders = (orders || []).filter(o => o.status === OrderStatus.PAID);
+    ).subscribe(res => {
+      this.paidOrders = (res?.content || []).filter(o => o.status === OrderStatus.PAID);
       this.isLoadingOrders = false;
     });
   }
@@ -193,6 +194,14 @@ export class CorpShipmentsComponent implements OnInit {
       case ShipmentStatus.RETURNED:         return '↩️';
       case ShipmentStatus.CANCELLED:        return '❌';
       default:                               return '•';
+    }
+  }
+
+  goToPage(pageStr: string): void {
+    const page = parseInt(pageStr, 10);
+    if (!isNaN(page) && page > 0 && page <= this.totalPages) {
+      this.pageNumber = page - 1;
+      this.loadShipments();
     }
   }
 }

@@ -21,11 +21,10 @@ export class CorpInventoryComponent implements OnInit {
   private productService = inject(ProductService);
   private toastService = inject(ToastService);
 
-  stores: Store[] = [];
-  products: Product[] = [];
-  filteredProducts: Product[] = [];
   selectedStoreId: number | null = null;
   isLoading = false;
+  products: Product[] = [];
+  filteredProducts: Product[] = [];
 
   // Filters
   stockFilter: string = 'ALL'; // ALL, LOW, OUT
@@ -42,40 +41,35 @@ export class CorpInventoryComponent implements OnInit {
   outOfStockCount = 0;
 
   ngOnInit(): void {
-    this.loadStores();
+    this.loadStore();
   }
 
-  loadStores(): void {
-    this.storeService.getMyStores().pipe(
+  loadStore(): void {
+    this.storeService.getMyStores({ pageNumber: 0, pageSize: 10 }).pipe(
       catchError(() => {
-        this.toastService.showError('Failed to load stores.');
-        return of([]);
+        this.toastService.showError('Failed to load store.');
+        return of(null);
       })
-    ).subscribe(stores => {
-      this.stores = stores || [];
-      if (this.stores.length > 0) {
-        this.selectedStoreId = this.stores[0].id;
+    ).subscribe(res => {
+      const stores = res?.content || [];
+      if (stores.length > 0) {
+        this.selectedStoreId = stores[0].id;
         this.loadProducts(this.selectedStoreId);
       }
     });
   }
 
-  onStoreChange(storeId: any): void {
-    this.selectedStoreId = +storeId;
-    this.loadProducts(this.selectedStoreId);
-  }
-
   loadProducts(storeId: number): void {
     this.isLoading = true;
     this.editingProductId = null;
-    this.productService.getProductsByStoreId(storeId).pipe(
+    this.productService.getProductsByStoreId(storeId, { pageNumber: 0, pageSize: 100 }).pipe(
       catchError(() => {
         this.toastService.showError('Failed to load inventory.');
         this.isLoading = false;
-        return of([]);
+        return of(null);
       })
-    ).subscribe(products => {
-      this.products = products || [];
+    ).subscribe(res => {
+      this.products = res?.content || [];
       this.computeStats();
       this.applyFilters();
       this.isLoading = false;

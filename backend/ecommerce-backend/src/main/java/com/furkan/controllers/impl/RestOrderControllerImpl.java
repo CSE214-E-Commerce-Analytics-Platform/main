@@ -2,18 +2,20 @@ package com.furkan.controllers.impl;
 
 import com.furkan.controllers.IRestOrderController;
 import com.furkan.controllers.RestBaseController;
+import com.furkan.dto.request.DtoOrderRequest;
 import com.furkan.dto.response.DtoOrder;
 import com.furkan.entities.User;
 import com.furkan.enums.OrderStatus;
 import com.furkan.services.IOrderService;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import com.furkan.utils.RootEntity;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -25,15 +27,15 @@ public class RestOrderControllerImpl extends RestBaseController implements IRest
     @PostMapping("/create")
     @PreAuthorize("hasRole('INDIVIDUAL')")
     @Override
-    public RootEntity<DtoOrder> createOrder(@AuthenticationPrincipal UserDetails userDetails) {
-        return ok(orderService.createOrder(getUserIdByToken(userDetails)));
+    public RootEntity<DtoOrder> createOrder(@AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody DtoOrderRequest request) {
+        return ok(orderService.createOrder(getUserIdByToken(userDetails), request));
     }
 
     @GetMapping("/my-orders")
     @PreAuthorize("hasRole('INDIVIDUAL')")
     @Override
-    public RootEntity<List<DtoOrder>> findMyOrders(@AuthenticationPrincipal UserDetails userDetails) {
-        return ok(orderService.findMyOrders(getUserIdByToken(userDetails)));
+    public RootEntity<RestPageableEntity<DtoOrder>> findMyOrders(@AuthenticationPrincipal UserDetails userDetails, @ModelAttribute RestPageableRequest request) {
+        return ok(orderService.findMyOrders(getUserIdByToken(userDetails), request));
     }
 
     @GetMapping("/{orderId}")
@@ -54,8 +56,8 @@ public class RestOrderControllerImpl extends RestBaseController implements IRest
     @GetMapping("/store/{storeId}")
     @PreAuthorize("hasRole('CORPORATE')")
     @Override
-    public RootEntity<List<DtoOrder>> findOrdersByStoreId(@PathVariable Long storeId, @AuthenticationPrincipal UserDetails userDetails) {
-        return ok(orderService.findOrdersByStoreId(storeId, getUserIdByToken(userDetails)));
+    public RootEntity<RestPageableEntity<DtoOrder>> findOrdersByStoreId(@PathVariable Long storeId, @AuthenticationPrincipal UserDetails userDetails, @ModelAttribute RestPageableRequest request) {
+        return ok(orderService.findOrdersByStoreId(storeId, getUserIdByToken(userDetails), request));
     }
 
     @PatchMapping("/sub-order/{subOrderId}/status")
@@ -68,8 +70,8 @@ public class RestOrderControllerImpl extends RestBaseController implements IRest
     @GetMapping("/admin/all")
     @PreAuthorize("hasRole('ADMIN')")
     @Override
-    public RootEntity<List<DtoOrder>> findAllOrders() {
-        return ok(orderService.findAllOrders());
+    public RootEntity<RestPageableEntity<DtoOrder>> findAllOrders(@ModelAttribute RestPageableRequest request) {
+        return ok(orderService.findAllOrders(request));
     }
 
     private Long getUserIdByToken(UserDetails userDetails) {

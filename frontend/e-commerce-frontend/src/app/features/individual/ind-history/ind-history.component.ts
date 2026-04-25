@@ -38,15 +38,16 @@ export class IndHistoryComponent implements OnInit {
 
   loadOrders(): void {
     this.isLoading = true;
-    this.orderService.getMyOrders().pipe(
+    this.orderService.getMyOrders({ pageNumber: 0, pageSize: 100 }).pipe(
       catchError(() => {
         this.toastService.showError('Failed to load order history.');
         this.isLoading = false;
-        return of([]);
+        return of(null);
       })
-    ).subscribe(orders => {
+    ).subscribe(res => {
+      const orders = res?.content || [];
       // Only keep completed lifecycle orders (DELIVERED or CANCELLED)
-      this.allOrders = (orders || []).filter(o =>
+      this.allOrders = orders.filter(o =>
         o.status === OrderStatus.DELIVERED || o.status === OrderStatus.CANCELLED
       );
       this.computeStats();
@@ -98,5 +99,29 @@ export class IndHistoryComponent implements OnInit {
       case OrderStatus.CANCELLED: return '❌';
       default: return '•';
     }
+  }
+
+  exportToCSV(): void {
+    if (this.filteredOrders.length === 0) {
+        this.toastService.showError('No records to export.');
+        return;
+    }
+
+    const headers = ['Order ID', 'Date', 'Status', 'Total', 'Store Name'];
+    const rows = this.filteredOrders.map(o => {
+        const date = new Date(o.orderDate).toLocaleDateString();
+        return `${o.id},"${date}","${o.status}",${o.grandTotal},"${o.storeName || ''}"`;
+    });
+
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + headers.join(',') + "\n" + rows.join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'purchase_history.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    this.toastService.showSuccess('Exported history to CSV successfully.');
   }
 }

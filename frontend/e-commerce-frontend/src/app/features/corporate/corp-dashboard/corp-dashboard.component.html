@@ -4,42 +4,25 @@
   <div class="dash-header">
     <div class="dash-header-left">
       <h2>Corporate Dashboard</h2>
-      <p>Manage your stores and track your business performance.</p>
-    </div>
-    <button class="btn-add-store" (click)="openCreateModal()">
-      <i class="bi bi-plus-circle-fill"></i> Add New Store
-    </button>
-  </div>
-
-  <!-- Stats Row -->
-  <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-icon">🏪</div>
-      <div class="stat-info">
-        <div class="stat-value">{{ stores.length }}</div>
-        <div class="stat-label">Total Stores</div>
-      </div>
+      <p>View and manage your store profile.</p>
     </div>
   </div>
-
-  <!-- Section Title -->
-  <h4 class="section-title">My Stores</h4>
 
   <!-- Loading -->
   <div *ngIf="isLoading" class="loading-state">
     <div class="spinner"></div>
-    <p>Loading your stores...</p>
+    <p>Loading your store...</p>
   </div>
 
   <!-- Empty -->
-  <div *ngIf="!isLoading && stores.length === 0" class="empty-state">
+  <div *ngIf="!isLoading && !store" class="empty-state">
     <div class="empty-icon">🏬</div>
-    <p>You don't have any stores yet. Click <strong>Add New Store</strong> to start selling immediately!</p>
+    <p>No store found. Your store will be automatically provisioned by the system.</p>
   </div>
 
-  <!-- Store Grid -->
-  <div class="store-grid" *ngIf="!isLoading && stores.length > 0">
-    <div class="store-card" *ngFor="let store of stores">
+  <!-- Store Profile Card -->
+  <div class="store-profile" *ngIf="!isLoading && store">
+    <div class="store-card">
       <div class="store-card-banner"></div>
       <div class="store-card-body">
         <div class="store-card-meta">
@@ -49,24 +32,29 @@
           </span>
         </div>
         <p class="store-card-date">Created {{ store.createdAt | date:'dd MMM yyyy' }}</p>
-        <a href="/corporate/products?storeId={{ store.id }}" class="btn-manage">
-          <i class="bi bi-box-seam"></i> Manage Products
-        </a>
+        <div class="store-actions">
+          <button class="btn-manage" (click)="openEditModal()">
+            <i class="bi bi-pencil-square"></i> Edit Store Details
+          </button>
+          <a href="/corporate/products" class="btn-manage secondary">
+            <i class="bi bi-box-seam"></i> Manage Products
+          </a>
+        </div>
       </div>
     </div>
   </div>
 
 </div>
 
-<!-- ===== Create Store Modal ===== -->
-<div class="modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
+<!-- ===== Edit Store Modal ===== -->
+<div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
   <div class="modal-box" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h5>Create New Store</h5>
-      <button class="modal-close" (click)="closeCreateModal()" aria-label="Close">✕</button>
+      <h5>Edit Store</h5>
+      <button class="modal-close" (click)="closeEditModal()" aria-label="Close">✕</button>
     </div>
     <div class="modal-body">
-      <form [formGroup]="storeForm" (ngSubmit)="createStore()">
+      <form [formGroup]="editForm" (ngSubmit)="saveStore()">
         <label class="form-label-text" for="storeName">Store Name</label>
         <input
           type="text"
@@ -75,10 +63,10 @@
           formControlName="name"
           placeholder="Name of your awesome store..."
         >
-        <p *ngIf="storeForm.get('name')?.invalid && storeForm.get('name')?.touched" class="form-error">
+        <p *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched" class="form-error">
           Store name must be at least 3 characters.
         </p>
-        <button type="submit" class="btn-submit" [disabled]="storeForm.invalid">Create Store</button>
+        <button type="submit" class="btn-submit" [disabled]="editForm.invalid">Save Changes</button>
       </form>
     </div>
   </div>

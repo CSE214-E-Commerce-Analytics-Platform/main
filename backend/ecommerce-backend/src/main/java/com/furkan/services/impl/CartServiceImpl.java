@@ -14,16 +14,20 @@ import com.furkan.repositories.CartRepository;
 import com.furkan.repositories.ProductRepository;
 import com.furkan.repositories.UserRepository;
 import com.furkan.services.ICartService;
+import com.furkan.utils.PagerUtil;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,11 +44,21 @@ public class CartServiceImpl implements ICartService {
     }
 
     @Override
-    public List<DtoCart> findAllCarts() {
-        List<Cart> allCarts = cartRepository.findAll();
-        return allCarts.stream()
+    public RestPageableEntity<DtoCart> findAllCarts(RestPageableRequest request) {
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
+        }
+
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<Cart> cartPage = cartRepository.findAll(pageable);
+
+        List<DtoCart> dtoList = cartPage.getContent().stream()
                 .map(this::dtoCartMapper)
-                .collect(Collectors.toList());
+                .toList();
+
+        return PagerUtil.toPageableResponse(cartPage, dtoList);
     }
 
     @Override

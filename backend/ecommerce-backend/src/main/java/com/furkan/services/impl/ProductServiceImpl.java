@@ -12,12 +12,16 @@ import com.furkan.repositories.CategoryRepository;
 import com.furkan.repositories.ProductRepository;
 import com.furkan.repositories.StoreRepository;
 import com.furkan.services.IProductService;
+import com.furkan.utils.PagerUtil;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -80,10 +84,21 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public List<DtoProduct> findAllProducts() {
-        return productRepository.findAll().stream()
+    public RestPageableEntity<DtoProduct> findAllProducts(RestPageableRequest request) {
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
+        }
+
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<Product> productPage = productRepository.findAll(pageable);
+
+        List<DtoProduct> dtoList = productPage.getContent().stream()
                 .map(this::dtoTransformation)
                 .toList();
+
+        return PagerUtil.toPageableResponse(productPage, dtoList);
     }
 
     @Override
@@ -119,16 +134,21 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public List<DtoProduct> findAllByStoreId(Long storeId) {
-        List<Product> productList = productRepository.findAllByStoreId(storeId);
-
-        if (productList.isEmpty()) {
-            return new ArrayList<>();
+    public RestPageableEntity<DtoProduct> findAllByStoreId(Long storeId, RestPageableRequest request) {
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
         }
 
-        return productList.stream()
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<Product> productPage = productRepository.findAllByStoreId(storeId, pageable);
+
+        List<DtoProduct> dtoList = productPage.getContent().stream()
                 .map(this::dtoTransformation)
                 .toList();
+
+        return PagerUtil.toPageableResponse(productPage, dtoList);
     }
 
     @Override

@@ -7,6 +7,8 @@ import com.furkan.dto.response.DtoShipment;
 import com.furkan.entities.User;
 import com.furkan.enums.ShipmentStatus;
 import com.furkan.services.IShipmentService;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import com.furkan.utils.RootEntity;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +16,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/shipments")
@@ -54,14 +54,14 @@ public class RestShipmentControllerImpl extends RestBaseController implements IR
     @GetMapping()
     @PreAuthorize("hasRole('ADMIN')")
     @Override
-    public RootEntity<List<DtoShipment>> findAllShipments() {
-        return ok(shipmentService.findAllShipments());
+    public RootEntity<RestPageableEntity<DtoShipment>> findAllShipments(@ModelAttribute RestPageableRequest request) {
+        return ok(shipmentService.findAllShipments(request));
     }
 
     @GetMapping("/my-shipments")
     @Override
-    public RootEntity<List<DtoShipment>> findMyShipments(@AuthenticationPrincipal UserDetails userDetails) {
-        return ok(shipmentService.findMyShipments(getUserIdByToken(userDetails)));
+    public RootEntity<RestPageableEntity<DtoShipment>> findMyShipments(@AuthenticationPrincipal UserDetails userDetails, @ModelAttribute RestPageableRequest request) {
+        return ok(shipmentService.findMyShipments(getUserIdByToken(userDetails), request));
     }
 
     @GetMapping("/{id}")

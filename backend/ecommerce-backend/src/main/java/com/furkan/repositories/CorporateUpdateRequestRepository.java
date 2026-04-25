@@ -2,6 +2,8 @@ package com.furkan.repositories;
 
 import com.furkan.entities.CorporateUpdateRequest;
 import com.furkan.enums.CorporateUpdateRequestStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,7 +15,7 @@ public interface CorporateUpdateRequestRepository extends JpaRepository<Corporat
 
     Optional<CorporateUpdateRequest> findTopByUserIdOrderByCreatedAtDesc(Long userId);
 
-    List<CorporateUpdateRequest> findAllByStatus(CorporateUpdateRequestStatus status);
+    Page<CorporateUpdateRequest> findAllByStatus(CorporateUpdateRequestStatus status, Pageable pageable);
 
     boolean existsByUserIdAndStatus(Long userId, CorporateUpdateRequestStatus status);
 

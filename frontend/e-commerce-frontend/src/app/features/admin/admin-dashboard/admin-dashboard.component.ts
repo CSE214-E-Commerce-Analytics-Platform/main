@@ -40,9 +40,11 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
 
   // Data
   allOrders: DtoOrder[] = [];
+  allStores: any[] = [];
   recentOrders: DtoOrder[] = [];
   statusDistribution: { status: string; count: number; color: string }[] = [];
   dailyTrend: { date: string; count: number; revenue: number }[] = [];
+  storePerformance: { id: number; name: string; revenue: number; orders: number }[] = [];
 
   private charts: Chart[] = [];
   private dataReady = false;
@@ -64,15 +66,16 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
   loadAll(): void {
     this.isLoading = true;
     forkJoin({
-      orders: this.orderService.getAllOrders().pipe(catchError(() => of([]))),
-      users: this.userService.findAllUsers().pipe(catchError(() => of([]))),
-      stores: this.storeService.getAllStores().pipe(catchError(() => of([]))),
-      apps: this.corpAppService.findRequestsByStatus('PENDING').pipe(catchError(() => of([])))
+      orders: this.orderService.getAllOrders({ pageNumber: 0, pageSize: 100 }).pipe(catchError(() => of(null))),
+      users: this.userService.findAllUsers({ pageNumber: 0, pageSize: 100 }).pipe(catchError(() => of(null))),
+      stores: this.storeService.getAllStores({ pageNumber: 0, pageSize: 100 }).pipe(catchError(() => of(null))),
+      apps: this.corpAppService.findRequestsByStatus('PENDING', { pageNumber: 0, pageSize: 100 }).pipe(catchError(() => of(null)))
     }).subscribe(({ orders, users, stores, apps }) => {
-      this.allOrders = orders || [];
-      this.totalUsers = (users || []).length;
-      this.activeStores = (stores || []).filter((s: any) => s.status === 'APPROVED').length;
-      this.pendingApplications = (apps || []).length;
+      this.allOrders = orders?.content || [];
+      this.allStores = stores?.content || [];
+      this.totalUsers = (users?.content || []).length;
+      this.activeStores = this.allStores.filter((s: any) => s.status === 'APPROVED').length;
+      this.pendingApplications = (apps?.content || []).length;
 
       // Only parent orders
       const parentOrders = this.allOrders.filter(o => !o.storeId || o.subOrders?.length > 0);
@@ -82,6 +85,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
       this.computeRecent();
       this.computeStatusDistribution();
       this.computeDailyTrend();
+      this.computeStorePerformance();
 
       this.isLoading = false;
       this.dataReady = true;
@@ -130,6 +134,28 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
     this.dailyTrend = Array.from(map.entries())
       .map(([date, data]) => ({ date, ...data }))
       .sort((a, b) => a.date.localeCompare(b.date));
+  }
+
+  computeStorePerformance(): void {
+    const map = new Map<number, { revenue: number; orders: number }>();
+    this.allOrders.forEach(o => {
+      if (o.storeId && o.status !== OrderStatus.CANCELLED) {
+        const current = map.get(o.storeId) || { revenue: 0, orders: 0 };
+        current.revenue += o.grandTotal;
+        current.orders++;
+        map.set(o.storeId, current);
+      }
+    });
+
+    this.storePerformance = this.allStores.map(s => {
+        const stats = map.get(s.id) || { revenue: 0, orders: 0 };
+        return {
+            id: s.id,
+            name: s.name,
+            revenue: stats.revenue,
+            orders: stats.orders
+        };
+    }).sort((a, b) => b.revenue - a.revenue); // Sort by revenue descending
   }
 
   renderCharts(): void {

@@ -25,6 +25,11 @@ export class AdminCorporateRequestsComponent implements OnInit {
     errorMessage = '';
     successMessage = '';
 
+    // Pagination
+    pageNumber = 0;
+    pageSize = 20;
+    totalPages = 0;
+
     // Review modal state
     showReviewModal = false;
     selectedRequest: CorporateApplication | null = null;
@@ -48,9 +53,10 @@ export class AdminCorporateRequestsComponent implements OnInit {
         this.errorMessage = '';
         this.requests = [];
 
-        this.corporateAppService.findRequestsByStatus(this.selectedStatus).subscribe({
-            next: (data) => {
-                this.requests = data || [];
+        this.corporateAppService.findRequestsByStatus(this.selectedStatus, { pageNumber: this.pageNumber, pageSize: this.pageSize }).subscribe({
+            next: (res) => {
+                this.requests = res?.content || [];
+                this.totalPages = Math.ceil((res?.totalElement || 0) / this.pageSize);
                 this.isLoading = false;
             },
             error: (err) => {
@@ -59,6 +65,9 @@ export class AdminCorporateRequestsComponent implements OnInit {
             }
         });
     }
+
+    prevPage(): void { if (this.pageNumber > 0) { this.pageNumber--; this.loadByStatus(); } }
+    nextPage(): void { if (this.pageNumber < this.totalPages - 1) { this.pageNumber++; this.loadByStatus(); } }
 
     searchByEmail(): void {
         if (!this.searchEmail.trim()) return;
@@ -148,4 +157,12 @@ export class AdminCorporateRequestsComponent implements OnInit {
             default: return '❓';
         }
     }
+
+  goToPage(pageStr: string): void {
+    const page = parseInt(pageStr, 10);
+    if (!isNaN(page) && page > 0 && page <= this.totalPages) {
+      this.pageNumber = page - 1;
+      this.loadByStatus();
+    }
+  }
 }

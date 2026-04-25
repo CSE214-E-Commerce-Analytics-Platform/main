@@ -30,20 +30,26 @@ export class IndReviewsComponent implements OnInit {
   deletingId: number | null = null;
   savingId: number | null = null;
 
+  // Pagination
+  pageNumber = 0;
+  pageSize = 10;
+  totalPages = 0;
+
   ngOnInit(): void {
     this.loadReviews();
   }
 
   loadReviews(): void {
     this.isLoading = true;
-    this.reviewService.getMyReviews().pipe(
+    this.reviewService.getMyReviews({ pageNumber: this.pageNumber, pageSize: this.pageSize }).pipe(
       catchError(() => {
         this.toastService.showError('Failed to load reviews.');
         this.isLoading = false;
-        return of([]);
+        return of(null);
       })
-    ).subscribe(reviews => {
-      this.reviews = reviews || [];
+    ).subscribe(res => {
+      this.reviews = res?.content || [];
+      this.totalPages = Math.ceil((res?.totalElement || 0) / this.pageSize);
       const uniqueProductIds = [...new Set(this.reviews.map(r => r.productId))];
       uniqueProductIds.forEach(pid => {
         if (!this.productsMap[pid]) {
@@ -54,6 +60,20 @@ export class IndReviewsComponent implements OnInit {
       });
       this.isLoading = false;
     });
+  }
+
+  prevPage(): void {
+    if (this.pageNumber > 0) {
+      this.pageNumber--;
+      this.loadReviews();
+    }
+  }
+
+  nextPage(): void {
+    if (this.pageNumber < this.totalPages - 1) {
+      this.pageNumber++;
+      this.loadReviews();
+    }
   }
 
   startEdit(review: DtoReview): void {
@@ -120,5 +140,13 @@ export class IndReviewsComponent implements OnInit {
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
     if (url.startsWith('assets/images/')) return url;
     return `assets/images/${url}`;
+  }
+
+  goToPage(pageStr: string): void {
+    const page = parseInt(pageStr, 10);
+    if (!isNaN(page) && page > 0 && page <= this.totalPages) {
+      this.pageNumber = page - 1;
+      this.loadReviews();
+    }
   }
 }

@@ -16,6 +16,9 @@ import com.furkan.repositories.PaymentRepository;
 import com.furkan.services.IEmailService;
 import com.furkan.services.IOrderService;
 import com.furkan.services.IPaymentService;
+import com.furkan.utils.PagerUtil;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
@@ -27,13 +30,15 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -149,9 +154,21 @@ public class PaymentServiceImpl implements IPaymentService {
     }
 
     @Override
-    public List<DtoPayment> findPaymentsByUserId(Long userId) {
-        List<Payment> payments = paymentRepository.findByUserId(userId);
-        return payments.stream().map(this::dtoConverter).collect(Collectors.toList());
+    public RestPageableEntity<DtoPayment> findPaymentsByUserId(Long userId, RestPageableRequest request) {
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
+        }
+
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<Payment> paymentPage = paymentRepository.findByUserId(userId, pageable);
+
+        List<DtoPayment> dtoList = paymentPage.getContent().stream()
+                .map(this::dtoConverter)
+                .toList();
+
+        return PagerUtil.toPageableResponse(paymentPage, dtoList);
     }
 
     @Override
@@ -180,15 +197,34 @@ public class PaymentServiceImpl implements IPaymentService {
 
     private void confirmAllOrdersAsPaid(Order masterOrder) {
         masterOrder.setStatus(OrderStatus.PAID);
-        if (masterOrder.getSubOrders() != null) {
-            masterOrder.getSubOrders().forEach(sub -> sub.setStatus(OrderStatus.PAID));
+
+        List<OrderItem> allItems = new ArrayList<>();
+
+        if (masterOrder.getSubOrders() != null && !masterOrder.getSubOrders().isEmpty()) {
+            for (Order subOrder : masterOrder.getSubOrders()) {
+                subOrder.setStatus(OrderStatus.PAID);
+
+                if (subOrder.getOrderItems() != null) {
+                    allItems.addAll(subOrder.getOrderItems());
+                }
+
+                if (subOrder.getStore() != null && subOrder.getStore().getOwner() != null) {
+                    emailService.sendNewOrderNotificationToStore(
+                            subOrder.getStore().getOwner().getEmail(),
+                            masterOrder.getId().toString(),
+                            subOrder.getOrderItems()
+                    );
+                }
+            }
         }
+
         orderRepository.save(masterOrder);
 
         emailService.sendOrderConfirmationEmail(
                 masterOrder.getUser().getEmail(),
                 masterOrder.getId().toString(),
-                masterOrder.getGrandTotal()
+                masterOrder.getGrandTotal(),
+                allItems
         );
     }
 

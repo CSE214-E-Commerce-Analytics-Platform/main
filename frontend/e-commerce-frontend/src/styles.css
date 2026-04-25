@@ -432,3 +432,90 @@ h1, h2, h3, h4, h5, h6 {
 [data-theme="dark"] .table-card {
   box-shadow: var(--card-shadow);
 }
+
+/* ── Pagination Controls ────────────────────────────────── */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-page {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 8px 16px;
+  border-radius: var(--radius-btn);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--card-shadow);
+}
+
+.btn-page:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--surface-bg);
+  transform: translateY(-1px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.btn-page:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-page:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: transparent;
+  box-shadow: none;
+}
+
+.page-info {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  padding: 8px 16px;
+  background: var(--surface-bg);
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--border-subtle);
+}
+
+/* ── Jump to Page Controls ──────────────────────────────── */
+.jump-to-page {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 16px;
+  border-left: 1px solid var(--border-color);
+  padding-left: 16px;
+}
+
+.page-input {
+  width: 70px;
+  padding: 6px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-input);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  transition: var(--transition);
+}
+
+.page-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--input-focus-shadow);
+}
+

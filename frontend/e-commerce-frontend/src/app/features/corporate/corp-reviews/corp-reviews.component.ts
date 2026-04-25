@@ -21,44 +21,55 @@ export class CorpReviewsComponent implements OnInit {
   private reviewService = inject(ReviewService);
   private toastService = inject(ToastService);
 
-  stores: Store[] = [];
   selectedStoreId: number | null = null;
   reviews: DtoReview[] = [];
   isLoading = false;
 
+  // Pagination
+  pageNumber = 0;
+  pageSize = 20;
+  totalPages = 0;
+
   ngOnInit(): void {
-    this.storeService.getMyStores().subscribe({
-      next: (stores) => {
-        this.stores = stores || [];
-        if (this.stores.length > 0 && this.stores[0].id) {
-          this.selectedStoreId = this.stores[0].id;
+    this.storeService.getMyStores({ pageNumber: 0, pageSize: 10 }).subscribe({
+      next: (res) => {
+        const stores = res?.content || [];
+        if (stores.length > 0 && stores[0].id) {
+          this.selectedStoreId = stores[0].id;
           this.loadReviews();
         }
       }
     });
   }
 
-  onStoreChange(): void {
-    this.reviews = [];
-    this.loadReviews();
-  }
-
   loadReviews(): void {
     if (!this.selectedStoreId) return;
     this.isLoading = true;
-    this.reviewService.getCorporateReviews(this.selectedStoreId).pipe(
+    this.reviewService.getCorporateReviews(this.selectedStoreId, { pageNumber: this.pageNumber, pageSize: this.pageSize }).pipe(
       catchError(err => {
         this.toastService.showError('Failed to load store reviews. ' + (err.error?.exception?.message || ''));
         this.isLoading = false;
-        return of([]);
+        return of(null);
       })
-    ).subscribe(reviews => {
-      this.reviews = reviews;
+    ).subscribe(res => {
+      this.reviews = res?.content || [];
+      this.totalPages = Math.ceil((res?.totalElement || 0) / this.pageSize);
       this.isLoading = false;
     });
   }
 
+  prevPage(): void { if (this.pageNumber > 0) { this.pageNumber--; this.loadReviews(); } }
+  nextPage(): void { if (this.pageNumber < this.totalPages - 1) { this.pageNumber++; this.loadReviews(); } }
+
   getStarsArray(rating: number): number[] {
     return Array(5).fill(0).map((x, i) => i + 1);
+  }
+
+  goToPage(pageStr: string): void {
+    const page = parseInt(pageStr, 10);
+    if (!isNaN(page) && page > 0 && page <= this.totalPages) {
+      this.pageNumber = page - 1;
+      this.loadReviews();
+    }
   }
 }

@@ -24,11 +24,15 @@ export class CorpOrdersComponent implements OnInit {
 
   OrderStatus = OrderStatus;
 
-  stores: Store[] = [];
   selectedStoreId: number | null = null;
   orders: DtoOrder[] = [];
   isLoading = false;
   expandedOrderId: number | null = null;
+
+  // Pagination
+  pageNumber = 0;
+  pageSize = 20;
+  totalPages = 0;
 
   // Shipment Modal State
   showShipmentModal = false;
@@ -40,36 +44,35 @@ export class CorpOrdersComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    this.storeService.getMyStores().subscribe({
-      next: (stores) => {
-        this.stores = stores || [];
-        if (this.stores.length > 0 && this.stores[0].id) {
-          this.selectedStoreId = this.stores[0].id;
+    this.storeService.getMyStores({ pageNumber: 0, pageSize: 10 }).subscribe({
+      next: (res) => {
+        const stores = res?.content || [];
+        if (stores.length > 0 && stores[0].id) {
+          this.selectedStoreId = stores[0].id;
           this.loadOrders();
         }
       }
     });
   }
 
-  onStoreChange(): void {
-    this.orders = [];
-    this.loadOrders();
-  }
-
   loadOrders(): void {
     if (!this.selectedStoreId) return;
     this.isLoading = true;
-    this.orderService.getStoreOrders(this.selectedStoreId).pipe(
+    this.orderService.getStoreOrders(this.selectedStoreId, { pageNumber: this.pageNumber, pageSize: this.pageSize }).pipe(
       catchError(() => {
         this.toastService.showError('Failed to load store orders.');
         this.isLoading = false;
-        return of([]);
+        return of(null);
       })
-    ).subscribe(orders => {
-      this.orders = orders;
+    ).subscribe(res => {
+      this.orders = res?.content || [];
+      this.totalPages = Math.ceil((res?.totalElement || 0) / this.pageSize);
       this.isLoading = false;
     });
   }
+
+  prevPage(): void { if (this.pageNumber > 0) { this.pageNumber--; this.loadOrders(); } }
+  nextPage(): void { if (this.pageNumber < this.totalPages - 1) { this.pageNumber++; this.loadOrders(); } }
 
   toggleExpand(orderId: number | undefined): void {
     if (!orderId) return;
@@ -150,6 +153,14 @@ export class CorpOrdersComponent implements OnInit {
       case OrderStatus.DELIVERED: return '🎉';
       case OrderStatus.CANCELLED: return '❌';
       default: return '•';
+    }
+  }
+
+  goToPage(pageStr: string): void {
+    const page = parseInt(pageStr, 10);
+    if (!isNaN(page) && page > 0 && page <= this.totalPages) {
+      this.pageNumber = page - 1;
+      this.loadOrders();
     }
   }
 }

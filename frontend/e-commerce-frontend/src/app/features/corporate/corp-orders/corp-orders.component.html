@@ -4,13 +4,6 @@
       <h2>Store Orders & Fulfillment</h2>
       <p class="header-sub">Manage your store's shipments, view sub-orders, and update statuses.</p>
     </div>
-    
-    <div class="store-selector" *ngIf="stores.length > 0">
-      <label for="storeSelect">Active Store:</label>
-      <select id="storeSelect" [(ngModel)]="selectedStoreId" (change)="onStoreChange()">
-        <option *ngFor="let store of stores" [value]="store.id">{{ store.name }}</option>
-      </select>
-    </div>
   </div>
 
   <div class="loader" *ngIf="isLoading">
@@ -93,6 +86,18 @@
 
     </div>
   </div>
+
+  <!-- Pagination -->
+  <div class="pagination-controls" *ngIf="totalPages >= 0 && !isLoading">
+      <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber === 0">← Previous</button>
+      <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
+      <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber >= totalPages - 1">Next →</button>
+  
+        <div class="jump-to-page">
+            <input type="number" #pageInput min="1" [max]="totalPages" placeholder="Go to..." (keyup.enter)="goToPage(pageInput.value)" class="page-input">
+            <button class="btn-page" (click)="goToPage(pageInput.value)">Go</button>
+        </div>
+    </div>
 
   <div class="empty-state" *ngIf="!isLoading && orders.length === 0">
     <div class="empty-icon">🏪</div>

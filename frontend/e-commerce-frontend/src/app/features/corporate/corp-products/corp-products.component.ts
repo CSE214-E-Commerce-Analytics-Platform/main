@@ -17,7 +17,6 @@ import { Category } from '../../../shared/models/category';
 })
 export class CorpProductsComponent implements OnInit {
 
-  stores: Store[] = [];
   categories: Category[] = [];
   products: Product[] = [];
   
@@ -27,6 +26,11 @@ export class CorpProductsComponent implements OnInit {
   productForm: FormGroup;
   showProductModal: boolean = false;
   editingProductId: number | null = null;
+
+  // Pagination
+  pageNumber = 0;
+  pageSize = 20;
+  totalPages = 0;
 
   constructor(
     private productService: ProductService,
@@ -53,44 +57,32 @@ export class CorpProductsComponent implements OnInit {
 
   loadInitialData(): void {
     // Load categories
-    this.categoryService.getAllCategories().subscribe({
-      next: (data) => this.categories = data || [],
+    this.categoryService.getAllCategories({ pageNumber: 0, pageSize: 100 }).subscribe({
+      next: (res) => this.categories = res?.content || [],
       error: (err) => console.error("Could not load categories", err)
     });
 
-    // Load stores
-    this.storeService.getMyStores().subscribe({
-      next: (data) => {
-        this.stores = data || [];
-        
-        // Handle route query param 'storeId' if present
-        this.route.queryParams.subscribe(params => {
-          if (params['storeId']) {
-            this.selectedStoreId = +params['storeId'];
-          } else if (this.stores.length > 0) {
-            this.selectedStoreId = this.stores[0].id;
-          }
-          if (this.selectedStoreId) {
-            this.productForm.patchValue({ storeId: this.selectedStoreId });
-            this.loadProducts(this.selectedStoreId);
-          }
-        });
+    // Load single store (1:1)
+    this.storeService.getMyStores({ pageNumber: 0, pageSize: 10 }).subscribe({
+      next: (res) => {
+        const stores = res?.content || [];
+        if (stores.length > 0) {
+          this.selectedStoreId = stores[0].id;
+          this.productForm.patchValue({ storeId: this.selectedStoreId });
+          this.loadProducts();
+        }
       },
-      error: (err) => console.error("Could not load stores", err)
+      error: (err) => console.error("Could not load store", err)
     });
   }
 
-  onStoreChange(storeId: any): void {
-    this.selectedStoreId = +storeId;
-    this.productForm.patchValue({ storeId: this.selectedStoreId });
-    this.loadProducts(this.selectedStoreId);
-  }
-
-  loadProducts(storeId: number): void {
+  loadProducts(): void {
+    if (!this.selectedStoreId) return;
     this.isLoading = true;
-    this.productService.getProductsByStoreId(storeId).subscribe({
-      next: (data) => {
-        this.products = data || [];
+    this.productService.getProductsByStoreId(this.selectedStoreId, { pageNumber: this.pageNumber, pageSize: this.pageSize }).subscribe({
+      next: (res) => {
+        this.products = res?.content || [];
+        this.totalPages = Math.ceil((res?.totalElement || 0) / this.pageSize);
         this.isLoading = false;
       },
       error: (err) => {
@@ -99,6 +91,9 @@ export class CorpProductsComponent implements OnInit {
       }
     });
   }
+
+  prevPage(): void { if (this.pageNumber > 0) { this.pageNumber--; this.loadProducts(); } }
+  nextPage(): void { if (this.pageNumber < this.totalPages - 1) { this.pageNumber++; this.loadProducts(); } }
 
   openProductModal(product?: Product): void {
     if (product) {
@@ -154,7 +149,7 @@ export class CorpProductsComponent implements OnInit {
           if (index !== -1) {
              this.products[index] = updatedProduct;
           } else {
-             this.loadProducts(this.selectedStoreId!);
+             this.loadProducts();
           }
           this.closeProductModal();
         },
@@ -202,5 +197,13 @@ export class CorpProductsComponent implements OnInit {
       return url;
     }
     return `assets/images/${url}`;
+  }
+
+  goToPage(pageStr: string): void {
+    const page = parseInt(pageStr, 10);
+    if (!isNaN(page) && page > 0 && page <= this.totalPages) {
+      this.pageNumber = page - 1;
+      this.loadProducts();
+    }
   }
 }

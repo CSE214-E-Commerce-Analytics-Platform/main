@@ -34,8 +34,9 @@ export class AuthService {
     );
   }
 
-  register(email: string, password: string, gender: string) {
-    return this.http.post<ApiResponse<string>>(`${this.API_URL}/register`, { email, password, gender }, { withCredentials: true })
+  register(email: string, password: string, age?: number | null, city?: string | null, state?: string | null, country?: string | null) {
+    const payload = { email, password, age, city, state, country };
+    return this.http.post<ApiResponse<string>>(`${this.API_URL}/register`, payload, { withCredentials: true })
       .pipe(
         map(response => {
           if (response.status === 200 && response.payload) {

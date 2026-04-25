@@ -34,6 +34,7 @@ public enum MessageType {
 
     // Address
     ADDRESS_NOT_FOUND("1015", "Address not found for this user!"),
+    ADDRESS_USER_MISMATCH("1016", "This address is not your address, you can not select that address for delivery address"),
 
     // Category
     CATEGORY_NOT_FOUND("2001", "Selected category not found."),

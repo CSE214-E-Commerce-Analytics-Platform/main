@@ -8,6 +8,8 @@ import { ToastService } from '../../../core/services/toast.service';
 import { Store } from '../../../shared/models/store';
 import { DtoOrder, OrderStatus } from '../../../shared/models/order';
 import { Product } from '../../../shared/models/product';
+import { DtoCustomerAnalytics } from '../../../shared/models/analytics';
+import { AnalyticsService } from '../../../core/services/analytics.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Chart, registerables } from 'chart.js';
@@ -26,21 +28,36 @@ export class CorpAnalyticsComponent implements OnInit, AfterViewInit, OnDestroy 
   private orderService = inject(OrderService);
   private productService = inject(ProductService);
   private toastService = inject(ToastService);
+  private analyticsService = inject(AnalyticsService);
 
   @ViewChild('revenueChart') revenueChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('topProductsChart') topProductsRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('orderStatusChart') orderStatusRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('customerSegmentsChart') customerSegmentsRef!: ElementRef<HTMLCanvasElement>;
 
   stores: Store[] = [];
   selectedStoreId: number | null = null;
   isLoading = false;
 
+  // Date Range Filter
+  startDate: string = '';
+  endDate: string = '';
+  rawOrders: DtoOrder[] = [];
+  rawProducts: Product[] = [];
+
+  // Drill-down
+  selectedMonth: string | null = null;
+  selectedMonthOrders: DtoOrder[] = [];
+
+  // Analytics
+  customerAnalytics: DtoCustomerAnalytics | null = null;
+
   // Stats
-  totalRevenue = 0;
-  totalOrders = 0;
-  avgOrderValue = 0;
   totalProducts = 0;
   lowStockCount = 0;
+  totalOrders = 0;
+  totalRevenue = 0;
+  avgOrderValue = 0;
 
   // Chart data
   monthlyRevenue: { month: string; revenue: number; count: number }[] = [];
@@ -51,7 +68,7 @@ export class CorpAnalyticsComponent implements OnInit, AfterViewInit, OnDestroy 
   private viewReady = false;
 
   ngOnInit(): void {
-    this.loadStores();
+    this.loadStore();
   }
 
   ngAfterViewInit(): void {
@@ -62,47 +79,80 @@ export class CorpAnalyticsComponent implements OnInit, AfterViewInit, OnDestroy 
     this.charts.forEach(c => c.destroy());
   }
 
-  loadStores(): void {
-    this.storeService.getMyStores().pipe(
-      catchError(() => { this.toastService.showError('Failed to load stores.'); return of([]); })
-    ).subscribe(stores => {
-      this.stores = stores || [];
-      if (this.stores.length > 0) {
-        this.selectedStoreId = this.stores[0].id;
+  loadStore(): void {
+    this.storeService.getMyStores({ pageNumber: 0, pageSize: 10 }).pipe(
+      catchError(() => { this.toastService.showError('Failed to load store.'); return of(null); })
+    ).subscribe(res => {
+      const stores = res?.content || [];
+      if (stores.length > 0) {
+        this.selectedStoreId = stores[0].id;
         this.loadStoreData(this.selectedStoreId);
       }
     });
   }
 
-  onStoreChange(storeId: any): void {
-    this.selectedStoreId = +storeId;
-    this.loadStoreData(this.selectedStoreId);
-  }
-
   loadStoreData(storeId: number): void {
     this.isLoading = true;
     forkJoin({
-      orders: this.orderService.getStoreOrders(storeId).pipe(catchError(() => of([]))),
-      products: this.productService.getProductsByStoreId(storeId).pipe(catchError(() => of([])))
-    }).subscribe(({ orders, products }) => {
-      const allOrders = orders || [];
-      const allProducts = products || [];
+      orders: this.orderService.getStoreOrders(storeId, { pageNumber: 0, pageSize: 100 }).pipe(catchError(() => of(null))),
+      products: this.productService.getProductsByStoreId(storeId, { pageNumber: 0, pageSize: 100 }).pipe(catchError(() => of(null))),
+      analytics: this.analyticsService.getCustomerAnalytics(storeId).pipe(catchError(() => of(null)))
+    }).subscribe(({ orders, products, analytics }) => {
+      this.rawOrders = orders?.content || [];
+      this.rawProducts = products?.content || [];
+      this.customerAnalytics = analytics;
+      
+      // Default to last 30 days if no date selected
+      if (!this.startDate && !this.endDate) {
+          const d = new Date();
+          d.setDate(d.getDate() - 30);
+          this.startDate = d.toISOString().split('T')[0];
+          this.endDate = new Date().toISOString().split('T')[0];
+      }
 
-      this.totalProducts = allProducts.length;
-      this.lowStockCount = allProducts.filter(p => p.stockQuantity > 0 && p.stockQuantity < 10).length;
+      this.applyDateFilter();
+      this.isLoading = false;
+    });
+  }
 
-      const nonCancelled = allOrders.filter(o => o.status !== OrderStatus.CANCELLED);
-      this.totalOrders = allOrders.length;
+  applyDateFilter(): void {
+      let filteredOrders = [...this.rawOrders];
+      
+      if (this.startDate) {
+          const start = new Date(this.startDate).getTime();
+          filteredOrders = filteredOrders.filter(o => new Date(o.orderDate).getTime() >= start);
+      }
+      if (this.endDate) {
+          const end = new Date(this.endDate);
+          end.setHours(23, 59, 59, 999);
+          filteredOrders = filteredOrders.filter(o => new Date(o.orderDate).getTime() <= end.getTime());
+      }
+
+      this.totalProducts = this.rawProducts.length;
+      this.lowStockCount = this.rawProducts.filter(p => p.stockQuantity > 0 && p.stockQuantity < 10).length;
+
+      const nonCancelled = filteredOrders.filter(o => o.status !== OrderStatus.CANCELLED);
+      this.totalOrders = filteredOrders.length;
       this.totalRevenue = nonCancelled.reduce((s, o) => s + o.grandTotal, 0);
       this.avgOrderValue = nonCancelled.length > 0 ? this.totalRevenue / nonCancelled.length : 0;
 
       this.computeMonthlyRevenue(nonCancelled);
-      this.computeTopProducts(allOrders, allProducts);
-      this.computeStatusDist(allOrders);
+      this.computeTopProducts(filteredOrders, this.rawProducts);
+      this.computeStatusDist(filteredOrders);
+      
+      this.selectedMonth = null;
+      this.selectedMonthOrders = [];
 
-      this.isLoading = false;
       if (this.viewReady) setTimeout(() => this.renderCharts(), 50);
-    });
+  }
+
+  onMonthClick(month: string): void {
+      this.selectedMonth = month;
+      this.selectedMonthOrders = this.rawOrders.filter(o => {
+          const d = new Date(o.orderDate);
+          const m = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+          return m === month && o.status !== OrderStatus.CANCELLED;
+      }).sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime());
   }
 
   computeMonthlyRevenue(orders: DtoOrder[]): void {
@@ -179,6 +229,13 @@ export class CorpAnalyticsComponent implements OnInit, AfterViewInit, OnDestroy 
           scales: {
             x: { grid: { color: gridColor }, ticks: { color: textColor } },
             y: { grid: { color: gridColor }, ticks: { color: textColor, callback: (v) => '₺' + v } }
+          },
+          onClick: (e, elements) => {
+              if (elements && elements.length > 0) {
+                  const idx = elements[0].index;
+                  const month = this.monthlyRevenue[idx].month;
+                  this.onMonthClick(month);
+              }
           }
         }
       }));
@@ -224,6 +281,25 @@ export class CorpAnalyticsComponent implements OnInit, AfterViewInit, OnDestroy 
         options: {
           responsive: true, maintainAspectRatio: false, cutout: '60%',
           plugins: { legend: { position: 'bottom', labels: { color: textColor, padding: 12, usePointStyle: true } } }
+        }
+      }));
+    }
+
+    // Customer segments
+    if (this.customerSegmentsRef && this.customerAnalytics && this.customerAnalytics.segments && this.customerAnalytics.segments.length > 0) {
+      this.charts.push(new Chart(this.customerSegmentsRef.nativeElement, {
+        type: 'pie',
+        data: {
+          labels: this.customerAnalytics.segments.map(s => s.name),
+          datasets: [{
+            data: this.customerAnalytics.segments.map(s => s.count),
+            backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899'],
+            borderWidth: 0, hoverOffset: 8
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'right', labels: { color: textColor, padding: 12, usePointStyle: true } } }
         }
       }));
     }

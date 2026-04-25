@@ -4,6 +4,7 @@ import { Observable, map } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response';
 import { DtoShipment, DtoShipmentRequest, ShipmentStatus } from '../../shared/models/shipment';
 import { environment } from '../../../environments/environment.development';
+import { RestPageableEntity, RestPageableRequest, buildPageParams } from '../../shared/models/pageable';
 
 @Injectable({ providedIn: 'root' })
 export class ShipmentService {
@@ -30,14 +31,16 @@ export class ShipmentService {
       .pipe(map(res => res.payload as DtoShipment));
   }
 
-  getAll(): Observable<DtoShipment[]> {
-    return this.http.get<ApiResponse<DtoShipment[]>>(this.apiUrl)
-      .pipe(map(res => res.payload as DtoShipment[]));
+  getAll(request?: RestPageableRequest): Observable<RestPageableEntity<DtoShipment>> {
+    const params = buildPageParams(request);
+    return this.http.get<ApiResponse<RestPageableEntity<DtoShipment>>>(this.apiUrl, { params })
+      .pipe(map(res => res.payload as RestPageableEntity<DtoShipment>));
   }
 
-  getMyShipments(): Observable<DtoShipment[]> {
-    return this.http.get<ApiResponse<DtoShipment[]>>(`${this.apiUrl}/my-shipments`)
-      .pipe(map(res => res.payload as DtoShipment[]));
+  getMyShipments(request?: RestPageableRequest): Observable<RestPageableEntity<DtoShipment>> {
+    const params = buildPageParams(request);
+    return this.http.get<ApiResponse<RestPageableEntity<DtoShipment>>>(`${this.apiUrl}/my-shipments`, { params })
+      .pipe(map(res => res.payload as RestPageableEntity<DtoShipment>));
   }
 
   getById(id: number): Observable<DtoShipment> {

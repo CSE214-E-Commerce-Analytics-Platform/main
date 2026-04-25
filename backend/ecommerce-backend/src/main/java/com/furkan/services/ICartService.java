@@ -3,6 +3,8 @@ package com.furkan.services;
 import com.furkan.dto.request.DtoCartItemRequest;
 import com.furkan.dto.response.DtoCart;
 import com.furkan.entities.Cart;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 
 import java.util.List;
 
@@ -19,7 +21,7 @@ public interface ICartService {
 
     void clearCart(Long userId);
 
-    List<DtoCart> findAllCarts();
+    RestPageableEntity<DtoCart> findAllCarts(RestPageableRequest request);
 
     void adminDeleteCart(Long cartId);
 

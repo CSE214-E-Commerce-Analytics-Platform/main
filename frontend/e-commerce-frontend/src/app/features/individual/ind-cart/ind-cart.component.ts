@@ -74,14 +74,14 @@ export class IndCartComponent implements OnInit {
 
   loadAddresses() {
     this.isLoadingAddresses = true;
-    this.addressService.findMyAddresses().pipe(
+    this.addressService.findMyAddresses({ pageNumber: 0, pageSize: 100 }).pipe(
       catchError(() => {
         this.toastService.showError('Failed to load addresses.');
         this.isLoadingAddresses = false;
-        return of([]);
+        return of(null);
       })
-    ).subscribe(addrs => {
-      this.addresses = addrs || [];
+    ).subscribe(res => {
+      this.addresses = res?.content || [];
       // Auto-select the first address if available
       if (this.addresses.length > 0) {
         this.selectedAddressId = this.addresses[0].id!;
@@ -109,15 +109,11 @@ export class IndCartComponent implements OnInit {
     const selectedAddr = this.addresses.find(a => a.id === this.selectedAddressId);
     if (!selectedAddr) return;
 
-    // Combine address parts into a single string for the order
-    const shippingAddressString = `${selectedAddr.fullAddress}, ${selectedAddr.district}/${selectedAddr.city} ${selectedAddr.zipCode}`;
-
     this.isProcessing = true;
 
     // 1. Create the order
     this.orderService.create({
-      shippingAddress: shippingAddressString,
-      shippingCost: 0 // Optional logic for shipping cost
+      addressId: this.selectedAddressId
     }).pipe(
       catchError(err => {
         this.toastService.showError('Failed to create order. ' + (err.error?.exception?.message || ''));

@@ -1,5 +1,6 @@
 package com.furkan.services.impl;
 
+import com.furkan.dto.request.DtoOrderRequest;
 import com.furkan.dto.response.DtoOrder;
 import com.furkan.dto.response.DtoOrderItem;
 import com.furkan.entities.*;
@@ -8,16 +9,19 @@ import com.furkan.enums.PaymentStatus;
 import com.furkan.exception.BaseException;
 import com.furkan.exception.ErrorMessage;
 import com.furkan.exception.MessageType;
-import com.furkan.repositories.OrderRepository;
-import com.furkan.repositories.PaymentRepository;
-import com.furkan.repositories.StoreRepository;
-import com.furkan.repositories.UserRepository;
+import com.furkan.repositories.*;
 import com.furkan.services.ICartService;
+import com.furkan.services.IEmailService;
 import com.furkan.services.IOrderService;
 import com.furkan.services.IProductService;
+import com.furkan.utils.PagerUtil;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -37,13 +41,22 @@ public class OrderServiceImpl implements IOrderService {
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
     private final PaymentRepository paymentRepository;
+    private final AddressRepository addressRepository;
+    private final IEmailService emailService;
 
     @Override
     @Transactional
-    public DtoOrder createOrder(Long userId) {
+    public DtoOrder createOrder(Long userId, DtoOrderRequest request) {
         Cart cart = cartService.findEntityCartByUserId(userId);
         if (cart.getCartItems().isEmpty()) {
             throw new BaseException(new ErrorMessage(MessageType.CART_IS_EMPTY, userId.toString()));
+        }
+
+        Address address = addressRepository.findById(request.getAddressId())
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.ADDRESS_NOT_FOUND, request.getAddressId().toString())));
+
+        if (!address.getUser().getId().equals(userId)) {
+            throw new BaseException(new ErrorMessage(MessageType.ADDRESS_USER_MISMATCH, address.getId().toString()));
         }
 
         Order masterOrder = new Order();
@@ -52,6 +65,7 @@ public class OrderServiceImpl implements IOrderService {
         masterOrder.setStatus(OrderStatus.PENDING);
         masterOrder.setGrandTotal(cart.getTotalPrice());
         masterOrder.setSubOrders(new ArrayList<>());
+        masterOrder.setAddress(address);
 
         Map<Long, List<CartItem>> itemsByStore = cart.getCartItems().stream()
                 .collect(Collectors.groupingBy(item -> item.getProduct().getStore().getId()));
@@ -73,12 +87,20 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public List<DtoOrder> findMyOrders(Long userId) {
-        List<Order> masterOrder = orderRepository.findByUserIdAndParentOrderIsNullOrderByOrderDateDesc(userId);
+    public RestPageableEntity<DtoOrder> findMyOrders(Long userId, RestPageableRequest request) {
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
+        }
 
-        return masterOrder.stream()
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<Order> masterOrder = orderRepository.findByUserIdAndParentOrderIsNullOrderByOrderDateDesc(userId, pageable);
+
+        List<DtoOrder> dtoList = masterOrder.getContent().stream()
                 .map(this::dtoOrderMapper)
-                .collect(Collectors.toList());
+                .toList();
+        return PagerUtil.toPageableResponse(masterOrder, dtoList);
     }
 
     @Override
@@ -121,10 +143,11 @@ public class OrderServiceImpl implements IOrderService {
         }
 
         orderRepository.save(order);
+        emailService.sendOrderCancellationEmail(order.getUser().getEmail(), orderId.toString(), "Your own choice");
     }
 
     @Override
-    public List<DtoOrder> findOrdersByStoreId(Long storeId, Long userId) {
+    public RestPageableEntity<DtoOrder> findOrdersByStoreId(Long storeId, Long userId, RestPageableRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.USER_NOT_FOUND, userId.toString())));
 
@@ -132,11 +155,20 @@ public class OrderServiceImpl implements IOrderService {
             throw new BaseException(new ErrorMessage(MessageType.UNAUTHORIZED, null));
         }
 
-        List<Order> subOrders = orderRepository.findByStoreIdOrderByOrderDateDesc(storeId);
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
+        }
 
-        return subOrders.stream()
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<Order> subOrders = orderRepository.findByStoreIdOrderByOrderDateDesc(storeId, pageable);
+
+        List<DtoOrder> dtoList = subOrders.getContent().stream()
                 .map(this::dtoOrderMapper)
-                .collect(Collectors.toList());
+                .toList();
+
+        return PagerUtil.toPageableResponse(subOrders, dtoList);
     }
 
     @Override
@@ -160,10 +192,21 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public List<DtoOrder> findAllOrders() {
-        return orderRepository.findAll().stream()
+    public RestPageableEntity<DtoOrder> findAllOrders(RestPageableRequest request) {
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
+        }
+
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<Order> orderPage = orderRepository.findAll(pageable);
+
+        List<DtoOrder> dtoList = orderPage.getContent().stream()
                 .map(this::dtoOrderMapper)
-                .collect(Collectors.toList());
+                .toList();
+
+        return PagerUtil.toPageableResponse(orderPage, dtoList);
     }
 
     @Override
@@ -189,6 +232,7 @@ public class OrderServiceImpl implements IOrderService {
         subOrder.setOrderDate(masterOrder.getOrderDate());
         subOrder.setStatus(OrderStatus.PENDING);
         subOrder.setOrderItems(new ArrayList<>());
+        subOrder.setAddress(masterOrder.getAddress());
 
         BigDecimal subTotal = BigDecimal.ZERO;
 
@@ -222,7 +266,7 @@ public class OrderServiceImpl implements IOrderService {
     private void updateMasterOrderStatus(Order masterOrder) {
         List<OrderStatus> subStatuses = masterOrder.getSubOrders().stream()
                 .map(Order::getStatus)
-                .collect(Collectors.toList());
+                .toList();
 
         boolean allSame = subStatuses.stream().allMatch(s -> s == subStatuses.get(0));
 
@@ -268,6 +312,10 @@ public class OrderServiceImpl implements IOrderService {
         if (order.getStore() != null) {
             dtoOrder.setStoreId(order.getStore().getId());
             dtoOrder.setStoreName(order.getStore().getName());
+        }
+
+        if (order.getAddress() != null) {
+            dtoOrder.setFullAddress(order.getAddress().getFullAddress());
         }
 
         return dtoOrder;

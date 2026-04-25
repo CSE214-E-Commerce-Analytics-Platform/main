@@ -4,12 +4,6 @@
       <h2>Inventory Management</h2>
       <p class="header-sub">Monitor and update your product stock levels.</p>
     </div>
-    <div class="store-selector" *ngIf="stores.length > 1">
-      <label>Store:</label>
-      <select [ngModel]="selectedStoreId" (ngModelChange)="onStoreChange($event)">
-        <option *ngFor="let store of stores" [value]="store.id">{{ store.name }}</option>
-      </select>
-    </div>
   </div>
 
   <!-- Stats Cards -->

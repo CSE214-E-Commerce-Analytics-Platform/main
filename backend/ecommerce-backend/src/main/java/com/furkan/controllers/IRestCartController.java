@@ -2,6 +2,8 @@ package com.furkan.controllers;
 
 import com.furkan.dto.request.DtoCartItemRequest;
 import com.furkan.dto.response.DtoCart;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import com.furkan.utils.RootEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -19,7 +21,7 @@ public interface IRestCartController {
 
     RootEntity<Void> clearCart(UserDetails userDetails);
 
-    RootEntity<List<DtoCart>> findAllCarts();
+    RootEntity<RestPageableEntity<DtoCart>> findAllCarts(RestPageableRequest request);
 
     RootEntity<DtoCart> findCartByUserId(Long userId);
 

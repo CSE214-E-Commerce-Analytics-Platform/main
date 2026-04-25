@@ -17,9 +17,14 @@ import com.furkan.repositories.CorporateUpdateRequestRepository;
 import com.furkan.repositories.UserRepository;
 import com.furkan.services.ICorporateUpdateRequestService;
 import com.furkan.services.IStoreService;
+import com.furkan.utils.PagerUtil;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -106,10 +111,21 @@ public class CorporateUpdateRequestServiceImpl implements ICorporateUpdateReques
     }
 
     @Override
-    public List<DtoCorporateUpdate> findRequestsByStatus(CorporateUpdateRequestStatus status) {
-        return corporateUpdateRequestRepository.findAllByStatus(status).stream()
+    public RestPageableEntity<DtoCorporateUpdate> findRequestsByStatus(CorporateUpdateRequestStatus status, RestPageableRequest request) {
+        if (request.getColumnName() == null || request.getColumnName().isEmpty()) {
+            request.setColumnName("id");
+            request.setAsc(false);
+        }
+
+        Pageable pageable = PagerUtil.toPageable(request);
+
+        Page<CorporateUpdateRequest> corporateUpdateRequestPage = corporateUpdateRequestRepository.findAllByStatus(status, pageable);
+
+        List<DtoCorporateUpdate> dtoList = corporateUpdateRequestPage.getContent().stream()
                 .map(this::mapToDto)
-                .collect(Collectors.toList());
+                .toList();
+
+        return PagerUtil.toPageableResponse(corporateUpdateRequestPage, dtoList);
     }
 
     private DtoCorporateUpdate mapToDto(CorporateUpdateRequest entity) {

@@ -8,8 +8,7 @@ export enum OrderStatus {
 }
 
 export interface DtoOrderRequest {
-  shippingAddress: string;
-  shippingCost: number;
+  addressId: number;
 }
 
 export interface DtoOrderItem {
