@@ -157,4 +157,12 @@ export class IndAddressesComponent implements OnInit {
       });
     }
   }
+
+  goToPage(pageStr: string): void {
+    const page = parseInt(pageStr, 10);
+    if (!isNaN(page) && page > 0 && page <= this.totalPages) {
+      this.pageNumber = page - 1;
+      this.loadAddresses();
+    }
+  }
 }

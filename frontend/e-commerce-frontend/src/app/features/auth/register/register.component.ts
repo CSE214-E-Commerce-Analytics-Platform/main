@@ -19,7 +19,10 @@ export class RegisterComponent {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
     confirmPassword: ['', [Validators.required]],
-    gender: ['', [Validators.required]]
+    age: [null as number | null, [Validators.min(1), Validators.max(150)]],
+    city: [null as string | null],
+    state: [null as string | null],
+    country: [null as string | null]
   });
 
   errorMessage = '';
@@ -34,19 +37,14 @@ export class RegisterComponent {
     this.isLoading = true;
 
     if (this.registerForm.valid) {
-      const { email, password, confirmPassword, gender } = this.registerForm.value as {
-        email: string;
-        password: string;
-        confirmPassword: string;
-        gender: string;
-      };
+      const { email, password, confirmPassword, age, city, state, country } = this.registerForm.value;
 
       if (password !== confirmPassword) {
         this.errorMessage = 'Passwords do not match.';
         return;
       }
 
-      this.authService.register(email, password, gender).subscribe({
+      this.authService.register(email!, password!, age, city, state, country).subscribe({
         next: (message: string) => {
           this.successMessage = message || 'Registration successful. Please check your email to verify your account.';
           this.registerForm.reset();

@@ -64,4 +64,12 @@ export class CorpReviewsComponent implements OnInit {
   getStarsArray(rating: number): number[] {
     return Array(5).fill(0).map((x, i) => i + 1);
   }
+
+  goToPage(pageStr: string): void {
+    const page = parseInt(pageStr, 10);
+    if (!isNaN(page) && page > 0 && page <= this.totalPages) {
+      this.pageNumber = page - 1;
+      this.loadReviews();
+    }
+  }
 }

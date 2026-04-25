@@ -111,4 +111,12 @@ export class IndStoreDetailComponent implements OnInit {
   goBack(): void {
     this.location.back();
   }
+
+  goToPage(pageStr: string): void {
+    const page = parseInt(pageStr, 10);
+    if (!isNaN(page) && page > 0 && page <= this.totalPages) {
+      this.pageNumber = page - 1;
+      this.fetchProducts();
+    }
+  }
 }

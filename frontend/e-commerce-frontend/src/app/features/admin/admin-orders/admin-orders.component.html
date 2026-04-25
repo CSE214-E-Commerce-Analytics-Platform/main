@@ -4,11 +4,6 @@
       <h2>Global Orders</h2>
       <p>View and monitor all orders across the entire platform.</p>
     </div>
-    <div class="header-actions">
-      <button class="refresh-btn" (click)="loadAllOrders()" [disabled]="isLoading">
-        <span class="icon">↻</span> Refresh
-      </button>
-    </div>
   </div>
 
   <div class="loader" *ngIf="isLoading">
@@ -129,6 +124,11 @@
         <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber === 0">← Previous</button>
         <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
         <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber >= totalPages - 1">Next →</button>
+    
+        <div class="jump-to-page">
+            <input type="number" #pageInput min="1" [max]="totalPages" placeholder="Go to..." (keyup.enter)="goToPage(pageInput.value)" class="page-input">
+            <button class="btn-page" (click)="goToPage(pageInput.value)">Go</button>
+        </div>
     </div>
   </div>
 
