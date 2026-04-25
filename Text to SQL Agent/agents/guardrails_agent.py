@@ -77,7 +77,7 @@ OUTPUT FORMAT:
 Return valid JSON only — no markdown fences, no extra text.
 Example: {{"intent": "sql_query", "is_safe": true, "language": "en", "reason": "User asked for order revenue data."}}"""
 
-# ── Canned responses (bilingual) ─────────────────────────────────────────────
+# ── Canned responses (English only) ──────────────────────────────────────────
 
 _CANNED_RESPONSES = {
     "en": {
@@ -96,24 +96,7 @@ _CANNED_RESPONSES = {
             "orders, products, revenue, customers, shipments, and reviews. "
             "What data would you like to explore?"
         ),
-    },
-    "tr": {
-        "unsafe": (
-            "Bu talebe yardımcı olamıyorum. "
-            "Lütfen e-ticaret verilerinizle ilgili sorular sorun."
-        ),
-        "greeting": (
-            "Merhaba! Ben e-ticaret analiz asistanınızım. "
-            "Siparişleriniz, ürünleriniz, gelirleriniz, kargolarınız veya yorumlarınızla ilgili her şeyi sorabilirsiniz. "
-            "Örneğin: 'Bu ay gelire göre en iyi 10 ürünümü göster' veya "
-            "'Ortalama sipariş değerim nedir?'"
-        ),
-        "off_topic": (
-            "Yalnızca bu e-ticaret platformunun verilerine ilişkin sorulara yanıt verebilirim — "
-            "siparişler, ürünler, gelir, müşteriler, kargolar ve yorumlar. "
-            "Hangi veriyi incelemek istersiniz?"
-        ),
-    },
+    }
 }
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -229,7 +212,7 @@ def guardrails_agent(state: AgentState) -> AgentState:
             "intent": "greeting",
             "is_in_scope": False,
             "language": lang,
-            "final_answer": _CANNED_RESPONSES[lang]["greeting"],
+            "final_answer": _CANNED_RESPONSES["en"]["greeting"],
         }
 
     # ── 2. Classify (NeMo if available, else LLM) ────────────────────────────
@@ -257,7 +240,7 @@ def guardrails_agent(state: AgentState) -> AgentState:
     # Set canned final_answer for non-query intents
     if not is_safe or intent != "sql_query":
         response_key = "unsafe" if not is_safe else intent
-        lang_map = _CANNED_RESPONSES.get(language, _CANNED_RESPONSES["en"])
+        lang_map = _CANNED_RESPONSES["en"]
         updates["final_answer"] = lang_map.get(response_key, lang_map["off_topic"])
 
     return {**state, **updates}

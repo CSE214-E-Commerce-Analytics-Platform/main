@@ -16,7 +16,7 @@
     <div class="header-info">
       <span class="ai-dot" [class.pulsing]="isTyping"></span>
       <div class="header-text">
-        <h4>AI Veri Asistanı</h4>
+        <h4>AI Data Assistant</h4>
         <span class="header-sub">{{ headerSubtitle }}</span>
       </div>
     </div>
@@ -35,11 +35,11 @@
         <div class="welcome-row">
           <div class="ai-avatar">AI</div>
           <div class="welcome-bubble">
-            Merhaba <strong>{{ displayName }}</strong>! Mağaza verinizi doğal dilde sorgulayın.
+            Hello <strong>{{ displayName }}</strong>! Query your store data in natural language.
           </div>
         </div>
         <div class="example-section">
-          <p class="example-label">Örnek sorular:</p>
+          <p class="example-label">Example questions:</p>
           <div class="example-grid">
             @for (q of exampleQuestions; track q) {
               <button class="example-chip" (click)="useExample(q)">{{ q }}</button>
@@ -89,7 +89,7 @@
               <div class="sql-block">
                 <div class="sql-block-header">
                   <span class="sql-icon">⚡</span>
-                  <span class="sql-label">SQL Sorgusu</span>
+                  <span class="sql-label">SQL Query</span>
                 </div>
                 <pre class="sql-code">{{ msg.sqlQuery }}</pre>
               </div>
@@ -98,7 +98,7 @@
             <!-- Footer: row count + timing -->
             @if (msg.rowCount || msg.queryTimeMs) {
               <div class="row-footer">
-                @if (msg.rowCount) { <span>{{ msg.rowCount }} satır döndü</span> }
+                @if (msg.rowCount) { <span>{{ msg.rowCount }} rows returned</span> }
                 @if (msg.queryTimeMs) { <span>· {{ formatQueryTime(msg.queryTimeMs) }}</span> }
               </div>
             }
@@ -128,23 +128,23 @@
               <div class="gr-detail-card">
                 <p class="gr-detail-title">
                   <span class="gr-warn-icon">⚠</span>
-                  {{ msg.guardrailDetail.detectionType }} Tespit Edildi
+                  {{ msg.guardrailDetail.detectionType }} Detected
                 </p>
                 <table class="gr-detail-table">
                   <tr>
-                    <td class="gr-dt-key">Tespit türü</td>
+                    <td class="gr-dt-key">Detection Type</td>
                     <td class="gr-dt-val">{{ msg.guardrailDetail.detectionType }}</td>
                   </tr>
                   <tr>
-                    <td class="gr-dt-key">Tetikleyici</td>
+                    <td class="gr-dt-key">Trigger</td>
                     <td class="gr-dt-val">{{ msg.guardrailDetail.trigger }}</td>
                   </tr>
                   <tr>
-                    <td class="gr-dt-key">Hedef</td>
+                    <td class="gr-dt-key">Target</td>
                     <td class="gr-dt-val">{{ msg.guardrailDetail.target }}</td>
                   </tr>
                   <tr>
-                    <td class="gr-dt-key">Eylem</td>
+                    <td class="gr-dt-key">Action</td>
                     <td class="gr-dt-val">{{ msg.guardrailDetail.action }}</td>
                   </tr>
                 </table>
@@ -160,7 +160,7 @@
               <!-- Suggestion (green box) -->
               @if (msg.guardrailDetail.suggestion) {
                 <div class="gr-suggestion">
-                  <strong>Bunun yerine yapabilirim:</strong>
+                  <strong>Instead, I can do this:</strong>
                   <p>{{ msg.guardrailDetail.suggestion }}</p>
                 </div>
               }
@@ -195,7 +195,7 @@
       [(ngModel)]="userInput"
       (keydown)="onKeyDown($event)"
       (input)="autoResize($event)"
-      placeholder="Sorunuzu yazın..."
+      placeholder="Type your question..."
       [disabled]="isTyping"
       maxlength="500"
       rows="1">
