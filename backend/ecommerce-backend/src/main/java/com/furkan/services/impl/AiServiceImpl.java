@@ -25,19 +25,19 @@ public class AiServiceImpl implements IAiService {
     private String agentUrl;
 
     @Override
-    public String askAiIndividual(String userQuestion, Authentication authentication) {
+    public Map<String, Object> askAiIndividual(String userQuestion, Authentication authentication) {
         User currentUser = (User) authentication.getPrincipal();
         // Individual users do not have a storeId, so we send null.
         return sendRequestToAgent(userQuestion, RoleType.INDIVIDUAL.toString(), currentUser.getId(), null);
     }
 
     @Override
-    public String askAiCorporate(String userQuestion, Authentication authentication) {
+    public Map<String, Object> askAiCorporate(String userQuestion, Authentication authentication) {
         User currentUser = (User) authentication.getPrincipal();
 
         // If the corporate user has no store assigned, block the request directly without hitting the AI service.
         if (currentUser.getStore() == null) {
-            return "No store found associated with your account. Please contact support.";
+            return Map.of("answer", "No store found associated with your account. Please contact support.");
         }
 
         Long storeId = currentUser.getStore().getId();
@@ -45,13 +45,13 @@ public class AiServiceImpl implements IAiService {
     }
 
     @Override
-    public String askAiAdmin(String userQuestion, Authentication authentication) {
+    public Map<String, Object> askAiAdmin(String userQuestion, Authentication authentication) {
         User currentUser = (User) authentication.getPrincipal();
         // Admins can access all data, so no storeId restriction is sent.
         return sendRequestToAgent(userQuestion, RoleType.ADMIN.toString(), currentUser.getId(), null);
     }
 
-    private String sendRequestToAgent(String question, String role, Long userId, Long storeId) {
+    private Map<String, Object> sendRequestToAgent(String question, String role, Long userId, Long storeId) {
         Map<String, Object> payload = new HashMap<>();
         payload.put("question", question);
         payload.put("user_role", role);
@@ -65,11 +65,11 @@ public class AiServiceImpl implements IAiService {
         try {
             Map<String, Object> response = restTemplate.postForObject(agentUrl, entity, Map.class);
             if (response == null) {
-                return "Agent did not respond.";
+                return Map.of("answer", "Agent did not respond.");
             }
-            return (String) response.getOrDefault("answer", "Could not get a response.");
+            return response;
         } catch (Exception e) {
-            return "AI service is currently unavailable: " + e.getMessage();
+            return Map.of("answer", "AI service is currently unavailable: " + e.getMessage());
         }
     }
 }

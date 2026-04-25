@@ -12,6 +12,8 @@ class AgentState(TypedDict):
     visualization_code: Optional[str]
     is_in_scope: Optional[bool]
     iteration_count: int
+    trace: list[str]
+    suggestions: list[str]
     # Set by guardrails agent
     intent: Optional[str]           # "sql_query" | "greeting" | "off_topic" | "unsafe"
     language: Optional[str]         # "en" | "tr"

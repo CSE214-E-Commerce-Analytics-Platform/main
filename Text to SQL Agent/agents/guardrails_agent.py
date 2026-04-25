@@ -243,4 +243,6 @@ def guardrails_agent(state: AgentState) -> AgentState:
         lang_map = _CANNED_RESPONSES["en"]
         updates["final_answer"] = lang_map.get(response_key, lang_map["off_topic"])
 
+    updates["trace"] = state.get("trace", []) + ["GuardrailsAgent"]
+
     return {**state, **updates}

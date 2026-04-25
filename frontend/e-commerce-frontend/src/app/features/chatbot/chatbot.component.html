@@ -85,13 +85,39 @@
             }
 
             <!-- SQL Query Block -->
-            @if (msg.sqlQuery) {
+            @if (msg.sqlQuery && userRole === 'ADMIN') {
               <div class="sql-block">
                 <div class="sql-block-header">
                   <span class="sql-icon">⚡</span>
                   <span class="sql-label">SQL Query</span>
                 </div>
                 <pre class="sql-code">{{ msg.sqlQuery }}</pre>
+              </div>
+            }
+
+            <!-- Agent Trace Block -->
+            @if (msg.trace && msg.trace.length > 0 && userRole === 'ADMIN') {
+              <div class="trace-block">
+                <div class="trace-header">
+                  <span>🤖 Agent Execution Trace</span>
+                </div>
+                <div class="trace-path">
+                  @for (agent of msg.trace; track $index) {
+                    <span class="trace-node">{{ agent }}</span>
+                    @if (!$last) { <span class="trace-arrow">→</span> }
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Follow-up Suggestions -->
+            @if (msg.suggestions && msg.suggestions.length > 0) {
+              <div class="suggestions-block">
+                @for (sug of msg.suggestions; track $index) {
+                  <button class="suggestion-chip" (click)="askSuggestion(sug)">
+                    <span>💬</span> {{ sug }}
+                  </button>
+                }
               </div>
             }
 
@@ -123,7 +149,7 @@
               🛡 {{ guardrailLabel(msg.guardrailType) }}
             </span>
 
-            @if (msg.guardrailDetail) {
+            @if (msg.guardrailDetail && userRole === 'ADMIN') {
               <!-- Detail card -->
               <div class="gr-detail-card">
                 <p class="gr-detail-title">
@@ -168,6 +194,21 @@
               <!-- Bottom log badge -->
               @if (msg.guardrailDetail.badge) {
                 <span class="gr-log-badge">{{ msg.guardrailDetail.badge }}</span>
+              }
+              
+              <!-- Agent Trace Block (for Guardrail) -->
+              @if (msg.trace && msg.trace.length > 0) {
+                <div class="trace-block" style="background: rgba(239,68,68,0.05); border-color: rgba(239,68,68,0.2);">
+                  <div class="trace-header" style="color: #ef4444;">
+                    <span>🤖 Agent Execution Trace</span>
+                  </div>
+                  <div class="trace-path">
+                    @for (agent of msg.trace; track $index) {
+                      <span class="trace-node" style="color: #ef4444; border-color: #fca5a5;">{{ agent }}</span>
+                      @if (!$last) { <span class="trace-arrow">→</span> }
+                    }
+                  </div>
+                </div>
               }
             }
 

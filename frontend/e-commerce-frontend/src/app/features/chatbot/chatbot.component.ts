@@ -27,6 +27,8 @@ interface ChatMessage {
     barItems?:     BarItem[];
     rowCount?:     number;
     queryTimeMs?:  number;
+    trace?:        string[];
+    suggestions?:  string[];
     // Guardrail fields
     guardrailType?:    GuardrailType;
     guardrailDetail?:  GuardrailDetail;
@@ -197,7 +199,7 @@ export class ChatbotComponent implements OnInit {
 
         // ── Detect guardrail blocks from answer text ──────────────────────────
         const gr = this.detectGuardrail(answer, userQuestion, res);
-        if (gr) return { ...gr, timestamp: ts } as ChatMessage;
+        if (gr) return { ...gr, timestamp: ts, trace: res.trace } as ChatMessage;
 
         // ── Normal AI response ────────────────────────────────────────────────
         const hasChartImage = answer.includes('![');
@@ -212,6 +214,8 @@ export class ChatbotComponent implements OnInit {
             barItems:  hasChart ? barItems                       : undefined,
             rowCount:  hasChart ? barItems.length                : undefined,
             queryTimeMs,
+            trace:     res.trace,
+            suggestions: res.suggestions,
             timestamp: ts
         };
     }
@@ -229,7 +233,7 @@ export class ChatbotComponent implements OnInit {
                 content: answer,
                 guardrailType: 'INJECTION',
                 guardrailDetail: {
-                    detectionType: 'Prompt Injection',
+                    detectionType: 'Prompt Injection (AV-01)',
                     trigger:       this.extractInjectionTrigger(q),
                     target:        'store_id / role constraint bypass',
                     action:        'Request entirely rejected',
@@ -246,7 +250,7 @@ export class ChatbotComponent implements OnInit {
                 content: answer,
                 guardrailType: 'SQL_INJECTION',
                 guardrailDetail: {
-                    detectionType: 'SQL Injection',
+                    detectionType: 'SQL Injection (AV-03)',
                     trigger:       this.extractSqlTrigger(q),
                     target:        'Database integrity',
                     action:        'SQL generation stopped',
@@ -263,7 +267,7 @@ export class ChatbotComponent implements OnInit {
                 content: answer,
                 guardrailType: 'WRITE_ATTEMPT',
                 guardrailDetail: {
-                    detectionType: 'Write Attempt / Mass Assignment',
+                    detectionType: 'Write Attempt / Mass Assignment (AV-11)',
                     trigger:       this.extractWriteTrigger(q),
                     target:        'Database record modification',
                     action:        'SELECT-only policy active, write rejected',
@@ -341,7 +345,12 @@ export class ChatbotComponent implements OnInit {
         return null;
     }
 
-    // ── Guard helpers ─────────────────────────────────────────────────────────
+    askSuggestion(suggestion: string): void {
+        this.userInput = suggestion;
+        this.sendMessage();
+    }
+
+    // ── Utils ─────────────────────────────────────────────────────────────────
 
     private isUnsafeBlock(lower: string): boolean {
         return lower.includes("unable to help") ||
