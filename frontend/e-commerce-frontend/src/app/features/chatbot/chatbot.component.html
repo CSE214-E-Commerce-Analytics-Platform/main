@@ -29,7 +29,7 @@
   <!-- Messages -->
   <div class="chat-messages" #messagesContainer>
 
-    <!-- Welcome + example chips (shown before first message) -->
+    <!-- Welcome screen -->
     @if (!hasMessages) {
       <div class="welcome-wrap">
         <div class="welcome-row">
@@ -84,9 +84,21 @@
               <div class="ai-text" [innerHTML]="formatAiContent(msg.content)"></div>
             }
 
+            <!-- SQL Query Block -->
+            @if (msg.sqlQuery) {
+              <div class="sql-block">
+                <div class="sql-block-header">
+                  <span class="sql-icon">⚡</span>
+                  <span class="sql-label">SQL Sorgusu</span>
+                </div>
+                <pre class="sql-code">{{ msg.sqlQuery }}</pre>
+              </div>
+            }
+
+            <!-- Footer: row count + timing -->
             @if (msg.rowCount || msg.queryTimeMs) {
               <div class="row-footer">
-                @if (msg.rowCount) { <span>{{ msg.rowCount }} satır</span> }
+                @if (msg.rowCount) { <span>{{ msg.rowCount }} satır döndü</span> }
                 @if (msg.queryTimeMs) { <span>· {{ formatQueryTime(msg.queryTimeMs) }}</span> }
               </div>
             }
@@ -98,44 +110,64 @@
       <!-- GUARDRAIL -->
       @if (msg.role === 'guardrail') {
         <div class="msg-row gr-row">
-          <div class="gr-avatar">GR</div>
+          <div class="gr-avatar" [class.rate]="msg.guardrailType === 'RATE_LIMIT'">
+            {{ msg.guardrailType === 'RATE_LIMIT' ? '⏱' : 'GR' }}
+          </div>
           <div class="gr-content">
 
-            @if (msg.guardrailType === 'INJECTION' || msg.guardrailType === 'SECURITY') {
-              <span class="gr-badge injection">⚠ Prompt Injection</span>
-              <div class="gr-card red">
-                <strong>Güvenlik Engeli</strong>
-                <p>Sistem promptunu değiştirmeye yönelik girişim tespit edildi.</p>
-                @if (msg.guardrailTrigger) {
-                  <p class="gr-trigger">Tetikleyici: <code>{{ msg.guardrailTrigger }}</code></p>
-                }
-              </div>
-            }
+            <!-- Header -->
+            <p class="gr-header-text">{{ guardrailHeaderText(msg.guardrailType) }}</p>
 
-            @if (msg.guardrailType === 'ACCESS') {
-              <span class="gr-badge blocked">⚠ Yetkisiz Erişim</span>
-              <div class="gr-card red">
-                <strong>Erişim Engeli</strong>
-                <p>Başka bir mağazanın verisine erişim isteği engellendi.</p>
-                @if (msg.guardrailRequestedStore) {
-                  <p class="gr-trigger">İstenen: <code>#{{ msg.guardrailRequestedStore }}</code></p>
-                }
-              </div>
-            }
+            <!-- Agent label badge -->
+            <span [class]="guardrailBadgeClass(msg.guardrailType)">
+              🛡 {{ guardrailLabel(msg.guardrailType) }}
+            </span>
 
-            @if (msg.guardrailType === 'SCOPE') {
-              <span class="gr-badge scope">⚠ Kapsam Dışı</span>
-              <div class="gr-card red">
-                <strong>Kapsam Dışı Sorgu</strong>
-                @if (msg.guardrailTrigger) {
-                  <p class="gr-trigger">Anahtar kelime: <code>{{ msg.guardrailTrigger }}</code></p>
-                }
+            @if (msg.guardrailDetail) {
+              <!-- Detail card -->
+              <div class="gr-detail-card">
+                <p class="gr-detail-title">
+                  <span class="gr-warn-icon">⚠</span>
+                  {{ msg.guardrailDetail.detectionType }} Tespit Edildi
+                </p>
+                <table class="gr-detail-table">
+                  <tr>
+                    <td class="gr-dt-key">Tespit türü</td>
+                    <td class="gr-dt-val">{{ msg.guardrailDetail.detectionType }}</td>
+                  </tr>
+                  <tr>
+                    <td class="gr-dt-key">Tetikleyici</td>
+                    <td class="gr-dt-val">{{ msg.guardrailDetail.trigger }}</td>
+                  </tr>
+                  <tr>
+                    <td class="gr-dt-key">Hedef</td>
+                    <td class="gr-dt-val">{{ msg.guardrailDetail.target }}</td>
+                  </tr>
+                  <tr>
+                    <td class="gr-dt-key">Eylem</td>
+                    <td class="gr-dt-val">{{ msg.guardrailDetail.action }}</td>
+                  </tr>
+                </table>
               </div>
-              @if (msg.guardrailSuggestion) {
-                <div class="gr-card green">
-                  <strong>Bunun yerine yapabilirim:</strong>
-                  <p>{{ msg.guardrailSuggestion }}</p>
+
+              <!-- Blocked SQL (crossed out) -->
+              @if (msg.guardrailDetail.blockedSql) {
+                <div class="gr-blocked-sql">
+                  <s>{{ msg.guardrailDetail.blockedSql }}</s>
                 </div>
+              }
+
+              <!-- Suggestion (green box) -->
+              @if (msg.guardrailDetail.suggestion) {
+                <div class="gr-suggestion">
+                  <strong>Bunun yerine yapabilirim:</strong>
+                  <p>{{ msg.guardrailDetail.suggestion }}</p>
+                </div>
+              }
+
+              <!-- Bottom log badge -->
+              @if (msg.guardrailDetail.badge) {
+                <span class="gr-log-badge">{{ msg.guardrailDetail.badge }}</span>
               }
             }
 
