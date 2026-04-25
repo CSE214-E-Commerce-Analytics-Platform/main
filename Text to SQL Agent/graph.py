@@ -54,6 +54,8 @@ def execute_sql_node(state: AgentState) -> AgentState:
     print(f"[ExecuteSQL] sql_preview={raw_sql[:120]!r}")
     print(f"{'─'*52}\n")
 
+    trace = state.get("trace", []) + ["DBExecutor"]
+
     # ── Short-circuit: blocked signal — never hits the DB ────────────────────
     if signal in BLOCKED_SIGNALS:
         message = lang_msgs.get(signal, lang_msgs["UNFIXABLE"])
@@ -64,6 +66,7 @@ def execute_sql_node(state: AgentState) -> AgentState:
             "error": None,
             "sql_error_type": signal,
             "final_answer": message,
+            "trace": trace,
         }
 
     # ── Execute ───────────────────────────────────────────────────────────────
@@ -82,6 +85,7 @@ def execute_sql_node(state: AgentState) -> AgentState:
             "query_result": None,
             "error": result,
             "sql_error_type": error_type,
+            "trace": trace,
         }
 
     print(f"[ExecuteSQL] Success — result_len={len(result)}")
@@ -90,6 +94,7 @@ def execute_sql_node(state: AgentState) -> AgentState:
         "query_result": result,
         "error": None,
         "sql_error_type": None,
+        "trace": trace,
     }
 
 # --- Karar fonksiyonları ---

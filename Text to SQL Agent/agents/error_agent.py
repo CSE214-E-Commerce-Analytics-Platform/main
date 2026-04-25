@@ -103,6 +103,8 @@ def error_agent(state: AgentState) -> AgentState:
     user_id        = state.get("user_id")
     store_id       = state.get("store_id")
 
+    trace          = state.get("trace", []) + ["ErrorAgent"]
+
     # ── 1. Short-circuit on blocked signals ───────────────────────────────────
     if sql.upper() in BLOCKED_SIGNALS:
         print(f"[ErrorAgent] Blocked signal detected ({sql.upper()!r}), marking UNFIXABLE.")
@@ -111,6 +113,7 @@ def error_agent(state: AgentState) -> AgentState:
             "sql_query": "UNFIXABLE",
             "error": None,
             "iteration_count": iteration,
+            "trace": trace,
         }
 
     # ── 2. Classify error type for prompt context ─────────────────────────────
@@ -150,4 +153,5 @@ def error_agent(state: AgentState) -> AgentState:
         "sql_query": corrected,
         "error": None,          # cleared so execute_sql_node re-runs cleanly
         "iteration_count": iteration,
+        "trace": trace,
     }

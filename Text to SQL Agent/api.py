@@ -114,6 +114,10 @@ class ChatResponse(BaseModel):
     answer: str
     sql_query: Optional[str] = None
     visualization_code: Optional[str] = None
+    intent: Optional[str] = None
+    guardrail_reason: Optional[str] = None
+    trace: list[str] = []
+    suggestions: list[str] = []
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -149,17 +153,23 @@ def chat(request: ChatRequest):
         "language":          None,
         "guardrail_reason":  None,
         "sql_error_type":    None,
+        "trace":             [],
+        "suggestions":       [],
     }
 
     try:
-        result = graph.invoke(state)
+        final_state = graph.invoke(state)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Agent error: {str(e)}")
 
     return ChatResponse(
-        answer=result.get("final_answer") or "Cevap üretilemedi.",
-        sql_query=result.get("sql_query"),
-        visualization_code=result.get("visualization_code"),
+        answer=final_state.get("final_answer") or "Cevap üretilemedi.",
+        sql_query=final_state.get("sql_query"),
+        visualization_code=final_state.get("visualization_code"),
+        intent=final_state.get("intent"),
+        guardrail_reason=final_state.get("guardrail_reason"),
+        trace=final_state.get("trace", []),
+        suggestions=final_state.get("suggestions", [])
     )
 
 

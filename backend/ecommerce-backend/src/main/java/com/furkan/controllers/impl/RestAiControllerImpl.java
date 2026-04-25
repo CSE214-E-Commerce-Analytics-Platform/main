@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ai")
@@ -21,21 +22,21 @@ public class RestAiControllerImpl extends RestBaseController implements IRestAiC
     @PostMapping("/ask/individual")
     @PreAuthorize("hasRole('INDIVIDUAL')")
     @Override
-    public RootEntity<String> askIndividualAi(@Valid @RequestBody DtoAiRequest request, Authentication authentication) {
+    public RootEntity<Map<String, Object>> askIndividualAi(@Valid @RequestBody DtoAiRequest request, Authentication authentication) {
         return ok(aiService.askAiIndividual(request.getQuestion(), authentication));
     }
 
     @PostMapping("/ask/corporate")
     @PreAuthorize("hasRole('CORPORATE')")
     @Override
-    public RootEntity<String> askCorporateAi(@Valid @RequestBody DtoAiRequest request, Authentication authentication) {
+    public RootEntity<Map<String, Object>> askCorporateAi(@Valid @RequestBody DtoAiRequest request, Authentication authentication) {
         return ok(aiService.askAiCorporate(request.getQuestion(), authentication));
     }
 
     @PostMapping("/ask/admin")
     @PreAuthorize("hasRole('ADMIN')")
     @Override
-    public RootEntity<String> askAdminAi(@RequestBody DtoAiRequest request, Authentication authentication) {
+    public RootEntity<Map<String, Object>> askAdminAi(@RequestBody DtoAiRequest request, Authentication authentication) {
         return ok(aiService.askAiAdmin(request.getQuestion(), authentication));
     }
 }

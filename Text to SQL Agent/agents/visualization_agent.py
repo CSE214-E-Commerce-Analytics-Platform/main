@@ -11,7 +11,7 @@ load_dotenv()
 _DATE_KEYWORDS     = ("date", "day", "month", "week", "year", "_at", "time", "period", "quarter")
 _RANKING_KEYWORDS  = ("top", "rank", "most", "least", "best", "worst", "highest", "lowest", "en çok", "en az", "en iyi", "en kötü")
 _TREND_KEYWORDS    = ("trend", "over time", "overtime", "growth", "change", "zaman", "gelişim", "artış", "düşüş")
-_COMPARE_KEYWORDS  = ("compare", "vs", "versus", "karşılaştır", "karşılaştırma")
+_COMPARE_KEYWORDS  = ("compare", "vs", "versus", "karşılaştır", "karşılaştırma", "radar")
 
 # Chart.js color palette — used for bar and pie charts
 _PALETTE = [
@@ -74,22 +74,29 @@ def decide_chart(columns: list[str], rows: list[list], question: str) -> str:
     if (date_cols or any(kw in q for kw in _TREND_KEYWORDS)) and n_numeric >= 1:
         return "line"
 
-    # Ranking: question asks for top/worst/most and few enough rows to read a bar
-    if any(kw in q for kw in _RANKING_KEYWORDS) and n_rows <= 20:
-        return "bar"
-
-    # Comparison between two named groups
-    if any(kw in q for kw in _COMPARE_KEYWORDS) and n_numeric >= 1:
-        return "bar"
+    # Radar: specific keywords for feature comparison
+    if "radar" in q or "spider" in q:
+        return "radar"
 
     # Proportion / share: non-numeric label + single numeric + few slices
     non_numeric = [c for c in columns if c not in numeric_cols]
-    if non_numeric and n_numeric == 1 and 2 <= n_rows <= 8:
-        return "pie"
+    if non_numeric and n_numeric == 1 and 2 <= n_rows <= 10:
+        return "doughnut"
+
+    # Determine if we should use horizontal bar (long labels)
+    use_horizontal = False
+    if non_numeric:
+        avg_len = sum(len(str(row[columns.index(non_numeric[0])])) for row in rows) / max(n_rows, 1)
+        if avg_len > 12:
+            use_horizontal = True
+
+    # Ranking or comparison
+    if (any(kw in q for kw in _RANKING_KEYWORDS) or any(kw in q for kw in _COMPARE_KEYWORDS)) and n_rows <= 25:
+        return "horizontalBar" if use_horizontal else "bar"
 
     # General multi-row result with a numeric column → bar
     if n_rows > 0 and n_numeric >= 1:
-        return "bar"
+        return "horizontalBar" if use_horizontal else "bar"
 
     return "none"
 
@@ -124,7 +131,7 @@ def _pick_columns(columns: list[str], rows: list[list], chart_type: str) -> tupl
     if chart_type == "line":
         x = date_cols[0] if date_cols else (non_numeric[0] if non_numeric else columns[0])
         y = y_candidates[0] if y_candidates else columns[-1]
-    elif chart_type in ("bar", "pie"):
+    elif chart_type in ("bar", "horizontalBar", "pie", "doughnut", "radar"):
         x = non_numeric[0] if non_numeric else columns[0]
         y = y_candidates[0] if y_candidates else columns[-1]
     else:
@@ -154,7 +161,11 @@ def _build_chartjs_config(
 
     colors  = [_PALETTE[i % len(_PALETTE)] for i in range(len(rows))]
 
-    if chart_type == "pie":
+    is_radial = chart_type in ("pie", "doughnut")
+    is_horizontal = chart_type == "horizontalBar"
+    actual_type = "bar" if is_horizontal else chart_type
+
+    if is_radial:
         dataset = {
             "data":            y_vals,
             "backgroundColor": colors,
@@ -163,40 +174,49 @@ def _build_chartjs_config(
         dataset = {
             "label":           y_col,
             "data":            y_vals,
-            "backgroundColor": colors[0] if chart_type == "line" else colors,
+            "backgroundColor": colors[0] if actual_type in ("line", "radar") else colors,
             "borderColor":     colors[0],
-            "fill":            False,
+            "fill":            True if actual_type == "radar" else False,
             "tension":         0.3,
         }
 
+    options = {
+        "plugins": {
+            "title": {
+                "display": True,
+                "text":    title,
+                "font":    {"size": 14},
+            }
+        }
+    }
+
+    if is_horizontal:
+        options["indexAxis"] = "y"
+
+    if not is_radial and actual_type != "radar":
+        options["scales"] = {
+            "y": {"beginAtZero": True} if not is_horizontal else {},
+            "x": {"beginAtZero": True} if is_horizontal else {}
+        }
+
     config = {
-        "type": chart_type,
+        "type": actual_type,
         "data": {
-            "labels":   x_vals if chart_type != "pie" else x_vals,
+            "labels":   x_vals,
             "datasets": [dataset],
         },
-        "options": {
-            "plugins": {
-                "title": {
-                    "display": True,
-                    "text":    title,
-                    "font":    {"size": 14},
-                }
-            },
-            "scales": {} if chart_type == "pie" else {
-                "y": {"beginAtZero": True}
-            },
-        },
+        "options": options,
     }
 
     return config
 
 
-def _build_chart_url(config: dict, width: int = 360, height: int = 220) -> str:
+def _build_chart_url(config: dict, width: int = 600, height: int = 350) -> str:
     """Encode a Chart.js config as a QuickChart.io image URL."""
     chart_json  = json.dumps(config, ensure_ascii=False)
     encoded     = urllib.parse.quote(chart_json)
-    return f"https://quickchart.io/chart?c={encoded}&w={width}&h={height}&bkg=white"
+    # Use Chart.js v3 to support 'plugins.title' and use a larger canvas for retina-like scaling
+    return f"https://quickchart.io/chart?v=3&c={encoded}&w={width}&h={height}&bkg=white"
 
 
 # ── Main agent ────────────────────────────────────────────────────────────────
@@ -210,16 +230,18 @@ def visualization_agent(state: AgentState) -> AgentState:
     # ── 1. Parse result ───────────────────────────────────────────────────────
     columns, rows = _parse_query_result(raw_result)
 
+    trace = state.get("trace", []) + ["VisualizationAgent"]
+
     if not columns:
         # No parseable data — nothing to visualise
-        return {**state}
+        return {**state, "trace": trace}
 
     # ── 2. Decide chart type ──────────────────────────────────────────────────
     chart_type = decide_chart(columns, rows, question)
     print(f"[Visualization] chart_type={chart_type!r} rows={len(rows)} cols={columns}")
 
     if chart_type == "none":
-        return {**state}
+        return {**state, "trace": trace}
 
     # ── 3. Pick columns + build config ───────────────────────────────────────
     x_col, y_col = _pick_columns(columns, rows, chart_type)
@@ -236,8 +258,9 @@ def visualization_agent(state: AgentState) -> AgentState:
             **state,
             "final_answer":      final + chart_line,
             "visualization_code": json.dumps(config, ensure_ascii=False),
+            "trace": trace,
         }
 
     except Exception as e:
         print(f"[Visualization] Chart build failed: {e}")
-        return {**state}
+        return {**state, "trace": trace}

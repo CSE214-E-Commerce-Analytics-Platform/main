@@ -8,6 +8,8 @@ export interface AiResponse {
     sqlQuery:        string | null;
     intent:          string | null;
     guardrailReason: string | null;
+    trace?:          string[];
+    suggestions?:    string[];
 }
 
 @Injectable({
@@ -98,21 +100,31 @@ export class AiAgentService {
         return this.http.post(url, body, { responseType: 'text' }).pipe(
             map((raw: string) => {
                 try {
-                    // Spring Boot may wrap as { payload, sqlQuery, intent, guardrailReason }
+                    // Spring Boot wraps as { payload: { answer, sql_query, intent, guardrail_reason } }
                     const parsed = JSON.parse(raw);
-                    const answer = this.sanitizeResponse(
-                        parsed.payload ?? parsed.answer ?? raw
-                    );
+                    
+                    let answerText = raw;
+                    if (parsed.payload && typeof parsed.payload === 'object') {
+                        answerText = parsed.payload.answer ?? parsed.payload.final_answer ?? '';
+                    } else if (typeof parsed.payload === 'string') {
+                        answerText = parsed.payload;
+                    } else if (parsed.answer) {
+                        answerText = parsed.answer;
+                    }
+
+                    const answer = this.sanitizeResponse(answerText);
                     return {
                         answer,
-                        sqlQuery:        parsed.sqlQuery        ?? parsed.sql_query        ?? null,
-                        intent:          parsed.intent          ?? null,
-                        guardrailReason: parsed.guardrailReason ?? parsed.guardrail_reason ?? null,
+                        sqlQuery:        parsed.payload?.sql_query        ?? parsed.sqlQuery        ?? parsed.sql_query        ?? null,
+                        intent:          parsed.payload?.intent           ?? parsed.intent          ?? null,
+                        guardrailReason: parsed.payload?.guardrail_reason ?? parsed.guardrailReason ?? parsed.guardrail_reason ?? null,
+                        trace:           parsed.payload?.trace            ?? parsed.trace           ?? [],
+                        suggestions:     parsed.payload?.suggestions      ?? parsed.suggestions     ?? [],
                     } as AiResponse;
                 } catch {
                     return {
                         answer: this.sanitizeResponse(raw),
-                        sqlQuery: null, intent: null, guardrailReason: null
+                        sqlQuery: null, intent: null, guardrailReason: null, trace: [], suggestions: []
                     } as AiResponse;
                 }
             })

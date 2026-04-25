@@ -118,6 +118,7 @@ def sql_agent(state: AgentState) -> AgentState:
     store_id   = state.get("store_id")
     question   = state["question"]
     iteration  = state.get("iteration_count", 0)
+    trace = state.get("trace", []) + ["SqlAgent"]
 
     # ── 1. Retry short-circuit ────────────────────────────────────────────────
     # error_agent already produced a corrected sql_query and cleared state["error"].
@@ -154,4 +155,4 @@ def sql_agent(state: AgentState) -> AgentState:
         f"sql_preview={sql[:120]!r}"
     )
 
-    return {**state, "sql_query": sql}
+    return {**state, "sql_query": sql, "trace": trace}
