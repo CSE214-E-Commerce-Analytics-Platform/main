@@ -50,7 +50,16 @@ This is an enterprise-grade e-commerce platform consisting of three main modules
 
 ---
 
-## 🛠️ Cross-Module Collaboration
+## 🗄️ 4. DATABASE
+- **Engine:** PostgreSQL, running **locally on port 5432**.
+- **DB adı:** `ecommerce_analytics_platform_db`
+- **Local connection:** `localhost:5432`
+- `application.properties` ve AI agent `.env` dosyasındaki `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD` değerleri local PostgreSQL'i işaret eder.
+- Docker ortamında `postgres` adlı bir servis olarak container içinde çalışır (bkz. `docker-compose.yml`).
+
+---
+
+## 🛠️ 5. Cross-Module Collaboration
 - When writing Frontend code that calls the Backend, always check the corresponding `DtoResponse` and ensure `RestPageableEntity` unpacking is handled.
 - When adjusting the Database schema in the Backend, remember to inform the AI Agent (e.g., updating DB schema prompts for `sql_agent.py`) so the AI knows the new column names.
 - Provide step-by-step reasoning before making architectural changes across these three domains.

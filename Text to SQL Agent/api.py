@@ -35,25 +35,26 @@ graph = build_graph()
 #   • 3 sequential ID-pattern queries in 30 s  →  anomaly block (10 min)
 # ─────────────────────────────────────────────────────────────────────────────
 
-_RATE_WINDOW   = 60          # seconds
-_RATE_MAX      = 20          # max requests per window per user
-_ENUM_WINDOW   = 30          # seconds to detect ID enumeration
-_ENUM_THRESHOLD = 3          # consecutive ID-pattern queries = enumeration
-_ENUM_BLOCK    = 600         # block duration after anomaly (seconds)
+_RATE_WINDOW    = 60    # seconds per rate window
+_RATE_MAX       = 20    # max requests per window per user_id
+_ENUM_WINDOW    = 60    # seconds to detect enumeration pattern (wider = safer)
+_ENUM_THRESHOLD = 2     # 2 consecutive ID-pattern queries = enumeration attempt
+_ENUM_BLOCK     = 600   # 10-minute block after anomaly detection
 
 # {user_id: deque of timestamps}
-_request_log: dict[int, deque] = defaultdict(deque)
+_request_log:  dict[int, deque] = defaultdict(deque)
 # {user_id: unblock_timestamp}
 _blocked_until: dict[int, float] = {}
 # {user_id: deque of (timestamp, question) for enum detection}
-_enum_log: dict[int, deque] = defaultdict(deque)
+_enum_log:     dict[int, deque] = defaultdict(deque)
 
 _lock = threading.Lock()
 
-# Regex: questions that explicitly reference a numeric ID (store_id, order_id, user_id enumeration)
+# Regex: catches patterns like "store ID 2", "order number 47", "store_id=3", "user ID 99"
 _ENUM_RE = re.compile(
-    r'\b(?:store|order|user|product|sku)[^\d]{0,10}(\d+)\b'
-    r'|\bid[^\d]{0,5}(\d+)\b',
+    r'\b(?:store|order|user|product|sku)(?:[^\d]|_){0,12}(\d+)\b'
+    r'|\b(?:id|number|no\.?)\s{0,3}(\d+)\b'
+    r'|store_id\s*=\s*(\d+)',
     re.IGNORECASE
 )
 
@@ -84,10 +85,12 @@ def _check_rate_limit(user_id: int, question: str) -> Optional[str]:
             while edq and now - edq[0][0] > _ENUM_WINDOW:
                 edq.popleft()
             edq.append((now, question))
-            if len(edq) >= _ENUM_THRESHOLD:
+            count = len(edq)
+            print(f"[RateLimit] ENUM DETECT — user_id={user_id} count={count}/{_ENUM_THRESHOLD} q={question[:60]!r}")
+            if count >= _ENUM_THRESHOLD:
                 _blocked_until[user_id] = now + _ENUM_BLOCK
                 edq.clear()
-                print(f"[RateLimit] ENUM BLOCK — user_id={user_id}, blocked for {_ENUM_BLOCK}s")
+                print(f"[RateLimit] *** ENUM BLOCK FIRED *** user_id={user_id}, blocked for {_ENUM_BLOCK}s")
                 return (
                     f"Sequential ID enumeration detected. "
                     f"Your account has been blocked for {_ENUM_BLOCK // 60} minutes."

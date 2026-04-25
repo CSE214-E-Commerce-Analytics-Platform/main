@@ -2,7 +2,6 @@ package com.furkan.config;
 
 import com.furkan.security.CustomOAuth2UserService;
 import com.furkan.security.JwtAuthFilter;
-import com.furkan.config.AiRateLimitFilter;
 import com.furkan.security.OAuth2AuthenticationFailureHandler;
 import com.furkan.security.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
@@ -70,7 +69,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(info -> info.userService(customOAuth2UserService))
                         .successHandler(oAuth2SuccessHandler)
