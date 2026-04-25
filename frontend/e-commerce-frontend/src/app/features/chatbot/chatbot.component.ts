@@ -78,47 +78,47 @@ export class ChatbotComponent implements OnInit {
     private setExampleQuestions(): void {
         if (this.userRole === 'CORPORATE') {
             this.exampleQuestions = [
-                'Toplam sipariş sayım kaç?',
-                'Bekleyen siparişlerimin toplam tutarı nedir?',
-                'Tamamlanmış siparişlerimin sayısı',
-                'En yüksek tutarlı 5 siparişim',
-                'Mağazamdaki toplam ürün sayısı',
-                'Stok miktarı 10\'dan az olan ürünlerim',
-                'En pahalı 5 ürünüm hangileri?',
-                'Kategorilere göre ürün dağılımım',
-                'Ürünlerime verilen ortalama puan nedir?',
-                'Pozitif yorum alan ürünlerim hangileri?',
-                'Kargodaki siparişlerimin sayısı',
-                'Depo bazında sevkiyat sayıları'
+                'What is my total order count?',
+                'What is the total amount of my pending orders?',
+                'How many completed orders do I have?',
+                'Show my top 5 highest value orders',
+                'Total number of products in my store',
+                'Products with less than 10 stock',
+                'What are my 5 most expensive products?',
+                'Product distribution by categories',
+                'What is the average rating given to my products?',
+                'Which of my products received positive reviews?',
+                'How many of my orders are shipped?',
+                'Number of shipments by warehouse'
             ];
         } else if (this.userRole === 'INDIVIDUAL') {
             this.exampleQuestions = [
-                'Siparişlerimin toplam tutarı nedir?',
-                'Bekleyen siparişlerim var mı?',
-                'Teslim edilen siparişlerimin sayısı',
-                'En pahalı siparişim hangisi?',
-                'İptal edilen siparişlerim',
-                'Kaç ürüne yorum yaptım?',
-                'Verdiğim yorumların ortalama puanı',
-                'Kargoya verilen siparişlerim',
-                'Son 10 siparişim'
+                'What is the total amount of my orders?',
+                'Do I have any pending orders?',
+                'Number of my delivered orders',
+                'Which is my most expensive order?',
+                'My canceled orders',
+                'How many products did I review?',
+                'Average rating of my reviews',
+                'My shipped orders',
+                'My last 10 orders'
             ];
         } else {
             this.exampleQuestions = [
-                'Toplam kayıtlı kullanıcı sayısı',
-                'Cinsiyete göre kullanıcı dağılımı',
-                'Aktif mağaza sayısı kaç?',
-                'En yeni 5 mağaza hangisi?',
-                'Platformdaki toplam sipariş sayısı',
-                'Duruma göre sipariş dağılımı',
-                'En yüksek tutarlı 10 sipariş',
-                'En çok stoğu olan 5 ürün',
-                'Kategorilere göre ürün sayısı',
-                'En pahalı 10 ürün hangileri?',
-                'Ortalama ürün puanı nedir?',
-                'Negatif yorum sayısı kaç?',
-                'Kargo moduna göre sevkiyat dağılımı',
-                'Depo bazında toplam sevkiyat sayısı'
+                'Total registered user count',
+                'User distribution by gender',
+                'How many active stores are there?',
+                'Which are the 5 newest stores?',
+                'Total number of orders on the platform',
+                'Order distribution by status',
+                'Top 10 highest value orders',
+                'Top 5 products with the most stock',
+                'Number of products by category',
+                'What are the 10 most expensive products?',
+                'What is the average product rating?',
+                'How many negative reviews are there?',
+                'Shipment distribution by mode',
+                'Total shipment count by warehouse'
             ];
         }
     }
@@ -128,10 +128,10 @@ export class ChatbotComponent implements OnInit {
     get headerSubtitle(): string {
         if (this.hasMessages) {
             const storeInfo = this.storeId ? `store_id: #${this.storeId} · ` : '';
-            return `Aktif oturum · ${storeInfo}Guardrail: Açık`;
+            return `Active session · ${storeInfo}Guardrail: Active`;
         }
         const storeInfo = this.storeId ? `— store_id: #${this.storeId}` : '';
-        return `Mağaza verinize özel ${storeInfo}`;
+        return `Custom to your store data ${storeInfo}`;
     }
 
     toggleChat(): void { this.isOpen = !this.isOpen; }
@@ -168,18 +168,18 @@ export class ChatbotComponent implements OnInit {
                         content: '',
                         guardrailType: 'RATE_LIMIT',
                         guardrailDetail: {
-                            detectionType: 'Nesne Enumeration (AV-09)',
+                            detectionType: 'Object Enumeration (AV-09)',
                             trigger: `"${query.substring(0, 40)}"`,
-                            target: 'ID tabanlı veri tarama',
-                            action: 'Hesap 10 dakika engellendi',
-                            badge: 'Güvenlik olayı loglandı · Rate Limit aktif'
+                            target: 'ID-based data scraping',
+                            action: 'Account blocked for 10 minutes',
+                            badge: 'Security event logged · Rate Limit active'
                         },
                         timestamp: new Date()
                     });
                 } else {
                     this.messages.push({
                         role: 'ai',
-                        content: 'Bir hata oluştu. Lütfen tekrar deneyin.',
+                        content: 'An error occurred. Please try again.',
                         timestamp: new Date()
                     });
                 }
@@ -231,10 +231,10 @@ export class ChatbotComponent implements OnInit {
                 guardrailDetail: {
                     detectionType: 'Prompt Injection',
                     trigger:       this.extractInjectionTrigger(q),
-                    target:        'store_id / rol kısıtlaması bypass',
-                    action:        'İstek tamamen reddedildi',
-                    blockedSql:    `SELECT * FROM orders -- WHERE store_id=? kaldırıldı (engellendi)`,
-                    badge:         'Güvenlik olayı loglandı'
+                    target:        'store_id / role constraint bypass',
+                    action:        'Request entirely rejected',
+                    blockedSql:    `SELECT * FROM orders -- WHERE store_id=? removed (blocked)`,
+                    badge:         'Security event logged'
                 }
             };
         }
@@ -248,10 +248,10 @@ export class ChatbotComponent implements OnInit {
                 guardrailDetail: {
                     detectionType: 'SQL Injection',
                     trigger:       this.extractSqlTrigger(q),
-                    target:        'Veritabanı bütünlüğü',
-                    action:        'SQL üretimi durduruldu',
-                    blockedSql:    `${q.substring(0, 60)} -- ENGELLENDİ`,
-                    badge:         'Güvenlik olayı loglandı · db_executor blokladı'
+                    target:        'Database integrity',
+                    action:        'SQL generation stopped',
+                    blockedSql:    `${q.substring(0, 60)} -- BLOCKED`,
+                    badge:         'Security event logged · Blocked by db_executor'
                 }
             };
         }
@@ -263,12 +263,12 @@ export class ChatbotComponent implements OnInit {
                 content: answer,
                 guardrailType: 'WRITE_ATTEMPT',
                 guardrailDetail: {
-                    detectionType: 'Yazma İşlemi / Mass Assignment',
+                    detectionType: 'Write Attempt / Mass Assignment',
                     trigger:       this.extractWriteTrigger(q),
-                    target:        'Veritabanı kaydı değiştirme',
-                    action:        'SELECT-only politikası aktif, yazma reddedildi',
-                    blockedSql:    `UPDATE / INSERT -- ENGELLENDİ (SELECT-only)`,
-                    badge:         'Güvenlik olayı loglandı'
+                    target:        'Database record modification',
+                    action:        'SELECT-only policy active, write rejected',
+                    blockedSql:    `UPDATE / INSERT -- BLOCKED (SELECT-only)`,
+                    badge:         'Security event logged'
                 }
             };
         }
@@ -280,11 +280,11 @@ export class ChatbotComponent implements OnInit {
                 content: answer,
                 guardrailType: 'EXFILTRATION',
                 guardrailDetail: {
-                    detectionType: 'Hassas Veri Sızıntısı (AV-12)',
+                    detectionType: 'Sensitive Data Leak (AV-12)',
                     trigger:       this.extractExfilTrigger(q),
                     target:        'password_hash / api_key / internal_cost',
-                    action:        'Kolon şeması kısıtlandı, istek reddedildi',
-                    badge:         'Sütun beyaz listesi aktif · Güvenlik olayı loglandı'
+                    action:        'Column schema restricted, request rejected',
+                    badge:         'Column whitelist active · Security event logged'
                 }
             };
         }
@@ -296,11 +296,11 @@ export class ChatbotComponent implements OnInit {
                 content: answer,
                 guardrailType: 'SECURITY',
                 guardrailDetail: {
-                    detectionType: 'Sistem Prompt Sızıntısı (AV-07)',
+                    detectionType: 'System Prompt Leakage (AV-07)',
                     trigger:       `"${q.substring(0, 40)}"`,
-                    target:        'Sistem prompt / şema / konfigürasyon',
-                    action:        'İntrospeksiyon isteği reddedildi',
-                    badge:         'Güvenlik olayı loglandı'
+                    target:        'System prompt / schema / configuration',
+                    action:        'Introspection request rejected',
+                    badge:         'Security event logged'
                 }
             };
         }
@@ -313,11 +313,11 @@ export class ChatbotComponent implements OnInit {
                 content: answer,
                 guardrailType: 'ACCESS',
                 guardrailDetail: {
-                    detectionType: 'Yatay Yetki Yükseltme (AV-02)',
+                    detectionType: 'Horizontal Privilege Escalation (AV-02)',
                     trigger:       storeMatch ? `store_id = ${storeMatch[1]}` : `"${q.substring(0, 40)}"`,
-                    target:        storeMatch ? `Store #${storeMatch[1]} verisi` : 'Başka kullanıcı/mağaza verisi',
-                    action:        'WHERE store_id kısıtlaması uygulandı, erişim reddedildi',
-                    badge:         'Kapsam ihlali engellendi'
+                    target:        storeMatch ? `Store #${storeMatch[1]} data` : 'Other user/store data',
+                    action:        'WHERE store_id restriction applied, access denied',
+                    badge:         'Scope violation blocked'
                 }
             };
         }
@@ -329,11 +329,11 @@ export class ChatbotComponent implements OnInit {
                 content: answer,
                 guardrailType: 'SECURITY',
                 guardrailDetail: {
-                    detectionType: 'Güvenlik Engeli',
+                    detectionType: 'Security Block',
                     trigger:       `"${q.substring(0, 40)}"`,
-                    target:        'Platform güvenlik politikası',
-                    action:        'İstek reddedildi',
-                    badge:         'Güvenlik olayı loglandı'
+                    target:        'Platform security policy',
+                    action:        'Request rejected',
+                    badge:         'Security event logged'
                 }
             };
         }
@@ -436,22 +436,22 @@ export class ChatbotComponent implements OnInit {
         const map: Record<GuardrailType, string> = {
             INJECTION:      'Guardrail Agent — PROMPT INJECTION',
             SQL_INJECTION:  'Guardrail Agent — SQL INJECTION',
-            SCOPE:          'Guardrail Agent — KAPSAM DIŞI',
-            ACCESS:         'Guardrail Agent — YETKİSİZ ERİŞİM',
-            SECURITY:       'Guardrail Agent — GÜVENLİK ENGELİ',
-            WRITE_ATTEMPT:  'Guardrail Agent — YAZMA DENEMESI',
-            EXFILTRATION:   'Guardrail Agent — VERİ SIZINTISI',
-            CONTEXT_POISON: 'Guardrail Agent — BAĞLAM ZEHİRLEME',
+            SCOPE:          'Guardrail Agent — OUT OF SCOPE',
+            ACCESS:         'Guardrail Agent — UNAUTHORIZED ACCESS',
+            SECURITY:       'Guardrail Agent — SECURITY BLOCK',
+            WRITE_ATTEMPT:  'Guardrail Agent — WRITE ATTEMPT',
+            EXFILTRATION:   'Guardrail Agent — DATA LEAK',
+            CONTEXT_POISON: 'Guardrail Agent — CONTEXT POISONING',
             RATE_LIMIT:     'Guardrail Agent — RATE LIMIT (AV-09)',
         };
-        return type ? (map[type] ?? 'Guardrail Agent — GÜVENLİK ENGELİ') : 'Guardrail Agent';
+        return type ? (map[type] ?? 'Guardrail Agent — SECURITY BLOCK') : 'Guardrail Agent';
     }
 
     guardrailHeaderText(type?: GuardrailType): string {
-        if (type === 'SCOPE')        return 'Bu sorgu kısıtlı veri kapsamına giriyor.';
-        if (type === 'RATE_LIMIT')   return 'Ardışık ID tarama girişimi tespit edildi.';
-        if (type === 'ACCESS')       return 'Yetkisiz veri erişimi engellendi.';
-        return 'Bu mesaj güvenlik filtrelerini tetikledi.';
+        if (type === 'SCOPE')        return 'This query falls out of the restricted data scope.';
+        if (type === 'RATE_LIMIT')   return 'Sequential ID scraping attempt detected.';
+        if (type === 'ACCESS')       return 'Unauthorized data access blocked.';
+        return 'This message triggered security filters.';
     }
 
     guardrailBadgeClass(type?: GuardrailType): string {

@@ -230,8 +230,7 @@ def visualization_agent(state: AgentState) -> AgentState:
         chart_url = _build_chart_url(config)
 
         # ── 4. Append chart image to final_answer ──────────────────────────
-        chart_label = "Grafik" if language == "tr" else "Chart"
-        chart_line  = f"\n\n![{chart_label}]({chart_url})"
+        chart_line  = f"\n\n![Chart]({chart_url})"
 
         return {
             **state,
