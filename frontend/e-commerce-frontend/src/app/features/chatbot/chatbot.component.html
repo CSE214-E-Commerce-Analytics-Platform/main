@@ -7,6 +7,14 @@
   }
 </button>
 
+<!-- ── Chat History Sidebar ── -->
+<app-chat-history-sidebar
+  [isOpen]="isSidebarOpen"
+  (closed)="closeSidebar()"
+  (selected)="onHistorySelected($event)"
+  (newChat)="onNewChatFromSidebar()"
+></app-chat-history-sidebar>
+
 <!-- ── Chat Window ── -->
 @if (isOpen) {
 <div class="chat-window">
@@ -14,6 +22,9 @@
   <!-- Header -->
   <div class="chat-header">
     <div class="header-info">
+      <button class="history-toggle" (click)="toggleSidebar()" title="Chat History">
+        ☰
+      </button>
       <span class="ai-dot" [class.pulsing]="isTyping"></span>
       <div class="header-text">
         <h4>AI Data Assistant</h4>
@@ -63,7 +74,7 @@
       @if (msg.role === 'ai') {
         <div class="msg-row ai-row">
           <div class="ai-avatar">AI</div>
-          <div class="ai-card">
+          <div class="ai-card" [id]="'ai-card-' + $index">
 
             @if (msg.barItems && msg.barItems.length > 0) {
               @if (msg.barTitle) {
@@ -82,6 +93,30 @@
               </div>
             } @else {
               <div class="ai-text" [innerHTML]="formatAiContent(msg.content)"></div>
+            }
+
+            <!-- Export Dropdown — below chart -->
+            @if (msg.chartUrl || (msg.barItems && msg.barItems.length > 0)) {
+              <div class="export-wrap">
+                <button class="export-trigger" (click)="toggleExportMenu($index); $event.stopPropagation()" title="Export chart">
+                  ⤓
+                </button>
+                @if (exportOpenIdx === $index) {
+                  <div class="export-dropdown" (click)="$event.stopPropagation()">
+                    @if (msg.barItems && msg.barItems.length > 0) {
+                      <button class="export-item excel" (click)="exportExcel(msg, $index)">
+                        <span>📋</span> Excel (.xlsx)
+                      </button>
+                      <button class="export-item csv" (click)="exportCsv(msg, $index)">
+                        <span>📄</span> CSV (.csv)
+                      </button>
+                    }
+                    <button class="export-item pdf" (click)="exportPdf(msg, $index)">
+                      <span>📊</span> PDF (chart image)
+                    </button>
+                  </div>
+                }
+              </div>
             }
 
             <!-- SQL Query Block -->
@@ -118,6 +153,10 @@
                     <span>💬</span> {{ sug }}
                   </button>
                 }
+                <!-- Return to start menu -->
+                <button class="suggestion-chip menu-chip" (click)="clearChat()" title="Clear chat history and go back to start">
+                  <span>🏠</span> Return to Start Menu
+                </button>
               </div>
             }
 
@@ -222,13 +261,30 @@
     @if (isTyping) {
       <div class="msg-row ai-row">
         <div class="ai-avatar">AI</div>
-        <div class="typing-bubble">
-          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-        </div>
+        @if (userRole === 'ADMIN') {
+          <!-- Admin: Live agent stream -->
+          <div class="typing-bubble stream-bubble">
+            <span class="stream-icon">{{ streamStep?.icon }}</span>
+            <span class="stream-text">{{ streamStep?.label }}</span>
+            <span class="stream-cursor">▌</span>
+          </div>
+        } @else {
+          <!-- Others: Normal dots -->
+          <div class="typing-bubble">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+        }
       </div>
     }
 
   </div>
+
+  <!-- Export Toast Notification -->
+  @if (exportToast) {
+    <div class="export-toast">
+      {{ exportToast }}
+    </div>
+  }
 
   <!-- Input -->
   <div class="chat-input">

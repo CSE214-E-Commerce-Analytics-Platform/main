@@ -20,3 +20,4 @@ class AgentState(TypedDict):
     guardrail_reason: Optional[str] # internal reason string (not shown to user)
     # Set by execute_sql_node / error_agent
     sql_error_type: Optional[str]   # "syntax_error" | "column_missing" | "table_missing" | "ambiguous_column" | "permission" | "other"
+    conversation_history: list      # [{"role": "user"|"assistant", "content": str}, ...]

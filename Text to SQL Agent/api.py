@@ -108,6 +108,7 @@ class ChatRequest(BaseModel):
     user_role: str          # injected from JWT by Spring Boot
     user_id: int            # injected from JWT by Spring Boot
     store_id: Optional[int] = None
+    conversation_history: list = []  # [{"role": "user"|"assistant", "content": str}]
 
 
 class ChatResponse(BaseModel):
@@ -155,6 +156,7 @@ def chat(request: ChatRequest):
         "sql_error_type":    None,
         "trace":             [],
         "suggestions":       [],
+        "conversation_history": request.conversation_history,
     }
 
     try:
@@ -162,8 +164,16 @@ def chat(request: ChatRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Agent error: {str(e)}")
 
+    raw_answer = final_state.get("final_answer") or "I couldn't generate a response. Please try again."
+
+    # Sanitize: if the answer is an HTML error page or a Python traceback, replace it
+    stripped = raw_answer.strip()
+    if (stripped.startswith("<!DOCTYPE") or stripped.startswith("<html") or
+            stripped.startswith("Traceback") or stripped.startswith("ERROR:")):
+        raw_answer = "⚠️ I encountered an internal error while processing your request. Please try rephrasing your question."
+
     return ChatResponse(
-        answer=final_state.get("final_answer") or "Cevap üretilemedi.",
+        answer=raw_answer,
         sql_query=final_state.get("sql_query"),
         visualization_code=final_state.get("visualization_code"),
         intent=final_state.get("intent"),

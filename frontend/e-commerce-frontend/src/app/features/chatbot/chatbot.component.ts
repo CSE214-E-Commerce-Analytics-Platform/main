@@ -3,6 +3,11 @@ import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AiAgentService, AiResponse } from '../../core/services/ai-agent.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ChatHistoryService, ChatHistoryItem } from '../../core/services/chat-history.service';
+import { ChatHistorySidebarComponent } from './chat-history-sidebar/chat-history-sidebar.component';
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 type GuardrailType = 'INJECTION' | 'SCOPE' | 'ACCESS' | 'SECURITY' | 'SQL_INJECTION' | 'RATE_LIMIT' | 'WRITE_ATTEMPT' | 'EXFILTRATION' | 'CONTEXT_POISON';
 
@@ -23,6 +28,7 @@ interface ChatMessage {
     content: string;
     // AI fields
     sqlQuery?:     string | null;
+    chartUrl?:     string | null;   // extracted chart image URL
     barTitle?:     string;
     barItems?:     BarItem[];
     rowCount?:     number;
@@ -38,17 +44,19 @@ interface ChatMessage {
 @Component({
     selector: 'app-chatbot',
     standalone: true,
-    imports: [CommonModule, FormsModule, DecimalPipe],
+    imports: [CommonModule, FormsModule, DecimalPipe, ChatHistorySidebarComponent],
     templateUrl: './chatbot.component.html',
     styleUrl: './chatbot.component.css'
 })
 export class ChatbotComponent implements OnInit {
     @ViewChild('messagesContainer') messagesContainer!: ElementRef;
 
-    private aiService  = inject(AiAgentService);
-    private authService = inject(AuthService);
+    private aiService      = inject(AiAgentService);
+    private authService    = inject(AuthService);
+    private historyService = inject(ChatHistoryService);
 
     isOpen       = false;
+    isSidebarOpen = false;
     userInput    = '';
     isTyping     = false;
     userRole     = '';
@@ -57,8 +65,43 @@ export class ChatbotComponent implements OnInit {
     messages: ChatMessage[] = [];
     exampleQuestions: string[] = [];
 
-    isGraphExpanded = false;
+    isGraphExpanded  = false;
     expandedGraphSrc = '';
+
+    // ── Export state ────────────────────────────────────────────────────────────────
+    exportOpenIdx: number | null = null;
+    exportToast: string | null = null;
+    private exportToastTimer: ReturnType<typeof setTimeout> | null = null;
+
+    // ── Admin live stream status ───────────────────────────────────────────────
+    streamStep: { icon: string; label: string } | null = null;
+    private streamInterval: ReturnType<typeof setInterval> | null = null;
+
+    private readonly STREAM_STEPS = [
+        { icon: '🛡', label: 'GuardrailsAgent running...' },
+        { icon: '✍️', label: 'Writing SQL query...' },
+        { icon: '🗄', label: 'Executing database query...' },
+        { icon: '📊', label: 'AnalysisAgent processing...' },
+        { icon: '📈', label: 'Building visualization...' },
+    ];
+
+    private startStreamingStatus(): void {
+        if (this.userRole !== 'ADMIN') return;
+        let i = 0;
+        this.streamStep = this.STREAM_STEPS[0];
+        this.streamInterval = setInterval(() => {
+            i = (i + 1) % this.STREAM_STEPS.length;
+            this.streamStep = this.STREAM_STEPS[i];
+        }, 1500);
+    }
+
+    private stopStreamingStatus(): void {
+        if (this.streamInterval) {
+            clearInterval(this.streamInterval);
+            this.streamInterval = null;
+        }
+        this.streamStep = null;
+    }
 
     ngOnInit(): void {
         this.userRole    = this.authService.getRole() || 'INDIVIDUAL';
@@ -136,12 +179,184 @@ export class ChatbotComponent implements OnInit {
         return `Custom to your store data ${storeInfo}`;
     }
 
+    @HostListener('document:click')
+    onDocumentClick(): void { this.exportOpenIdx = null; }
+
     toggleChat(): void { this.isOpen = !this.isOpen; }
     closeChat():  void { this.isOpen = false; }
+
+    // ── Export helpers ───────────────────────────────────────────────────────
+
+    private showToast(msg: string): void {
+        this.exportToast = msg;
+        if (this.exportToastTimer) clearTimeout(this.exportToastTimer);
+        this.exportToastTimer = setTimeout(() => { this.exportToast = null; }, 3000);
+    }
+
+    toggleExportMenu(idx: number): void {
+        this.exportOpenIdx = this.exportOpenIdx === idx ? null : idx;
+    }
+
+    private buildRows(msg: ChatMessage): Record<string, unknown>[] {
+        if (msg.barItems?.length) {
+            return msg.barItems.map(b => ({ Label: b.label, Value: b.value, Unit: b.unit }));
+        }
+        // Plain text — put it in a single cell
+        const text = msg.content?.replace(/<[^>]+>/g, '') ?? '';
+        return [{ 'Analysis Result': text }];
+    }
+
+    /** Returns bar chart rows if available, otherwise null (no data to export) */
+    private chartRows(msg: ChatMessage): Record<string, unknown>[] | null {
+        if (msg.barItems?.length) {
+            return msg.barItems.map(b => ({ Label: b.label, Value: b.value, Unit: b.unit }));
+        }
+        return null; // no structured chart data
+    }
+
+    exportExcel(msg: ChatMessage, idx: number): void {
+        this.exportOpenIdx = null;
+        const rows = this.chartRows(msg);
+        if (!rows) { this.showToast('❌ No chart data to export.'); return; }
+        this.showToast('⏳ Preparing Excel...');
+        setTimeout(() => {
+            const ws = XLSX.utils.json_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Chart Data');
+            XLSX.writeFile(wb, `chart_data_${idx + 1}.xlsx`);
+            this.showToast('✅ Excel downloaded!');
+        }, 200);
+    }
+
+    exportCsv(msg: ChatMessage, idx: number): void {
+        this.exportOpenIdx = null;
+        const rows = this.chartRows(msg);
+        if (!rows) { this.showToast('❌ No chart data to export.'); return; }
+        this.showToast('⏳ Preparing CSV...');
+        setTimeout(() => {
+            const ws = XLSX.utils.json_to_sheet(rows);
+            const csv = XLSX.utils.sheet_to_csv(ws);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = `chart_data_${idx + 1}.csv`; a.click();
+            URL.revokeObjectURL(url);
+            this.showToast('✅ CSV downloaded!');
+        }, 200);
+    }
+
+    exportPdf(msg: ChatMessage, idx: number): void {
+        this.exportOpenIdx = null;
+        this.showToast('⏳ Capturing chart...');
+
+        // If QuickChart URL exists, fetch it and embed it
+        if (msg.chartUrl) {
+            fetch(msg.chartUrl)
+                .then(r => r.blob())
+                .then(blob => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        const imgData = reader.result as string;
+                        this.buildChartPdf(imgData, idx);
+                    };
+                    reader.readAsDataURL(blob);
+                })
+                .catch(() => this.captureChartElementToPdf(idx));
+            return;
+        }
+        // Fallback: screenshot bar chart element
+        this.captureChartElementToPdf(idx);
+    }
+
+    private captureChartElementToPdf(idx: number): void {
+        const card = document.getElementById(`ai-card-${idx}`);
+        const chartEl = card?.querySelector('.chat-img-wrapper img, canvas, .bar-list') as HTMLElement | null;
+        if (!chartEl) { this.showToast('❌ No chart to capture.'); return; }
+        html2canvas(chartEl, { scale: 2, useCORS: true, backgroundColor: null }).then(canvas => {
+            this.buildChartPdf(canvas.toDataURL('image/png'), idx);
+        });
+    }
+
+    private buildChartPdf(imgData: string, idx: number): void {
+        const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+        const pageW = pdf.internal.pageSize.getWidth();
+        const pageH = pdf.internal.pageSize.getHeight();
+        pdf.setFillColor(15, 15, 30);
+        pdf.rect(0, 0, pageW, pageH, 'F');
+        // Centre the chart image
+        const maxW = pageW - 20;
+        const maxH = pageH - 20;
+        pdf.addImage(imgData, 'PNG', 10, 10, maxW, maxH, undefined, 'FAST');
+        pdf.save(`chart_${idx + 1}.pdf`);
+        this.showToast('✅ PDF downloaded!');
+    }
+
 
     useExample(q: string): void {
         this.userInput = q;
         this.sendMessage();
+    }
+
+    clearChat(): void {
+        this.messages = [];
+        this.userInput = '';
+    }
+
+    // ── Chat History Sidebar ──────────────────────────────────────────────
+    private currentHistoryId: string | null = null;
+
+    toggleSidebar(): void { this.isSidebarOpen = !this.isSidebarOpen; }
+    closeSidebar(): void  { this.isSidebarOpen = false; }
+
+    onHistorySelected(item: ChatHistoryItem): void {
+        this.isSidebarOpen = false;
+        this.currentHistoryId = item.id;
+
+        const stored = localStorage.getItem(`chat_msgs_${item.id}`);
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                this.messages = parsed.map((m: ChatMessage) => ({ ...m, timestamp: new Date(m.timestamp) }));
+                this.userInput = '';
+                this.scrollToBottom();
+                return;
+            } catch { /* fall through to fallback */ }
+        }
+
+        // Fallback for old entries without stored messages
+        this.messages = [];
+        this.messages.push({
+            role: 'user',
+            content: item.initialQuery,
+            timestamp: item.createdAt ? new Date(item.createdAt) : new Date()
+        });
+        this.messages.push({
+            role: 'ai',
+            content: `📂 No saved response found for this session. Click Send to re-run this query.`,
+            timestamp: new Date()
+        });
+        this.userInput = item.initialQuery;
+        this.scrollToBottom();
+    }
+
+    onNewChatFromSidebar(): void {
+        this.isSidebarOpen = false;
+        this.currentHistoryId = null;
+        this.clearChat();
+    }
+
+    private saveToHistory(query: string): void {
+        if (this.currentHistoryId) return;
+
+        const title = query.length > 50 ? query.substring(0, 47) + '...' : query;
+        this.historyService.create(title, query).subscribe({
+            next: (item) => { this.currentHistoryId = item.id; }
+        });
+    }
+
+    private saveMessagesToStorage(): void {
+        if (!this.currentHistoryId) return;
+        localStorage.setItem(`chat_msgs_${this.currentHistoryId}`, JSON.stringify(this.messages));
     }
 
     sendMessage(): void {
@@ -151,15 +366,19 @@ export class ChatbotComponent implements OnInit {
         this.messages.push({ role: 'user', content: query, timestamp: new Date() });
         this.userInput = '';
         this.isTyping  = true;
+        this.startStreamingStatus();
         this.scrollToBottom();
+        this.saveToHistory(query);
 
         const startTime = Date.now();
 
         this.aiService.askQuestion(query, this.userRole).subscribe({
             next: (res: AiResponse) => {
                 const queryTimeMs = Date.now() - startTime;
+                this.stopStreamingStatus();
                 this.messages.push(this.buildMessage(res, query, queryTimeMs));
                 this.isTyping = false;
+                this.saveMessagesToStorage();
                 this.scrollToBottom();
             },
             error: (err) => {
@@ -206,10 +425,15 @@ export class ChatbotComponent implements OnInit {
         const barItems      = hasChartImage ? [] : this.parseBarItems(answer);
         const hasChart      = barItems.length >= 2;
 
+        // Extract chart image URL from markdown: ![...](url)
+        const imgMatch  = answer.match(/!\[.*?\]\((https?:\/\/[^)]+)\)/);
+        const chartUrl  = imgMatch ? imgMatch[1] : null;
+
         return {
             role:      'ai',
             content:   answer,
             sqlQuery:  res.sqlQuery,
+            chartUrl:  chartUrl,
             barTitle:  hasChart ? this.extractBarTitle(answer)  : undefined,
             barItems:  hasChart ? barItems                       : undefined,
             rowCount:  hasChart ? barItems.length                : undefined,
@@ -225,6 +449,7 @@ export class ChatbotComponent implements OnInit {
     private detectGuardrail(answer: string, q: string, res: AiResponse): Partial<ChatMessage> | null {
         const lower  = answer.toLowerCase();
         const qLower = q.toLowerCase();
+        const isAdmin = this.userRole === 'ADMIN';
 
         // ── AV-01 / AV-10: Prompt Injection / Context Poisoning ──────────────
         if (this.isUnsafeBlock(lower) && this.hasInjectionTokens(qLower)) {
@@ -261,7 +486,7 @@ export class ChatbotComponent implements OnInit {
         }
 
         // ── AV-11: Write / Mass Assignment ───────────────────────────────────
-        if (this.isUnsafeBlock(lower) && this.hasWriteTokens(qLower)) {
+        if (this.isUnsafeBlock(lower) && (this.hasWriteTokens(qLower) || lower.includes("read-only analytics") || lower.includes("salt okunur"))) {
             return {
                 role: 'guardrail',
                 content: answer,
@@ -273,6 +498,22 @@ export class ChatbotComponent implements OnInit {
                     action:        'SELECT-only policy active, write rejected',
                     blockedSql:    `UPDATE / INSERT -- BLOCKED (SELECT-only)`,
                     badge:         'Security event logged'
+                }
+            };
+        }
+        
+        // ── AV-09: Rate Limit / High Traffic ───────────────────────────────────
+        if (lower.includes("high traffic warning") || lower.includes("yüksek trafik uyarısı")) {
+            return {
+                role: 'guardrail',
+                content: answer,
+                guardrailType: 'RATE_LIMIT',
+                guardrailDetail: {
+                    detectionType: 'Object Enumeration (AV-09)',
+                    trigger:       `"${q.substring(0, 40)}"`,
+                    target:        'ID-based data scraping',
+                    action:        'Automated sequential queries blocked',
+                    badge:         'Security event logged · Rate Limit active'
                 }
             };
         }
@@ -294,7 +535,7 @@ export class ChatbotComponent implements OnInit {
         }
 
         // ── AV-07: Prompt Leakage ────────────────────────────────────────────
-        if (this.isUnsafeBlock(lower) && this.hasLeakageTokens(qLower)) {
+        if (this.isUnsafeBlock(lower) && (this.hasLeakageTokens(qLower) || lower.includes("e-commerce analytics. i can help you query") || lower.includes("tasarlanmış bir yapay zeka asistanıyım"))) {
             return {
                 role: 'guardrail',
                 content: answer,
@@ -309,8 +550,8 @@ export class ChatbotComponent implements OnInit {
             };
         }
 
-        // ── AV-02: Cross-scope / authorization ──────────────────────────────
-        if (lower.includes('permission') || lower.includes('yetkisiz') || lower.includes('do not have permission')) {
+        // ── AV-02: Cross-scope / authorization (not for ADMIN — they have full access) ──
+        if (!isAdmin && (lower.includes('permission') || lower.includes('yetkisiz') || lower.includes('do not have permission'))) {
             const storeMatch = q.match(/store[_\s#]*(\d+)/i) || q.match(/#(\d+)/);
             return {
                 role: 'guardrail',
@@ -356,7 +597,13 @@ export class ChatbotComponent implements OnInit {
         return lower.includes("unable to help") ||
                lower.includes("cannot answer")  ||
                lower.includes("cannot help")    ||
-               lower.includes("[security]");
+               lower.includes("[security]")     ||
+               lower.includes("read-only analytics") ||
+               lower.includes("salt okunur") ||
+               lower.includes("high traffic warning") ||
+               lower.includes("yüksek trafik uyarısı") ||
+               lower.includes("e-commerce analytics. i can help you query") ||
+               lower.includes("tasarlanmış bir yapay zeka asistanıyım");
     }
 
     private hasInjectionTokens(q: string): boolean {
@@ -474,6 +721,11 @@ export class ChatbotComponent implements OnInit {
     // ── Misc helpers ──────────────────────────────────────────────────────────
 
     formatAiContent(content: string): string {
+        // Guard: if response is an HTML error page, show friendly message
+        const trimmed = (content || '').trimStart();
+        if (trimmed.startsWith('<!DOCTYPE') || trimmed.startsWith('<html') || trimmed.startsWith('<HTML')) {
+            return '<span style="color:#f87171;">⚠️ The AI encountered an internal error while processing this request. Please try rephrasing your question.</span>';
+        }
         let html = this.aiService.formatMarkdown(content);
         // <img> tag'lerini küçük thumbnail + expand butonuna çevir
         html = html.replace(
