@@ -8,18 +8,24 @@ from agents.analysis_agent import analysis_agent
 from agents.visualization_agent import visualization_agent
 from tools.db_executor import execute_query
 
-BLOCKED_SIGNALS = {"SCOPE_VIOLATION", "INJECTION_DETECTED", "UNFIXABLE", "MISSING_DATA_TABLE"}
+BLOCKED_SIGNALS = {"READ_ONLY_PERMISSIONS", "INTROSPECTION_DETECTED", "HIGH_TRAFFIC_WARNING", "MISSING_DATA_TABLE", "UNFIXABLE", "SCOPE_VIOLATION", "INJECTION_DETECTED"}
 
 # ── Blocked-signal canned messages (bilingual) ────────────────────────────────
 _BLOCKED_MESSAGES = {
     "en": {
         "MISSING_DATA_TABLE": "There is currently no data available for that information.",
+        "READ_ONLY_PERMISSIONS": "My current permissions are limited to Read-Only analytics.",
+        "INTROSPECTION_DETECTED": "I am an AI assistant designed to provide E-commerce Analytics. I can help you query orders, products, and users based on your role permissions.",
+        "HIGH_TRAFFIC_WARNING": "High Traffic warning: Automated sequential ID scraping detected. Please provide specific queries instead.",
         "SCOPE_VIOLATION":   "You do not have permission to view this data.",
         "INJECTION_DETECTED": "Your request was blocked for security reasons.",
         "UNFIXABLE":         "This query could not be processed. Please try rephrasing your question.",
     },
     "tr": {
         "MISSING_DATA_TABLE": "Bu bilgi için platformda henüz veri bulunmamaktadır.",
+        "READ_ONLY_PERMISSIONS": "Mevcut izinlerim yalnızca Salt Okunur analizlerle sınırlıdır.",
+        "INTROSPECTION_DETECTED": "Ben e-ticaret analitiği sağlamak için tasarlanmış bir yapay zeka asistanıyım. Rol izinlerinize dayanarak siparişleri, ürünleri ve kullanıcıları sorgulamanıza yardımcı olabilirim.",
+        "HIGH_TRAFFIC_WARNING": "Yüksek Trafik uyarısı: Otomatik ardışık ID taraması tespit edildi. Lütfen bunun yerine belirli sorgular sağlayın.",
         "SCOPE_VIOLATION":   "Bu verileri görüntüleme yetkiniz bulunmamaktadır.",
         "INJECTION_DETECTED": "İsteğiniz güvenlik nedeniyle engellendi.",
         "UNFIXABLE":         "Bu sorgu işlenemedi. Lütfen soruyu farklı bir şekilde sormayı deneyin.",

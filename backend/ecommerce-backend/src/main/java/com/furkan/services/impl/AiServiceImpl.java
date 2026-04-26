@@ -1,5 +1,6 @@
 package com.furkan.services.impl;
 
+import com.furkan.dto.request.DtoAiRequest;
 import com.furkan.entities.User;
 import com.furkan.enums.RoleType;
 import com.furkan.services.IAiService;
@@ -12,7 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -25,38 +28,34 @@ public class AiServiceImpl implements IAiService {
     private String agentUrl;
 
     @Override
-    public Map<String, Object> askAiIndividual(String userQuestion, Authentication authentication) {
+    public Map<String, Object> askAiIndividual(DtoAiRequest request, Authentication authentication) {
         User currentUser = (User) authentication.getPrincipal();
-        // Individual users do not have a storeId, so we send null.
-        return sendRequestToAgent(userQuestion, RoleType.INDIVIDUAL.toString(), currentUser.getId(), null);
+        return sendRequestToAgent(request.getQuestion(), RoleType.INDIVIDUAL.toString(), currentUser.getId(), null, request.getConversationHistory());
     }
 
     @Override
-    public Map<String, Object> askAiCorporate(String userQuestion, Authentication authentication) {
+    public Map<String, Object> askAiCorporate(DtoAiRequest request, Authentication authentication) {
         User currentUser = (User) authentication.getPrincipal();
-
-        // If the corporate user has no store assigned, block the request directly without hitting the AI service.
         if (currentUser.getStore() == null) {
             return Map.of("answer", "No store found associated with your account. Please contact support.");
         }
-
         Long storeId = currentUser.getStore().getId();
-        return sendRequestToAgent(userQuestion, RoleType.CORPORATE.toString(), currentUser.getId(), storeId);
+        return sendRequestToAgent(request.getQuestion(), RoleType.CORPORATE.toString(), currentUser.getId(), storeId, request.getConversationHistory());
     }
 
     @Override
-    public Map<String, Object> askAiAdmin(String userQuestion, Authentication authentication) {
+    public Map<String, Object> askAiAdmin(DtoAiRequest request, Authentication authentication) {
         User currentUser = (User) authentication.getPrincipal();
-        // Admins can access all data, so no storeId restriction is sent.
-        return sendRequestToAgent(userQuestion, RoleType.ADMIN.toString(), currentUser.getId(), null);
+        return sendRequestToAgent(request.getQuestion(), RoleType.ADMIN.toString(), currentUser.getId(), null, request.getConversationHistory());
     }
 
-    private Map<String, Object> sendRequestToAgent(String question, String role, Long userId, Long storeId) {
+    private Map<String, Object> sendRequestToAgent(String question, String role, Long userId, Long storeId, List<Map<String, String>> conversationHistory) {
         Map<String, Object> payload = new HashMap<>();
         payload.put("question", question);
         payload.put("user_role", role);
         payload.put("user_id", userId);
         payload.put("store_id", storeId);
+        payload.put("conversation_history", conversationHistory != null ? conversationHistory : new ArrayList<>());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

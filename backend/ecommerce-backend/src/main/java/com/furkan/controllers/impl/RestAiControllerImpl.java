@@ -23,20 +23,20 @@ public class RestAiControllerImpl extends RestBaseController implements IRestAiC
     @PreAuthorize("hasRole('INDIVIDUAL')")
     @Override
     public RootEntity<Map<String, Object>> askIndividualAi(@Valid @RequestBody DtoAiRequest request, Authentication authentication) {
-        return ok(aiService.askAiIndividual(request.getQuestion(), authentication));
+        return ok(aiService.askAiIndividual(request, authentication));
     }
 
     @PostMapping("/ask/corporate")
     @PreAuthorize("hasRole('CORPORATE')")
     @Override
     public RootEntity<Map<String, Object>> askCorporateAi(@Valid @RequestBody DtoAiRequest request, Authentication authentication) {
-        return ok(aiService.askAiCorporate(request.getQuestion(), authentication));
+        return ok(aiService.askAiCorporate(request, authentication));
     }
 
     @PostMapping("/ask/admin")
     @PreAuthorize("hasRole('ADMIN')")
     @Override
     public RootEntity<Map<String, Object>> askAdminAi(@RequestBody DtoAiRequest request, Authentication authentication) {
-        return ok(aiService.askAiAdmin(request.getQuestion(), authentication));
+        return ok(aiService.askAiAdmin(request, authentication));
     }
 }
