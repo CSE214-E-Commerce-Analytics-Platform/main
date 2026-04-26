@@ -66,21 +66,21 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
   loadAll(): void {
     this.isLoading = true;
     forkJoin({
-      orders: this.orderService.getAllOrders({ pageNumber: 0, pageSize: 100 }).pipe(catchError(() => of(null))),
-      users: this.userService.findAllUsers({ pageNumber: 0, pageSize: 100 }).pipe(catchError(() => of(null))),
-      stores: this.storeService.getAllStores({ pageNumber: 0, pageSize: 100 }).pipe(catchError(() => of(null))),
-      apps: this.corpAppService.findRequestsByStatus('PENDING', { pageNumber: 0, pageSize: 100 }).pipe(catchError(() => of(null)))
+      orders: this.orderService.getAllOrders({ pageNumber: 0, pageSize: 10000 }).pipe(catchError(() => of(null))),
+      users: this.userService.findAllUsers({ pageNumber: 0, pageSize: 10000 }).pipe(catchError(() => of(null))),
+      stores: this.storeService.getAllStores({ pageNumber: 0, pageSize: 10000 }).pipe(catchError(() => of(null))),
+      apps: this.corpAppService.findRequestsByStatus('PENDING', { pageNumber: 0, pageSize: 10000 }).pipe(catchError(() => of(null)))
     }).subscribe(({ orders, users, stores, apps }) => {
       this.allOrders = orders?.content || [];
       this.allStores = stores?.content || [];
-      this.totalUsers = (users?.content || []).length;
-      this.activeStores = this.allStores.filter((s: any) => s.status === 'APPROVED').length;
+      this.totalUsers = users?.totalElement ?? (users?.content || []).length;
+      this.activeStores = this.allStores.filter((s: any) => s.status === 'ACTIVE').length;
       this.pendingApplications = (apps?.content || []).length;
 
-      // Only parent orders
-      const parentOrders = this.allOrders.filter(o => !o.storeId || o.subOrders?.length > 0);
-      this.totalOrders = parentOrders.length || this.allOrders.length;
-      this.totalRevenue = parentOrders.reduce((s, o) => s + o.grandTotal, 0) || this.allOrders.reduce((s, o) => s + o.grandTotal, 0);
+      // Master orders: parentOrderId is null/undefined
+      const masterOrders = this.allOrders.filter(o => !o.parentOrderId);
+      this.totalOrders = masterOrders.length;
+      this.totalRevenue = masterOrders.reduce((s, o) => s + o.grandTotal, 0);
 
       this.computeRecent();
       this.computeStatusDistribution();

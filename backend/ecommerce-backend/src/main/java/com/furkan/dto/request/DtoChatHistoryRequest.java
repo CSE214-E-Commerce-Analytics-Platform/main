@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class ChatHistoryRequest {
+public class DtoChatHistoryRequest {
     private String title;
     private String initialQuery;
 }

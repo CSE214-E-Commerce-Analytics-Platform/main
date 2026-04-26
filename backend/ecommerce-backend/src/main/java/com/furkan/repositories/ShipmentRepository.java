@@ -15,4 +15,10 @@ public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
 
     @Query("SELECT s FROM Shipment s WHERE s.order.user.id = :userId")
     Page<Shipment> findByUserId(Long userId, Pageable pageable);
+
+    @Query("SELECT s FROM Shipment s WHERE s.order.store.owner.id = :ownerId")
+    Page<Shipment> findByStoreOwnerId(Long ownerId, Pageable pageable);
+
+    @Query("SELECT s FROM Shipment s WHERE s.order.id = :orderId")
+    List<Shipment> findAllByOrderId(Long orderId);
 }

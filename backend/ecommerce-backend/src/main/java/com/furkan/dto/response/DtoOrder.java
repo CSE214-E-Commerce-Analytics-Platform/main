@@ -18,6 +18,7 @@ public class DtoOrder extends BaseDto {
     private LocalDateTime orderDate;
     private Long storeId;
     private String storeName;
+    private Long parentOrderId;
     private List<DtoOrderItem> items;
     private List<DtoOrder> subOrders;
     private String fullAddress;

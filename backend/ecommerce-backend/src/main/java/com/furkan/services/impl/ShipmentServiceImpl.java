@@ -48,7 +48,7 @@ public class ShipmentServiceImpl implements IShipmentService {
             throw new BaseException(new ErrorMessage(MessageType.UNAUTHORIZED, "You can only ship orders belonging to your own store."));
         }
 
-        if (childOrder.getParentOrder() == null) {
+        if (childOrder.getStore() == null) {
             throw new BaseException(new ErrorMessage(MessageType.SHIPMENT_FOR_NOT_CHILD_ORDER, request.getChildOrderId().toString()));
         }
 
@@ -172,7 +172,7 @@ public class ShipmentServiceImpl implements IShipmentService {
 
         Pageable pageable = PagerUtil.toPageable(request);
 
-        Page<Shipment> shipmentPage = shipmentRepository.findByUserId(userId, pageable);
+        Page<Shipment> shipmentPage = shipmentRepository.findByStoreOwnerId(userId, pageable);
 
         List<DtoShipment> dtoList = shipmentPage.getContent().stream()
                 .map(this::dtoConverter)

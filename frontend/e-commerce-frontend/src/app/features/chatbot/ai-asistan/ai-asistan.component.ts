@@ -120,9 +120,9 @@ export class AiAsistanComponent implements OnInit {
         const startTime = Date.now();
 
         this.aiService.askQuestion(query, this.userRole).subscribe({
-            next: (response: string) => {
+            next: (response) => {
                 const queryTimeMs = Date.now() - startTime;
-                this.messages.push(this.buildMessage(response, null, query, queryTimeMs));
+                this.messages.push(this.buildMessage(response.answer, response.sqlQuery ?? null, query, queryTimeMs));
                 this.isTyping = false;
                 this.scrollToBottom();
             },

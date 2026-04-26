@@ -314,6 +314,10 @@ public class OrderServiceImpl implements IOrderService {
             dtoOrder.setStoreName(order.getStore().getName());
         }
 
+        if (order.getParentOrder() != null) {
+            dtoOrder.setParentOrderId(order.getParentOrder().getId());
+        }
+
         if (order.getAddress() != null) {
             dtoOrder.setFullAddress(order.getAddress().getFullAddress());
         }

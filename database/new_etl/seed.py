@@ -73,47 +73,47 @@ def wchoice(options, weights):
 
 CAT_IMAGE = {
     # ── Existing DB categories (Bob's Tech World + Alice Fashion's World) ──
-    "Electronics":          "cat-electronics.jfif",
-    "Apparel":              "cat-apparel.jfif",
-    "Smarthphone":          "cat-smartphones.webp",   # note: typo from original DB
-    "Smartphone":           "cat-smartphones.webp",
-    "T-Shirt":              "cat-t-shirt.jfif",
-    "Sports":               "cat-sports.jfif",
+    "Electronics":          "categories/cat-electronics.jfif",
+    "Apparel":              "categories/cat-apparel.jfif",
+    "Smarthphone":          "categories/cat-smartphones.webp",   # note: typo from original DB
+    "Smartphone":           "categories/cat-smartphones.webp",
+    "T-Shirt":              "categories/cat-t-shirt.jfif",
+    "Sports":               "categories/cat-sports.jfif",
 
     # ── New parent categories ──
-    "Home & Garden":        "cat-home-garden.jfif",
-    "Sports & Outdoors":    "cat-sports-outdoors.jfif",
-    "Books & Media":        "cat-books-media.jfif",
-    "Food & Beverages":     "cat-food-beverages.jfif",
-    "Beauty & Health":      "cat-beauty-health.jfif",
+    "Home & Garden":        "categories/cat-home-garden.jfif",
+    "Sports & Outdoors":    "categories/cat-sports-outdoors.jfif",
+    "Books & Media":        "categories/cat-books-media.jfif",
+    "Food & Beverages":     "categories/cat-food-beverages.jfif",
+    "Beauty & Health":      "categories/cat-beauty-health.jfif",
 
     # ── HomeStyle leaf categories ──
-    "Furniture":            "cat-furniture.jfif",
-    "Kitchen Appliances":   "cat-kitchen-appliances.jfif",
-    "Garden Tools":         "cat-garden-tools.jfif",
-    "Lighting":             "cat-lighting.jfif",
+    "Furniture":            "categories/cat-furniture.jfif",
+    "Kitchen Appliances":   "categories/cat-kitchen-appliances.jfif",
+    "Garden Tools":         "categories/cat-garden-tools.jfif",
+    "Lighting":             "categories/cat-lighting.jfif",
 
     # ── SportZone leaf categories ──
-    "Fitness Equipment":    "cat-fitness-equipment.jfif",
-    "Outdoor Gear":         "cat-outdoor-gear.jfif",
-    "Team Sports":          "cat-team-sports.jfif",
+    "Fitness Equipment":    "categories/cat-fitness-equipment.jfif",
+    "Outdoor Gear":         "categories/cat-outdoor-gear.jfif",
+    "Team Sports":          "categories/cat-team-sports.jfif",
 
     # ── BookCorner leaf categories ──
-    "Programming":          "cat-programming.jfif",
-    "Business":             "cat-business-books.jfif",
-    "Fiction":              "cat-fiction.jfif",
-    "Art Supplies":         "cat-art-supplies.jfif",
+    "Programming":          "categories/cat-programming.jfif",
+    "Business":             "categories/cat-business-books.jfif",
+    "Fiction":              "categories/cat-fiction.jfif",
+    "Art Supplies":         "categories/cat-art-supplies.jfif",
 
     # ── Extra leaf categories ──
-    "Organic Food":         "cat-organic-food.jfif",
-    "Beverages":            "cat-beverages.jfif",
-    "Snacks":               "cat-snacks.jfif",
-    "Skincare":             "cat-skincare.jfif",
-    "Supplements":          "cat-supplements.jfif",
-    "Hair Care":            "cat-hair-care.jfif",
+    "Organic Food":         "categories/cat-organic-food.jfif",
+    "Beverages":            "categories/cat-beverages.jfif",
+    "Snacks":               "categories/cat-snacks.jfif",
+    "Skincare":             "categories/cat-skincare.jfif",
+    "Supplements":          "categories/cat-supplements.jfif",
+    "Hair Care":            "categories/cat-hair-care.jfif",
 }
 
-DEFAULT_IMAGE = "cat-general.jfif"   # fallback if category not in map
+DEFAULT_IMAGE = "categories/cat-general.jfif"   # fallback if category not in map
 
 # ── New categories to add ─────────────────────────────────────────────────────
 

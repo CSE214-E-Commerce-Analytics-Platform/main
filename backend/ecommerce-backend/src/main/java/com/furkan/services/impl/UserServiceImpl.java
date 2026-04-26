@@ -8,6 +8,7 @@ import com.furkan.exception.BaseException;
 import com.furkan.exception.ErrorMessage;
 import com.furkan.exception.MessageType;
 import com.furkan.repositories.UserRepository;
+import com.furkan.services.IAuditLogService;
 import com.furkan.services.IUserService;
 import com.furkan.utils.PagerUtil;
 import com.furkan.utils.RestPageableEntity;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +28,13 @@ import java.util.List;
 public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
+    private final IAuditLogService auditLogService;
+
+    private Long currentAdminId() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof User u) return u.getId();
+        return null;
+    }
 
     private DtoUser dtoTransformation(User user) {
         DtoUser dtoUser = new DtoUser();
@@ -100,6 +109,12 @@ public class UserServiceImpl implements IUserService {
 
         userRepository.save(user);
 
+        Long adminId = currentAdminId();
+        if (adminId != null) {
+            auditLogService.logAction(adminId, RoleType.ADMIN, "USER_UPDATED",
+                    "Updated user id=" + id + " email=" + user.getEmail());
+        }
+
         return dtoTransformation(user);
     }
 
@@ -108,6 +123,13 @@ public class UserServiceImpl implements IUserService {
     public void deleteUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.USER_NOT_FOUND, id.toString())));
+
+        Long adminId = currentAdminId();
+        if (adminId != null) {
+            auditLogService.logAction(adminId, RoleType.ADMIN, "USER_DELETED",
+                    "Deleted user id=" + id + " email=" + user.getEmail());
+        }
+
         userRepository.delete(user);
     }
 }
