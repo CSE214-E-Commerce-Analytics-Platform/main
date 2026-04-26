@@ -29,8 +29,8 @@ export class ProductListComponent implements OnInit {
 
     loadProducts(): void {
         this.productService.getProducts().subscribe({
-            next: (data) => this.handleProductsLoaded(data),
-            error: (err) => {
+            next: (res) => this.handleProductsLoaded(res.content ?? []),
+            error: () => {
                 this.errorMessage = 'Failed to load products. Please try again.';
                 this.isLoading = false;
             }

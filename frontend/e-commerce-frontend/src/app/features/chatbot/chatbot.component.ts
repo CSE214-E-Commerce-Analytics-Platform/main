@@ -272,7 +272,7 @@ export class ChatbotComponent implements OnInit {
         const card = document.getElementById(`ai-card-${idx}`);
         const chartEl = card?.querySelector('.chat-img-wrapper img, canvas, .bar-list') as HTMLElement | null;
         if (!chartEl) { this.showToast('❌ No chart to capture.'); return; }
-        html2canvas(chartEl, { scale: 2, useCORS: true, backgroundColor: null }).then(canvas => {
+        html2canvas(chartEl, { scale: 2, useCORS: true, backgroundColor: null }).then((canvas: HTMLCanvasElement) => {
             this.buildChartPdf(canvas.toDataURL('image/png'), idx);
         });
     }
@@ -303,7 +303,7 @@ export class ChatbotComponent implements OnInit {
     }
 
     // ── Chat History Sidebar ──────────────────────────────────────────────
-    private currentHistoryId: string | null = null;
+    private currentHistoryId: number | null = null;
 
     toggleSidebar(): void { this.isSidebarOpen = !this.isSidebarOpen; }
     closeSidebar(): void  { this.isSidebarOpen = false; }

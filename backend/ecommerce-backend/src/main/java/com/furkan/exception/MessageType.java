@@ -85,6 +85,9 @@ public enum MessageType {
     USER_ALREADY_REVIEWED_PRODUCT("9003", "You already reviewed this product."),
     CAN_NOT_REVIEW_THIS_PRODUCT("9004", "To be able to review this product, you must have purchased and received it."),
 
+    // Chat History
+    CHAT_NOT_FOUND("9501", "Chat history not found!"),
+
     // General
     GENERAL_EXCEPTION("9999", "A general error occur.");
 

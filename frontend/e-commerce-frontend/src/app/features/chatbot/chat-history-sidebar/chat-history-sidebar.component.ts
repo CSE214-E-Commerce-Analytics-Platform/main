@@ -30,7 +30,7 @@ export class ChatHistorySidebarComponent implements OnInit {
     items: ChatHistoryItem[] = [];
     groups: GroupedHistory[] = [];
     searchQuery = '';
-    editingId: string | null = null;
+    editingId: number | null = null;
     editTitle  = '';
     isLoading  = true;
 

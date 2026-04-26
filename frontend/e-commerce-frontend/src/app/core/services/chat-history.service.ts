@@ -4,7 +4,7 @@ import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 
 export interface ChatHistoryItem {
-    id: string;
+    id: number;
     title: string;
     initialQuery: string;
     userId: number;
@@ -18,18 +18,25 @@ interface ApiResponse<T> {
     errorMessage?: string;
 }
 
+interface PageablePayload<T> {
+    content: T[];
+    totalElement: number;
+}
+
 @Injectable({
     providedIn: 'root'
 })
 export class ChatHistoryService {
 
-    private readonly baseUrl = `${environment.baseUrl}/v1/history`;
+    private readonly baseUrl = `${environment.baseUrl}/chat-histories`;
 
     constructor(private http: HttpClient) {}
 
     getAll(): Observable<ChatHistoryItem[]> {
-        return this.http.get<ApiResponse<ChatHistoryItem[]>>(this.baseUrl).pipe(
-            map(res => res.payload ?? [])
+        return this.http.get<ApiResponse<PageablePayload<ChatHistoryItem>>>(
+            this.baseUrl, { params: { pageNumber: '0', pageSize: '100' } }
+        ).pipe(
+            map(res => res.payload?.content ?? [])
         );
     }
 
@@ -39,13 +46,13 @@ export class ChatHistoryService {
         );
     }
 
-    updateTitle(id: string, title: string): Observable<ChatHistoryItem> {
+    updateTitle(id: number, title: string): Observable<ChatHistoryItem> {
         return this.http.patch<ApiResponse<ChatHistoryItem>>(`${this.baseUrl}/${id}/title`, { title }).pipe(
             map(res => res.payload)
         );
     }
 
-    delete(id: string): Observable<void> {
+    delete(id: number): Observable<void> {
         return this.http.delete<void>(`${this.baseUrl}/${id}`);
     }
 }

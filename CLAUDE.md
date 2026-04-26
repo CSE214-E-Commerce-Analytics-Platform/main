@@ -268,6 +268,19 @@ This is an enterprise-grade e-commerce platform consisting of three main modules
 | created_at | TIMESTAMP | |
 | updated_at | TIMESTAMP | |
 
+#### `chat_histories`
+| Column | Type | Notes |
+|--------|------|-------|
+| id | BIGINT PK | IDENTITY |
+| title | VARCHAR NOT NULL | First 50 chars of the initial query |
+| initial_query | TEXT NOT NULL | The full first question asked |
+| user_id | BIGINT NOT NULL | Denormalized (no FK constraint) |
+| created_at | TIMESTAMP | |
+| updated_at | TIMESTAMP | |
+
+**API:** `GET/POST /api/chat-histories`, `PATCH /api/chat-histories/{id}/title`, `DELETE /api/chat-histories/{id}`
+**Frontend service:** `ChatHistoryService` — `getAll()` fetches paginated (pageSize:100), maps `.content`; `id` type is `number`.
+
 ---
 
 ### 4.2 ETL & Seed Scripts

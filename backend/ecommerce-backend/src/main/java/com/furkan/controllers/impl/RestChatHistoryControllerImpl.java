@@ -1,56 +1,63 @@
 package com.furkan.controllers.impl;
 
+import com.furkan.controllers.IRestChatHistoryController;
 import com.furkan.controllers.RestBaseController;
-import com.furkan.dto.request.ChatHistoryRequest;
-import com.furkan.dto.response.ChatHistoryResponse;
+import com.furkan.dto.request.DtoChatHistoryRequest;
+import com.furkan.dto.response.DtoChatHistory;
 import com.furkan.entities.User;
-import com.furkan.services.ChatHistoryService;
+import com.furkan.services.IChatHistoryService;
+import com.furkan.utils.RestPageableEntity;
+import com.furkan.utils.RestPageableRequest;
 import com.furkan.utils.RootEntity;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/history")
+@RequestMapping("/api/chat-histories")
 @RequiredArgsConstructor
-public class RestChatHistoryControllerImpl extends RestBaseController {
+public class RestChatHistoryControllerImpl extends RestBaseController implements IRestChatHistoryController {
 
-    private final ChatHistoryService chatHistoryService;
+    private final IChatHistoryService chatHistoryService;
 
     @PostMapping
-    public RootEntity<ChatHistoryResponse> create(
-            @RequestBody ChatHistoryRequest request,
-            Authentication authentication
-    ) {
-        User user = (User) authentication.getPrincipal();
-        return ok(chatHistoryService.create(request, user.getId()));
+    @Override
+    public RootEntity<DtoChatHistory> create(
+            @RequestBody DtoChatHistoryRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
+            ) {
+        return ok(chatHistoryService.create(request, getUserIdFromToken(userDetails)));
     }
 
     @GetMapping
-    public RootEntity<List<ChatHistoryResponse>> getAll(Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
-        return ok(chatHistoryService.getAllByUser(user.getId()));
+    @Override
+    public RootEntity<RestPageableEntity<DtoChatHistory>> getAll(@AuthenticationPrincipal UserDetails userDetails, RestPageableRequest request) {
+        return ok(chatHistoryService.getAllByUser(getUserIdFromToken(userDetails), request));
     }
 
     @PatchMapping("/{id}/title")
-    public RootEntity<ChatHistoryResponse> updateTitle(
-            @PathVariable UUID id,
+    @Override
+    public RootEntity<DtoChatHistory> updateTitle(
+            @PathVariable Long id,
             @RequestBody Map<String, String> body,
-            Authentication authentication
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
-        User user = (User) authentication.getPrincipal();
+        Long userId = getUserIdFromToken(userDetails);
         String newTitle = body.getOrDefault("title", "Untitled");
-        return ok(chatHistoryService.updateTitle(id, newTitle, user.getId()));
+        return ok(chatHistoryService.updateTitle(id, newTitle, userId));
     }
 
     @DeleteMapping("/{id}")
-    public RootEntity<Void> delete(@PathVariable UUID id, Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
-        chatHistoryService.delete(id, user.getId());
+    @Override
+    public RootEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        chatHistoryService.delete(id, getUserIdFromToken(userDetails));
         return ok();
+    }
+
+    private Long getUserIdFromToken(UserDetails userDetails) {
+        return ((User) userDetails).getId();
     }
 }
