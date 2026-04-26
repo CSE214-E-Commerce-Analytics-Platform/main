@@ -13,3 +13,7 @@ __pycache__/
 
 # Build artifacts
 start-backend.ps1
+
+# IDE & local tool settings
+.vscode/
+.claude/
