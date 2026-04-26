@@ -24,14 +24,15 @@ export class IndOrdersComponent implements OnInit {
   private toastService = inject(ToastService);
   private route = inject(ActivatedRoute);
 
+  allActiveOrders: DtoOrder[] = [];
   orders: DtoOrder[] = [];
   isLoading = true;
   cancellingId: number | null = null;
   payingId: number | null = null;
 
-  // Pagination
+  // Pagination (client-side)
   pageNumber = 0;
-  pageSize = 10;
+  readonly pageSize = 10;
   totalPages = 0;
 
   ngOnInit(): void {
@@ -48,30 +49,40 @@ export class IndOrdersComponent implements OnInit {
 
   loadOrders(): void {
     this.isLoading = true;
-    this.orderService.getMyOrders({ pageNumber: this.pageNumber, pageSize: this.pageSize }).pipe(
+    this.orderService.getMyOrders({ pageNumber: 0, pageSize: 1000 }).pipe(
       catchError(() => {
         this.toastService.showError('Failed to load orders.');
         this.isLoading = false;
         return of(null);
       })
     ).subscribe(res => {
-      this.orders = res?.content || [];
-      this.totalPages = Math.ceil((res?.totalElement || 0) / this.pageSize);
+      const activeStatuses: OrderStatus[] = [
+        OrderStatus.PENDING, OrderStatus.PAID, OrderStatus.SHIPPED, OrderStatus.PARTIALLY_SHIPPED
+      ];
+      this.allActiveOrders = (res?.content || []).filter(o => activeStatuses.includes(o.status));
+      this.pageNumber = 0;
+      this.totalPages = Math.ceil(this.allActiveOrders.length / this.pageSize);
+      this.slicePage();
       this.isLoading = false;
     });
+  }
+
+  private slicePage(): void {
+    const start = this.pageNumber * this.pageSize;
+    this.orders = this.allActiveOrders.slice(start, start + this.pageSize);
   }
 
   prevPage(): void {
     if (this.pageNumber > 0) {
       this.pageNumber--;
-      this.loadOrders();
+      this.slicePage();
     }
   }
 
   nextPage(): void {
     if (this.pageNumber < this.totalPages - 1) {
       this.pageNumber++;
-      this.loadOrders();
+      this.slicePage();
     }
   }
 
@@ -154,7 +165,7 @@ export class IndOrdersComponent implements OnInit {
     const page = parseInt(pageStr, 10);
     if (!isNaN(page) && page > 0 && page <= this.totalPages) {
       this.pageNumber = page - 1;
-      this.loadOrders();
+      this.slicePage();
     }
   }
 }

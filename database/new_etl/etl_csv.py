@@ -41,7 +41,7 @@ BEHAVIOR_CSV = os.path.join(BASE_DIR, "E-commerce_Customer_Behavior.csv")
 # ── DB ────────────────────────────────────────────────────────────────────────
 
 def get_conn():
-    return psycopg2.connect(
+    conn = psycopg2.connect(
         host=os.getenv("DB_HOST", "localhost"),
         port=int(os.getenv("DB_PORT", 5432)),
         dbname=os.getenv("DB_NAME", "ecommerce_analytics_platform_db"),
@@ -49,6 +49,8 @@ def get_conn():
         password=os.getenv("DB_PASSWORD", ""),
         sslmode=os.getenv("DB_SSLMODE", "prefer"),
     )
+    conn.set_client_encoding('UTF8')
+    return conn
 
 PASSWORD_HASH = bcrypt.hashpw(b"password123", bcrypt.gensalt(10)).decode()
 
@@ -57,23 +59,23 @@ PASSWORD_HASH = bcrypt.hashpw(b"password123", bcrypt.gensalt(10)).decode()
 # raw category string. First match wins. Falls back to cat-general.jpg.
 
 _CAT_IMAGE_RULES = [
-    (["phone", "smartphone", "mobile", "iphone", "samsung", "android"],  "cat-smartphones.webp"),
-    (["laptop", "notebook", "macbook", "computer", "pc", "desktop"],      "cat-electronics.jfif"),
-    (["headphone", "earphone", "audio", "speaker", "sound"],              "cat-electronics.jfif"),
-    (["tablet", "ipad"],                                                   "cat-electronics.jfif"),
-    (["cable", "usb", "charger", "adapter", "accessories", "peripheral"], "cat-electronics.jfif"),
-    (["camera", "photo", "lens", "gopro"],                                "cat-electronics.jfif"),
-    (["television", "tv", "monitor", "display", "screen"],                "cat-electronics.jfif"),
-    (["clothing", "apparel", "fashion", "shirt", "dress", "wear"],        "cat-apparel.jfif"),
-    (["shoe", "boot", "sneaker", "footwear"],                             "cat-apparel.jfif"),
-    (["book", "novel", "guide", "manual"],                                "cat-books-media.jfif"),
-    (["kitchen", "cook", "food", "beverage", "coffee"],                   "cat-kitchen-appliances.jfif"),
-    (["furniture", "chair", "desk", "sofa", "table"],                     "cat-furniture.jfif"),
-    (["fitness", "gym", "sport", "yoga", "exercise", "dumbbell"],         "cat-sports.jfif"),
-    (["beauty", "skin", "care", "cosmetic", "makeup"],                    "cat-skincare.jfif"),
-    (["garden", "plant", "outdoor", "tool"],                              "cat-garden-tools.jfif"),
-    (["light", "lamp", "led", "bulb"],                                    "cat-lighting.jfif"),
-    (["supplement", "vitamin", "health", "protein"],                      "cat-supplements.jfif"),
+    (["phone", "smartphone", "mobile", "iphone", "samsung", "android"],  "categories/cat-smartphones.webp"),
+    (["laptop", "notebook", "macbook", "computer", "pc", "desktop"],      "categories/cat-electronics.jfif"),
+    (["headphone", "earphone", "audio", "speaker", "sound"],              "categories/cat-electronics.jfif"),
+    (["tablet", "ipad"],                                                   "categories/cat-electronics.jfif"),
+    (["cable", "usb", "charger", "adapter", "accessories", "peripheral"], "categories/cat-electronics.jfif"),
+    (["camera", "photo", "lens", "gopro"],                                "categories/cat-electronics.jfif"),
+    (["television", "tv", "monitor", "display", "screen"],                "categories/cat-electronics.jfif"),
+    (["clothing", "apparel", "fashion", "shirt", "dress", "wear"],        "categories/cat-apparel.jfif"),
+    (["shoe", "boot", "sneaker", "footwear"],                             "categories/cat-apparel.jfif"),
+    (["book", "novel", "guide", "manual"],                                "categories/cat-books-media.jfif"),
+    (["kitchen", "cook", "food", "beverage", "coffee"],                   "categories/cat-kitchen-appliances.jfif"),
+    (["furniture", "chair", "desk", "sofa", "table"],                     "categories/cat-furniture.jfif"),
+    (["fitness", "gym", "sport", "yoga", "exercise", "dumbbell"],         "categories/cat-sports.jfif"),
+    (["beauty", "skin", "care", "cosmetic", "makeup"],                    "categories/cat-skincare.jfif"),
+    (["garden", "plant", "outdoor", "tool"],                              "categories/cat-garden-tools.jfif"),
+    (["light", "lamp", "led", "bulb"],                                    "categories/cat-lighting.jfif"),
+    (["supplement", "vitamin", "health", "protein"],                      "categories/cat-supplements.jfif"),
 ]
 
 def _image_for_amazon_category(raw_category: str) -> str:
@@ -81,7 +83,7 @@ def _image_for_amazon_category(raw_category: str) -> str:
     for keywords, image in _CAT_IMAGE_RULES:
         if any(kw in key for kw in keywords):
             return image
-    return "cat-general.jfif"
+    return "categories/cat-general.jfif"
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -184,7 +186,7 @@ def etl_amazon(conn, cur):
                 continue
 
             # Truncate long product names
-            product_name = raw_name[:255]
+            product_name = raw_name[:240]
             sku          = f"AMZN-{raw_asin[:30]}"
 
             if sku in seen_skus:
@@ -208,7 +210,7 @@ def etl_amazon(conn, cur):
                 "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (sku) DO NOTHING RETURNING id",
                 (product_name, sku, price, random.randint(10, 500),
                  store_id, cat_id,
-                 f"Imported from Amazon marketplace. Category: {leaf_cat_name}.",
+                 f"Imported from Amazon marketplace. Category: {leaf_cat_name}."[:250],
                  image_url, created, created)
             )
             product_row = cur.fetchone()

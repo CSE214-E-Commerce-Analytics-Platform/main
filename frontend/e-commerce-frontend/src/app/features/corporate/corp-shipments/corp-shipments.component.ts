@@ -89,7 +89,9 @@ export class CorpShipmentsComponent implements OnInit {
         return of(null);
       })
     ).subscribe(res => {
-      this.paidOrders = (res?.content || []).filter(o => o.status === OrderStatus.PAID);
+      this.paidOrders = (res?.content || []).filter(o =>
+        o.status === OrderStatus.PAID && o.storeId != null
+      );
       this.isLoadingOrders = false;
     });
   }

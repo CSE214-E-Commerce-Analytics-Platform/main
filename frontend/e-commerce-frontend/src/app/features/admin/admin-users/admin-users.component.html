@@ -48,16 +48,16 @@
             </div>
             
             <div class="action-footer">
-                <button class="status-btn" [ngClass]="isUserActive(user) ? 'btn-suspend' : 'btn-activate'" 
+                <button class="status-btn" [ngClass]="isUserActive(user) ? 'btn-suspend' : 'btn-activate'"
                     (click)="toggleUserStatus(user)"
-                    [disabled]="user.email === currentUserEmail"
-                    [title]="user.email === currentUserEmail ? 'You cannot suspend your own account' : ''">
+                    [disabled]="user.email === currentUserEmail || user.roleType === 'ADMIN'"
+                    [title]="user.email === currentUserEmail ? 'You cannot suspend your own account' : user.roleType === 'ADMIN' ? 'Admin accounts cannot be suspended' : ''">
                     {{ isUserActive(user) ? 'Suspend' : 'Activate' }}
                 </button>
-                <button class="delete-btn" 
+                <button class="delete-btn"
                     (click)="deleteUser(user.id)"
-                    [disabled]="user.email === currentUserEmail"
-                    [title]="user.email === currentUserEmail ? 'You cannot delete your own account' : ''">
+                    [disabled]="user.email === currentUserEmail || user.roleType === 'ADMIN'"
+                    [title]="user.email === currentUserEmail ? 'You cannot delete your own account' : user.roleType === 'ADMIN' ? 'Admin accounts cannot be deleted' : ''">
                     <i class="icon">🗑️</i>
                 </button>
             </div>

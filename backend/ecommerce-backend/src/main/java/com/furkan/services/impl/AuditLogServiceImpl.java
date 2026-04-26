@@ -54,6 +54,9 @@ public class AuditLogServiceImpl implements IAuditLogService {
     private DtoAuditLog dtoConverter(AuditLog auditLog) {
         DtoAuditLog dto = new DtoAuditLog();
         BeanUtils.copyProperties(auditLog, dto);
+        if (auditLog.getUserRole() != null) {
+            dto.setUserRole(auditLog.getUserRole().name());
+        }
         return dto;
     }
 }

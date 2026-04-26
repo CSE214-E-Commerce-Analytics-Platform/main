@@ -15,6 +15,7 @@ import com.furkan.exception.MessageType;
 import com.furkan.repositories.CartRepository;
 import com.furkan.repositories.CorporateUpdateRequestRepository;
 import com.furkan.repositories.UserRepository;
+import com.furkan.services.IAuditLogService;
 import com.furkan.services.ICorporateUpdateRequestService;
 import com.furkan.services.IStoreService;
 import com.furkan.utils.PagerUtil;
@@ -25,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,6 +40,13 @@ public class CorporateUpdateRequestServiceImpl implements ICorporateUpdateReques
     private final UserRepository userRepository;
     private final IStoreService storeService;
     private final CartRepository cartRepository;
+    private final IAuditLogService auditLogService;
+
+    private Long currentAdminId() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof User u) return u.getId();
+        return null;
+    }
 
     @Override
     @Transactional
@@ -107,6 +116,14 @@ public class CorporateUpdateRequestServiceImpl implements ICorporateUpdateReques
         }
 
         CorporateUpdateRequest updated = corporateUpdateRequestRepository.save(request);
+
+        Long adminId = currentAdminId();
+        if (adminId != null) {
+            auditLogService.logAction(adminId, RoleType.ADMIN, "CORPORATE_REQUEST_REVIEWED",
+                    "Request id=" + id + " → " + reviewDto.getStatus()
+                    + " | applicant=" + request.getUser().getEmail());
+        }
+
         return mapToDto(updated);
     }
 

@@ -27,7 +27,7 @@ export class IndProductsComponent implements OnInit {
 
   // Pagination
   pageNumber = 0;
-  pageSize = 12; // Adjusted to 12 for better grid display
+  pageSize = 24;
   totalPages = 0;
 
   // Filter & Sort State
@@ -44,7 +44,12 @@ export class IndProductsComponent implements OnInit {
     this.isLoading = true;
     this.productService.getProducts({ pageNumber: this.pageNumber, pageSize: this.pageSize }).subscribe({
       next: (res) => {
-        this.products = res?.content || [];
+        const raw = res?.content || [];
+        for (let i = raw.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [raw[i], raw[j]] = [raw[j], raw[i]];
+        }
+        this.products = raw;
         this.totalPages = Math.ceil((res?.totalElement || 0) / this.pageSize);
         this.extractCategories();
         this.applyFilters();

@@ -38,7 +38,7 @@ export class IndHistoryComponent implements OnInit {
 
   loadOrders(): void {
     this.isLoading = true;
-    this.orderService.getMyOrders({ pageNumber: 0, pageSize: 100 }).pipe(
+    this.orderService.getMyOrders({ pageNumber: 0, pageSize: 1000 }).pipe(
       catchError(() => {
         this.toastService.showError('Failed to load order history.');
         this.isLoading = false;

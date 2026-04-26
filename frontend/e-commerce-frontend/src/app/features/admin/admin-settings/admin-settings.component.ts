@@ -14,8 +14,8 @@ export class AdminSettingsComponent {
   private toastService = inject(ToastService);
 
   settings = {
-    platformName: 'E-Commerce Nexus',
-    contactEmail: 'admin@nexus.com',
+    platformName: 'E-Commerce Analytics Platform',
+    contactEmail: 'admin@datapulse.com',
     defaultTheme: 'light',
     enableNotifications: true,
     maintenanceMode: false,
@@ -31,9 +31,9 @@ export class AdminSettingsComponent {
       this.isSaving = false;
       this.toastService.showSuccess('Settings updated successfully!');
       if (this.settings.defaultTheme === 'dark') {
-          document.documentElement.setAttribute('data-theme', 'dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
       } else {
-          document.documentElement.removeAttribute('data-theme');
+        document.documentElement.removeAttribute('data-theme');
       }
     }, 800);
   }

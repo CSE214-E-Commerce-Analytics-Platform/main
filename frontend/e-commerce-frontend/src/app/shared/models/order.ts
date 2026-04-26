@@ -24,8 +24,10 @@ export interface DtoOrder {
   status: OrderStatus;
   grandTotal: number;
   orderDate: string;
-  storeId: number;
-  storeName: string;
+  storeId?: number;
+  storeName?: string;
+  parentOrderId?: number;
   items: DtoOrderItem[];
   subOrders: DtoOrder[];
+  fullAddress?: string;
 }
