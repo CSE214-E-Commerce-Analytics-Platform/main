@@ -12,7 +12,7 @@ The platform uses **PostgreSQL 16** as its primary data store. Schema management
 | Port | `5432` | `5432` |
 | Database | `ecommerce_analytics_platform_db` | same |
 | User | `postgres` | set via `DB_USERNAME` env var |
-| Password | `admin` (default) | set via `DB_PASS` env var |
+| Password | `your_password` | set via `DB_PASS` env var |
 
 ---
 
@@ -24,7 +24,7 @@ The full ER diagram is available as a PDF in this directory: [`ecommerce_platfor
 
 ## Schema Overview
 
-The database contains **17 tables** organised around the core e-commerce domains:
+The database contains **18 tables** organised around the core e-commerce domains:
 
 | Domain | Tables |
 |--------|--------|
@@ -71,97 +71,26 @@ These columns store the zero-based position of the enum constant:
 
 ## Table Reference
 
-### `users`
-| Column | Type | Notes |
-|--------|------|-------|
-| id | BIGINT PK | Auto-increment |
-| email | VARCHAR UNIQUE NOT NULL | |
-| password_hash | VARCHAR | BCrypt |
-| provider | VARCHAR | STRING enum: `LOCAL`, `GOOGLE` |
-| role_type | VARCHAR | STRING enum: `INDIVIDUAL`, `CORPORATE`, `ADMIN` |
-| is_active | BOOLEAN | default `true` |
-| created_at / updated_at | TIMESTAMP | |
-
-### `stores`
-| Column | Type | Notes |
-|--------|------|-------|
-| id | BIGINT PK | |
-| name | VARCHAR NOT NULL | |
-| status | VARCHAR | e.g. `ACTIVE` |
-| owner_id | BIGINT UNIQUE NOT NULL | FK → users, strict 1:1 |
-
-### `products`
-| Column | Type | Notes |
-|--------|------|-------|
-| id | BIGINT PK | |
-| name, description | VARCHAR / TEXT | |
-| image_url | VARCHAR | Format: `cat-{slug}.jfif` or `.webp` |
-| sku | VARCHAR UNIQUE NOT NULL | |
-| unit_price | DECIMAL | |
-| stock_quantity | INTEGER | |
-| store_id | BIGINT NOT NULL | FK → stores |
-| category_id | BIGINT NULL | FK → categories |
-
-### `orders`
-| Column | Type | Notes |
-|--------|------|-------|
-| id | BIGINT PK | |
-| status | VARCHAR | STRING enum — see above |
-| grand_total | DECIMAL(10,2) | |
-| order_date | TIMESTAMP | |
-| parent_order_id | BIGINT NULL | FK → orders (self); NULL = top-level order |
-| store_id | BIGINT NULL | FK → stores; NULL = parent/master order |
-| user_id | BIGINT NOT NULL | FK → users |
-| address_id | BIGINT NOT NULL | FK → addresses |
-
-### `payments`
-| Column | Type | Notes |
-|--------|------|-------|
-| id | BIGINT PK | |
-| order_id | BIGINT UNIQUE NOT NULL | FK → orders, 1:1 |
-| amount | DECIMAL(18,2) NOT NULL | |
-| payment_method | VARCHAR | STRING enum |
-| status | VARCHAR | STRING enum |
-| transaction_key | VARCHAR | UUID |
-| error_message | TEXT NULL | Populated on failure |
-
-### `shipments`
-| Column | Type | Notes |
-|--------|------|-------|
-| id | BIGINT PK | |
-| warehouse | VARCHAR | e.g. `Istanbul-Main` |
-| tracking_number | VARCHAR | |
-| mode | VARCHAR | `Standard`, `Express`, `Same Day` |
-| status | SMALLINT | ORDINAL enum — see above |
-| estimated_delivery_date | TIMESTAMP | |
-| order_id | BIGINT NOT NULL | FK → orders |
-
-### `reviews`
-| Column | Type | Notes |
-|--------|------|-------|
-| id | BIGINT PK | |
-| star_rating | INTEGER NOT NULL | 1–5 |
-| sentiment | VARCHAR(50) | STRING enum |
-| comment_text | TEXT | |
-| product_id | BIGINT NOT NULL | FK → products |
-| user_id | BIGINT NOT NULL | FK → users |
-
-### `customer_profiles`
-| Column | Type | Notes |
-|--------|------|-------|
-| id | BIGINT PK | |
-| user_id | BIGINT UNIQUE NOT NULL | FK → users, 1:1 |
-| age | INT | |
-| city / state / country | VARCHAR | |
-| membership_type | SMALLINT | ORDINAL enum: 0=STANDARD, 1=PREMIUM, 2=VIP |
-
-### `chat_histories`
-| Column | Type | Notes |
-|--------|------|-------|
-| id | BIGINT PK | |
-| title | VARCHAR NOT NULL | First 50 chars of the initial query |
-| initial_query | TEXT NOT NULL | Full first question |
-| user_id | BIGINT NOT NULL | Denormalized (no FK constraint) |
+| Table | References | Notes |
+|-------|-----------|-------|
+| `users` | — | Root entity; referenced by almost every other table |
+| `stores` | `users` (owner_id) | Strict 1:1 — each corporate user owns exactly one store |
+| `categories` | `categories` (parent_id) | Self-referential; `parent_id` nullable for top-level categories |
+| `products` | `stores` (store_id), `categories` (category_id) | `category_id` nullable |
+| `carts` | `users` (user_id) | 1:1 with user |
+| `cart_items` | `carts` (cart_id), `products` (product_id) | Junction table |
+| `addresses` | `users` (user_id) | A user can have multiple addresses |
+| `orders` | `users` (user_id), `addresses` (address_id), `stores` (store_id), `orders` (parent_order_id) | `store_id` and `parent_order_id` nullable — NULL on master/parent orders |
+| `order_items` | `orders` (order_id), `products` (product_id) | Junction table |
+| `payments` | `orders` (order_id) | 1:1 with order |
+| `shipments` | `orders` (order_id) | One shipment per child order |
+| `reviews` | `products` (product_id), `users` (user_id) | |
+| `customer_profiles` | `users` (user_id) | 1:1 with user |
+| `corporate_update_requests` | `users` (user_id) | Role upgrade workflow |
+| `refresh_tokens` | `users` (user_id), `refresh_tokens` (replaced_by) | Self-referential for token rotation chain |
+| `verification_tokens` | `users` (user_id) | Email verification & password reset |
+| `audit_logs` | — | `user_id` stored as plain integer, no FK constraint |
+| `chat_histories` | — | `user_id` stored as plain integer, no FK constraint |
 
 ---
 

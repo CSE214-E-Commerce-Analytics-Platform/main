@@ -140,7 +140,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 
 > **Visual ER Diagram:** [`database/ecommerce_platform_db_diagram.pdf`](./database/ecommerce_platform_db_diagram.pdf)
 
-The platform uses **17 tables** managed by Hibernate (`ddl-auto=update`). See [`database/README.md`](./database/README.md) for the full schema reference.
+The platform uses **18 tables** managed by Hibernate (`ddl-auto=update`). See [`database/README.md`](./database/README.md) for the full schema reference.
 
 ---
 

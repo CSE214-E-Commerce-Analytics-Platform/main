@@ -181,15 +181,17 @@ springdoc.swagger-ui.path=/swagger-ui.html
 ecommerce-backend/
 ├── src/main/java/com/furkan/
 │   ├── config/             # Security, CORS, Stripe, OpenAPI config beans
-│   ├── controller/         # REST controllers (interface + implementation)
+│   ├── controllers/        # REST controllers (interface + implementation)
 │   ├── dto/                # Request & response DTOs
 │   ├── entities/           # JPA entity classes
 │   ├── enums/              # MessageType, RoleType, OrderStatus, etc.
-│   ├── exception/          # BaseException, ErrorMessage, GlobalExceptionHandler
-│   ├── mapper/             # DTO converters (BeanUtils-based)
-│   ├── repository/         # Spring Data JPA repositories
+│   ├── exception/          # BaseException, ErrorMessage
+│   ├── handler/            # GlobalExceptionHandler
+│   ├── repositories/       # Spring Data JPA repositories
+│   ├── scheduler/          # Scheduled tasks
 │   ├── security/           # JWT filter, OAuth2 handlers, UserDetailsService
-│   ├── service/            # Service interfaces + implementations
+│   ├── services/           # Service interfaces + implementations
+│   ├── starter/            # Application startup & initialization
 │   └── utils/              # Shared utilities
 └── src/main/resources/
     └── application.properties
