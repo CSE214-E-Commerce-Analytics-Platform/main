@@ -41,7 +41,7 @@ _LLM: ChatOpenAI | None = None
 def _get_llm() -> ChatOpenAI:
     global _LLM
     if _LLM is None:
-        _LLM = ChatOpenAI(model="gpt-4o-mini", temperature=0.0)
+        _LLM = ChatOpenAI(model="gpt-4o", temperature=0.0)
     return _LLM
 
 

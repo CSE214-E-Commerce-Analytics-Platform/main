@@ -42,7 +42,7 @@ _LLM: ChatOpenAI | None = None
 def _get_llm() -> ChatOpenAI:
     global _LLM
     if _LLM is None:
-        _LLM = ChatOpenAI(model="gpt-4o-mini", temperature=0.3)
+        _LLM = ChatOpenAI(model="gpt-4o", temperature=0.3)
     return _LLM
 
 
@@ -55,15 +55,13 @@ The answer they received: "{answer}"
 User role: {role}
 
 DATABASE SCHEMA (ONLY suggest questions using these tables/columns):
-- orders: status (PENDING/PAID/SHIPPED/DELIVERED/CANCELLED), grand_total, shipping_cost, order_date, user_id, store_id
-- order_items: order_id, product_id, quantity, price
+- orders: status (PENDING/PAID/SHIPPED/PARTIALLY_SHIPPED/DELIVERED/CANCELLED), grand_total, created_at, user_id, store_id
 - products: name, unit_price, stock_quantity, category_id, store_id
-- categories: name
-- users: role_type, gender
-- reviews: star_rating (1-5), sentiment (POSITIVE/NEGATIVE/NEUTRAL), product_id, user_id
-- shipments: warehouse (WH-A/WH-B/WH-C), mode (STANDARD/EXPRESS/NEXT_DAY), status
-- payments: amount, payment_method (CREDIT_CARD/BANK_TRANSFER/CASH_ON_DELIVERY), status (PENDING/SUCCESS/FAILED)
-- stores: name, status
+- categories: name, parent_id
+- users: role_type (INDIVIDUAL/CORPORATE/ADMIN), provider (LOCAL/GOOGLE), is_active, created_at
+- reviews: star_rating (1-5), sentiment (POSITIVE/NEUTRAL/NEGATIVE), product_id, user_id
+- shipments: warehouse (Istanbul-Main/Ankara-DC/Antalya-DC/Izmir-Hub/Bursa-WH), mode (Standard/Express/Same Day), status (integer: 0=PENDING,1=LABEL_CREATED,2=IN_TRANSIT,3=OUT_FOR_DELIVERY,4=DELIVERED,5=RETURNED,6=CANCELLED)
+- stores: name, status (ACTIVE), owner_id, created_at
 
 CRITICAL RULES — violating ANY of these is not allowed:
 1. Questions MUST be 100% self-contained standalone questions. They will be sent as a NEW query with NO memory of the previous answer.

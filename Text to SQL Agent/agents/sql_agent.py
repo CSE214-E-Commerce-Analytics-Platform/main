@@ -37,7 +37,7 @@ _LLM: ChatOpenAI | None = None
 def _get_llm() -> ChatOpenAI:
     global _LLM
     if _LLM is None:
-        _LLM = ChatOpenAI(model="gpt-4o-mini", temperature=1)
+        _LLM = ChatOpenAI(model="gpt-4o", temperature=1)
     return _LLM
 
 
@@ -46,13 +46,23 @@ def _get_llm() -> ChatOpenAI:
 _SYSTEM_PROMPT = """You are a secure PostgreSQL query generator for an e-commerce platform.
 
 DATABASE SCHEMA (only these tables and columns exist):
-USERS     : id, email, role_type, gender, is_active, created_at, updated_at
+USERS     : id, email, role_type, provider, is_active, created_at, updated_at
 PRODUCTS  : id, name, sku, unit_price, stock_quantity, store_id, category_id, description, image_url, created_at, updated_at
 STORES    : id, name, status, owner_id, created_at, updated_at
 CATEGORIES: id, parent_id, name, created_at, updated_at
 ORDERS    : id, status, grand_total, created_at, store_id, user_id
 REVIEWS   : id, star_rating, sentiment, product_id, user_id
 SHIPMENTS : id, order_id, warehouse, mode, status
+
+IMPORTANT ENUM & TYPE DETAILS:
+- orders.status values (VARCHAR): 'PENDING', 'PAID', 'SHIPPED', 'PARTIALLY_SHIPPED', 'DELIVERED', 'CANCELLED'
+- reviews.sentiment values (VARCHAR): 'POSITIVE', 'NEUTRAL', 'NEGATIVE'
+- users.role_type values (VARCHAR): 'INDIVIDUAL', 'CORPORATE', 'ADMIN'
+- users.provider values (VARCHAR): 'LOCAL', 'GOOGLE'
+- stores.status values (VARCHAR): 'ACTIVE'
+- shipments.status is a SMALLINT ordinal: 0=PENDING, 1=LABEL_CREATED, 2=IN_TRANSIT, 3=OUT_FOR_DELIVERY, 4=DELIVERED, 5=RETURNED, 6=CANCELLED
+- shipments.mode values (VARCHAR): 'Standard', 'Express', 'Same Day'
+- shipments.warehouse values (VARCHAR): 'Istanbul-Main', 'Ankara-DC', 'Antalya-DC', 'Izmir-Hub', 'Bursa-WH'
 
 {scope_rule}
 

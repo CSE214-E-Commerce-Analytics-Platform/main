@@ -69,6 +69,7 @@ html, body {
 
   /* Buttons */
   --btn-ghost-bg:    rgba(0,0,0,0.04);
+  --btn-ghost-bg-hover: rgba(0,0,0,0.07);
   --btn-ghost-border: rgba(0,0,0,0.1);
   --btn-ghost-color: #0f172a;
 
@@ -171,6 +172,7 @@ html, body {
 
   /* Buttons */
   --btn-ghost-bg:    rgba(255,255,255,0.06);
+  --btn-ghost-bg-hover: rgba(255,255,255,0.10);
   --btn-ghost-border: rgba(255,255,255,0.1);
   --btn-ghost-color: #f8fafc;
 
@@ -265,6 +267,7 @@ html, body {
 
   /* Buttons */
   --btn-ghost-bg:    #f1f5f9;
+  --btn-ghost-bg-hover: rgba(0,0,0,0.07);
   --btn-ghost-border: #e2e8f0;
   --btn-ghost-color: #0f172a;
 

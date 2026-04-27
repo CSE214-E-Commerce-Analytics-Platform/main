@@ -123,47 +123,49 @@ export class ChatbotComponent implements OnInit {
     private setExampleQuestions(): void {
         if (this.userRole === 'CORPORATE') {
             this.exampleQuestions = [
-                'What is my total order count?',
-                'What is the total amount of my pending orders?',
-                'How many completed orders do I have?',
-                'Show my top 5 highest value orders',
+                'How many total orders does my store have?',
+                'What is my store\'s total revenue?',
+                'How many pending orders do I have?',
+                'How many delivered orders do I have?',
+                'How many cancelled orders do I have?',
+                'My 5 highest value orders',
                 'Total number of products in my store',
-                'Products with less than 10 stock',
-                'What are my 5 most expensive products?',
-                'Product distribution by categories',
-                'What is the average rating given to my products?',
-                'Which of my products received positive reviews?',
-                'How many of my orders are shipped?',
-                'Number of shipments by warehouse'
+                'My products with less than 10 units in stock',
+                'My 5 most expensive products',
+                'Product count by category in my store',
+                'Average product rating in my store',
+                'My products that received positive reviews'
             ];
         } else if (this.userRole === 'INDIVIDUAL') {
             this.exampleQuestions = [
-                'What is the total amount of my orders?',
+                'How many orders have I placed in total?',
+                'What is the total amount I have spent?',
                 'Do I have any pending orders?',
-                'Number of my delivered orders',
-                'Which is my most expensive order?',
-                'My canceled orders',
-                'How many products did I review?',
-                'Average rating of my reviews',
-                'My shipped orders',
-                'My last 10 orders'
+                'My delivered orders',
+                'My most expensive order',
+                'My cancelled orders',
+                'My 5 most recent orders',
+                'How many products have I reviewed?',
+                'What is my average review rating?',
+                'How many positive reviews have I left?'
             ];
         } else {
             this.exampleQuestions = [
-                'Total registered user count',
-                'User distribution by gender',
-                'How many active stores are there?',
-                'Which are the 5 newest stores?',
+                'Total number of registered users',
+                'How many users are registered per role?',
+                'How many active stores are on the platform?',
+                'Which store has the most products?',
                 'Total number of orders on the platform',
                 'Order distribution by status',
                 'Top 10 highest value orders',
-                'Top 5 products with the most stock',
-                'Number of products by category',
+                'Products with less than 10 units in stock',
+                'Top 5 categories with the most products',
                 'What are the 10 most expensive products?',
-                'What is the average product rating?',
-                'How many negative reviews are there?',
-                'Shipment distribution by mode',
-                'Total shipment count by warehouse'
+                'Average star rating across all reviews',
+                'Review sentiment breakdown',
+                'Shipment distribution by shipping mode',
+                'Shipment count by warehouse',
+                'Top 5 stores ranked by order count'
             ];
         }
     }

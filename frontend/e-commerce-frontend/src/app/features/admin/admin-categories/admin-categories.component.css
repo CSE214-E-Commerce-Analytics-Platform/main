@@ -100,8 +100,8 @@ app-admin-categories .cat-loading {
   color: var(--text-secondary);
 }
 app-admin-categories .cat-spinner {
-  border: 3px solid rgba(255,255,255,0.06);
-  border-top: 3px solid #6366f1;
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--accent);
   border-radius: 50%;
   width: 36px; height: 36px;
   animation: catSpin 0.9s linear infinite;
@@ -123,7 +123,7 @@ app-admin-categories .cat-empty {
 }
 app-admin-categories .cat-empty-icon {
   font-size: 3rem;
-  color: #2d2d3d;
+  color: var(--text-muted);
   margin-bottom: 16px;
 }
 app-admin-categories .cat-empty p { color: var(--text-muted); font-size: 0.9rem; }
@@ -149,7 +149,7 @@ app-admin-categories .cat-card {
 }
 app-admin-categories .cat-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(255,255,255,0.14);
+  border-color: var(--card-border);
   box-shadow: var(--card-shadow-hover);
 }
 app-admin-categories .cat-card-top {
@@ -160,7 +160,7 @@ app-admin-categories .cat-card-top {
 }
 app-admin-categories .cat-folder { font-size: 2rem; }
 app-admin-categories .cat-id-badge {
-  background: rgba(255,255,255,0.06);
+  background: var(--surface-bg);
   color: var(--text-muted);
   padding: 2px 8px;
   border-radius: var(--radius-chip);
@@ -226,7 +226,7 @@ app-admin-categories .cat-delete-btn:hover { background: rgba(239,68,68,0.18); }
 .cat-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.7);
+  background: var(--modal-overlay);
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -237,12 +237,12 @@ app-admin-categories .cat-delete-btn:hover { background: rgba(239,68,68,0.18); }
 @keyframes catFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 .cat-modal {
-  background: #111118;
-  border: 1px solid var(--input-border);
+  background: var(--modal-bg);
+  border: 1px solid var(--modal-border);
   border-radius: 16px;
   width: 90%;
   max-width: 480px;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.35);
   animation: catModalIn 0.2s ease;
   overflow: hidden;
 }
@@ -278,7 +278,7 @@ app-admin-categories .cat-delete-btn:hover { background: rgba(239,68,68,0.18); }
   border-radius: 6px;
   transition: all 0.2s;
 }
-.cat-modal-close:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+.cat-modal-close:hover { background: var(--btn-ghost-bg-hover); color: var(--text-primary); }
 
 .cat-modal-body { padding: 24px; }
 
@@ -320,12 +320,12 @@ app-admin-categories .cat-delete-btn:hover { background: rgba(239,68,68,0.18); }
   box-sizing: border-box;
   font-family: 'DM Sans', sans-serif;
 }
-.cat-input::placeholder { color: #475569; }
+.cat-input::placeholder { color: var(--text-muted); }
 .cat-input:focus {
   outline: none;
-  border-color: #6366f1;
-  background: rgba(99,102,241,0.06);
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.25);
+  border-color: var(--input-focus-border);
+  background: var(--input-bg);
+  box-shadow: var(--input-focus-shadow);
 }
 .cat-input:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -342,7 +342,7 @@ app-admin-categories .cat-delete-btn:hover { background: rgba(239,68,68,0.18); }
   height: 40px;
   border: 1px solid var(--input-border);
   border-radius: var(--radius-btn);
-  background: rgba(255,255,255,0.06);
+  background: var(--btn-ghost-bg);
   color: var(--text-primary);
   font-size: 0.875rem;
   font-weight: 500;
@@ -350,7 +350,7 @@ app-admin-categories .cat-delete-btn:hover { background: rgba(239,68,68,0.18); }
   transition: all 0.2s;
   font-family: 'DM Sans', sans-serif;
 }
-.cat-cancel-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); }
+.cat-cancel-btn:hover:not(:disabled) { background: var(--btn-ghost-bg-hover); }
 .cat-cancel-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .cat-save-btn {

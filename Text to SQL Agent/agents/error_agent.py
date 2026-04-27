@@ -30,7 +30,7 @@ ABSOLUTE RULES:
 7. If the error cannot be resolved with a safe SELECT → output: UNFIXABLE
 
 ALLOWED SCHEMA FOR REFERENCE:
-USERS    : id, email, role_type, gender, is_active, created_at, updated_at
+USERS    : id, email, role_type, provider, is_active, created_at, updated_at
 PRODUCTS : id, name, sku, unit_price, stock_quantity, store_id, category_id, description, image_url, created_at, updated_at
 STORES   : id, name, status, owner_id, created_at, updated_at
 CATEGORIES: id, parent_id, name, created_at, updated_at
@@ -48,7 +48,7 @@ _LLM: ChatOpenAI | None = None
 def _get_llm() -> ChatOpenAI:
     global _LLM
     if _LLM is None:
-        _LLM = ChatOpenAI(model="gpt-4o-mini", temperature=1)
+        _LLM = ChatOpenAI(model="gpt-4o", temperature=1)
     return _LLM
 
 
