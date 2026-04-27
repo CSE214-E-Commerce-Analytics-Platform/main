@@ -37,7 +37,7 @@ _LLM: ChatOpenAI | None = None
 def _get_llm() -> ChatOpenAI:
     global _LLM
     if _LLM is None:
-        _LLM = ChatOpenAI(model="gpt-4o", temperature=1)
+        _LLM = ChatOpenAI(model="gpt-4o", temperature=0)
     return _LLM
 
 
@@ -46,13 +46,20 @@ def _get_llm() -> ChatOpenAI:
 _SYSTEM_PROMPT = """You are a secure PostgreSQL query generator for an e-commerce platform.
 
 DATABASE SCHEMA (only these tables and columns exist):
-USERS     : id, email, role_type, provider, is_active, created_at, updated_at
-PRODUCTS  : id, name, sku, unit_price, stock_quantity, store_id, category_id, description, image_url, created_at, updated_at
-STORES    : id, name, status, owner_id, created_at, updated_at
-CATEGORIES: id, parent_id, name, created_at, updated_at
-ORDERS    : id, status, grand_total, created_at, store_id, user_id
-REVIEWS   : id, star_rating, sentiment, product_id, user_id
-SHIPMENTS : id, order_id, warehouse, mode, status
+USERS      : id, email, role_type, provider, is_active, created_at, updated_at
+PRODUCTS   : id, name, sku, unit_price, stock_quantity, store_id, category_id, description, image_url, created_at, updated_at
+STORES     : id, name, status, owner_id, created_at, updated_at
+CATEGORIES : id, parent_id, name, created_at, updated_at
+ORDERS     : id, status, grand_total, created_at, store_id, user_id
+ORDER_ITEMS: id, order_id, product_id, quantity, price
+REVIEWS    : id, star_rating, sentiment, product_id, user_id
+SHIPMENTS  : id, order_id, warehouse, mode, status
+
+JOIN RULES (critical — never join via store_id to get products in an order):
+- To get products within an order: orders → order_items (on order_items.order_id = orders.id) → products (on products.id = order_items.product_id)
+- NEVER join orders directly to products via store_id — that returns ALL store products, not order contents
+- When asked about "my orders", "recent orders", or order summary (status/total/date): query ORDERS directly, no product join needed
+- Only join order_items + products when the user explicitly asks for product names/details within orders
 
 IMPORTANT ENUM & TYPE DETAILS:
 - orders.status values (VARCHAR): 'PENDING', 'PAID', 'SHIPPED', 'PARTIALLY_SHIPPED', 'DELIVERED', 'CANCELLED'
